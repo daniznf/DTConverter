@@ -50,36 +50,36 @@ namespace DTConverter
         /// All paths are retrieved by FindFFPath which decides the best exes to use
         /// </summary>
         public static string FFmpegPath, FFprobePath; // FFplayPath
-   
+
         /// <summary>
         /// Searches for ffmpeg, ffprobe executables and HAP codec. Path variables will be stored in static FFmpegWrapper class
         /// </summary>
         /// <param name="findCompleted">Bool will be true if everything was found</param>
-        public static void FindFFPaths(Action<string> outMessages, Action<string> outErrors, Action<bool> findCompleted)
+        public static void FindFFPaths(Action<string, bool> outMessages, Action<bool> findCompleted)
         {
             bool errors = false;
             VideoEncoderDictionary = new Dictionary<string, string>();
             AudioEncoderDictionary = new Dictionary<string, string>();
 
-            outMessages("Checking FFmpeg...");
-            Task findFFmpegTask = Task.Run(() => FFmpegWrapper.FFmpegPath = FindExePath("ffmpeg.exe", outMessages, outErrors));
-            Task findFFprobeTask = Task.Run(() => FFmpegWrapper.FFprobePath = FindExePath("ffprobe.exe", outMessages, outErrors));
-            //Task findFFplayTask = Task.Run(() => FFmpegWrapper.FFplayPath = FindExePath("ffplay.exe", outMessages, outErrors));
+            outMessages("Checking FFmpeg...", false);
+            Task findFFmpegTask = Task.Run(() => FFmpegWrapper.FFmpegPath = FindExePath("ffmpeg.exe", outMessages));
+            Task findFFprobeTask = Task.Run(() => FFmpegWrapper.FFprobePath = FindExePath("ffprobe.exe", outMessages));
+            //Task findFFplayTask = Task.Run(() => FFmpegWrapper.FFplayPath = FindExePath("ffplay.exe", outMessages));
 
-            outMessages("Checking FFmpeg......");
+            outMessages("Checking FFmpeg......", false);
             findFFmpegTask.Wait();
             findFFprobeTask.Wait();
             //findFFplayTask.Wait();          
 
-            outMessages("Checking FFmpeg.........");
+            outMessages("Checking FFmpeg.........", false);
             if (FFmpegWrapper.FFmpegPath == null)
             {
-                outErrors.Invoke("Could not find FFmpeg executable!");
+                outMessages("Could not find FFmpeg executable!", true);
                 errors = true;
             }
             else if (FFmpegWrapper.FFprobePath == null)
             {
-                outMessages.Invoke("Could not find FFprobe executable!");
+                outMessages("Could not find FFprobe executable!", false);
                 errors = true;
             }
             //else if (FFmpegWrapper.FFplayPath == null)
@@ -89,7 +89,7 @@ namespace DTConverter
             //}
             else if (!FFmpegWrapper.VideoEncoderDictionary.ContainsKey("hap"))
             {
-                outErrors("HAP Codec not found! Please install it.");
+                outMessages("HAP Codec not found! Please install it.", true);
                 errors = true;
             }
 
@@ -104,7 +104,7 @@ namespace DTConverter
         /// <param name="outMessages"></param>
         /// <param name="outErrors"></param>
         /// <returns></returns>
-        private static string FindExePath(string fileName, Action<string> outMessages, Action<string> outErrors)
+        private static string FindExePath(string fileName, Action<string, bool> outMessages)
         {
             // if exe is correctly installed on system, we can just call it
             string returningFileName = fileName;
@@ -122,7 +122,7 @@ namespace DTConverter
             }
             catch (Exception E) 
             {
-                outErrors(E.Message);
+                outMessages(E.Message, true);
             }
 
             Process fProc;
@@ -201,7 +201,7 @@ namespace DTConverter
 
                     catch (Exception E)
                     {
-                        outErrors(E.Message);
+                        outMessages(E.Message, true);
                     }
                 }
             }
@@ -218,7 +218,7 @@ namespace DTConverter
                 }
                 catch (Exception E)
                 {
-                    outErrors(E.Message);
+                    outMessages(E.Message, true);
                 }
             }
 

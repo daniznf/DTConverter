@@ -30,6 +30,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Path = System.IO.Path;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DTConverter
 {
@@ -55,11 +56,11 @@ namespace DTConverter
             {
                 try
                 {
-                    FFmpegWrapper.FindFFPaths(new Action<string>(WriteStatus), new Action<string>(WriteStatusError), new Action<bool>(FindCompleted));
+                    FFmpegWrapper.FindFFPaths(new Action<string, bool>(WriteStatus), new Action<bool>(FindCompleted));
                 }
                 catch (Exception E)
                 {
-                    WriteStatusError(E.Message);
+                    WriteStatus(E.Message, true);
                 }
             });
 
@@ -113,44 +114,45 @@ namespace DTConverter
                 Dispatcher.Invoke(() =>
                 {
                     TvwVideos.IsEnabled = true;
-                    WriteStatus("Ready!");
+                    WriteStatus("Ready!", false);
                 });
             }
         }
 
         #region Write Status
-        public Action<string> WriteStatusAction;
-        /// <summary>
-        /// Writes messages to SttMessages
-        /// </summary>
-        /// <param name="message"></param>
-        public void WriteStatus(string message)
+        private void WriteStatus(string message, bool isError)
         {
-            if (message != null && message != "")
+            if (message != null)
             {
-                Dispatcher.Invoke(() =>
+                if (message.StartsWith("[hap") && message.Contains("is not multiple"))
                 {
-                    SttMessages.Content = message;
-                    SttMessages.Foreground = Brushes.Black;
-                    SttMessages.FontWeight = FontWeights.Normal;
-                });
-            }
-        }
+                    isError = true;
+                    message = message.Substring(message.IndexOf(']') + 1);
+                }
 
-        /// <summary>
-        /// Writes error messages to SttMessages in a error format
-        /// </summary>
-        /// <param name="message"></param>
-        public void WriteStatusError(string message)
-        {
-            if (message != null && message != "")
-            {
-                Dispatcher.Invoke(() =>
+                if (isError)
                 {
-                    SttMessages.Content = "Warning! " + message;
-                    SttMessages.Foreground = Brushes.DarkRed;
-                    SttMessages.FontWeight = FontWeights.Bold;
-                });
+                    Dispatcher.Invoke(() =>
+                    {
+                        SttMessages.Content = "Warning! " + message;
+                        SttMessages.Foreground = Brushes.DarkRed;
+                        SttMessages.FontWeight = FontWeights.Bold;
+                    });
+                }
+                else
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        SttMessages.Content = message;
+                        SttMessages.Foreground = Brushes.Black;
+                        SttMessages.FontWeight = FontWeights.Normal;
+                    });
+                }
+
+                if (isError)
+                {
+                    Thread.Sleep(5000);
+                }
             }
         }
         #endregion
@@ -172,7 +174,7 @@ namespace DTConverter
             BtnConvert.Content = "Stop Conversions";
             BtnConvert.Click -= BtnStartConvert_Click;
             BtnConvert.Click += BtnStopConvert_Click;
-            WriteStatus("Conversions started");
+            WriteStatus("Conversions started", false);
         }
 
         public void ConversionFinished()
@@ -181,7 +183,7 @@ namespace DTConverter
             BtnConvert.Content = "Start Conversions";
             BtnConvert.Click -= BtnStopConvert_Click;
             BtnConvert.Click += BtnStartConvert_Click;
-            WriteStatus("All conversions finished");
+            WriteStatus("All conversions finished", false);
         }
 
         /// <summary>
@@ -192,33 +194,30 @@ namespace DTConverter
         {
             stopConversion = false;
 
-            if (DisplayedConversionParameters != null && !DisplayedConversionParameters.IsConvertingVideo)
+            ConversionStarted();
+            await Task.Run(() =>
             {
-                ConversionStarted();
-                await Task.Run(() =>
+                foreach (ConversionParameters cp in ConversionList)
                 {
-                    foreach (ConversionParameters cp in ConversionList)
+                    try
                     {
-                        try
-                        {
-                            // FFmpeg writes interesting data to StandardError so I consider everything as StandardOutput
-                            convertingCP = cp;
-                            cp.ConvertVideo(
-                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data),
-                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data));
-                        }
-                        catch (Exception E)
-                        {
-                            WriteStatusError(E.Message);
-                        }
-                        if (stopConversion)
-                        {
-                            break;
-                        }
+                        // FFmpeg writes interesting data to StandardError so I consider everything as StandardOutput
+                        convertingCP = cp;
+                        cp.ConvertVideo(
+                            (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
+                            (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
                     }
-                });
-                ConversionFinished();
-            }
+                    catch (Exception E)
+                    {
+                        WriteStatus(E.Message, true);
+                    }
+                    if (stopConversion)
+                    {
+                        break;
+                    }
+                }
+            });
+            ConversionFinished();
         }
 
         // Signal to quit the conversion cycle
@@ -375,13 +374,23 @@ namespace DTConverter
                     };
                     cp.PreviewTime.Seconds = cp.SourceInfo.Duration.Seconds / 2;
                     cp.PreviewResolution = vr;
-                    cp.CreateImagePreviewIn((object o, DataReceivedEventArgs d) => { WriteStatus(d.Data); }, (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data); });
+                    try
+                    {
+                        cp.CreateImagePreviewIn(
+                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); }, 
+                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                        WriteStatus("", false);
+                    }
+                    catch (Exception E)
+                    {
+                        WriteStatus(E.Message, true);
+                    }
                 }
                 UpdateImgPreviewIn();
             }
             catch (Exception E)
             {
-                WriteStatusError(E.Message);
+                WriteStatus(E.Message, true);
             }
         }
 
@@ -849,9 +858,20 @@ namespace DTConverter
                         img.Source = null;
                     }
 
-                    return Task.Run(() => DisplayedConversionParameters.CreateImagePreviewIn(
-                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data); },
-                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data); }));
+                    return Task.Run(() =>
+                    {
+                        try
+                        {
+                            DisplayedConversionParameters.CreateImagePreviewIn(
+                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                            WriteStatus("", false);
+                        }
+                        catch (Exception E)
+                        {
+                            WriteStatus(E.Message, true);
+                        }
+                    });
                 }
             }
             return  Task.Run(() => { return; });
@@ -883,9 +903,20 @@ namespace DTConverter
                             }
                         }
 
-                        return Task.Run(() => DisplayedConversionParameters.CreateImagePreviewOut(
-                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data); }, 
-                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data); }));
+                        return Task.Run(() =>
+                        {
+                            try
+                            {
+                                DisplayedConversionParameters.CreateImagePreviewOut(
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                                WriteStatus("", false);
+                            }
+                            catch (Exception E)
+                            {
+                                WriteStatus(E.Message, true);
+                            }
+                        });
                     }
                 }
             }

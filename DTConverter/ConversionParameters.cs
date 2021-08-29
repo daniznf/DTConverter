@@ -593,10 +593,17 @@ namespace DTConverter
                         if (!ProcessPreviewIn.HasExited)
                         {
                             ProcessPreviewIn.WaitForExit();
+                            if (ProcessPreviewIn.ExitCode != 0)
+                            {
+                                throw new Exception($"Error creating preview image ({ProcessPreviewIn.ExitCode})");
+                            }
                         }
                     }
                 }
-                catch (Exception E) { }
+                catch (Exception E)
+                {
+                    throw E;
+                }
                 finally
                 {
                     IsCreatingPreviewIn = false;
@@ -640,10 +647,17 @@ namespace DTConverter
                         if (!ProcessPreviewOut.HasExited)
                         {
                             ProcessPreviewOut.WaitForExit();
+                            if (ProcessPreviewOut.ExitCode != 0)
+                            {
+                                throw new Exception($"Error creating out preview image ({ProcessPreviewOut.ExitCode})");
+                            }
                         }
                     }
                 }
-                catch (Exception E) { }
+                catch (Exception E)
+                {
+                    throw E;
+                }
                 finally
                 {
                     IsCreatingPreviewOut = false;
@@ -701,7 +715,10 @@ namespace DTConverter
                         }
                     }
                 }
-                catch { }
+                catch (Exception E)
+                {
+                    throw E;
+                }
                 finally
                 {
                     IsConvertingVideo = false;
