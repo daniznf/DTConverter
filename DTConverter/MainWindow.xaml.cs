@@ -67,11 +67,6 @@ namespace DTConverter
             Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             LblName.Content += " " + v.ToString(2);
 
-            //CbxRotation.SelectedIndex = 0;
-            //CbxHorizontalSlices.SelectedIndex = 0;
-            //CbxVerticalSlices.SelectedIndex = 0;
-            //SliceGrdPreviewOut(1, 1);
-
             // we do some bindings here, not in XAML, so we can use the XAML editor more confortably
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "IsCropEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "IsPaddingEnabled");
@@ -203,9 +198,12 @@ namespace DTConverter
                     {
                         // FFmpeg writes interesting data to StandardError so I consider everything as StandardOutput
                         convertingCP = cp;
-                        cp.ConvertVideo(
-                            (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
-                            (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
+                        if (cp.IsValid && cp.IsConversionEnabled)
+                        {
+                            cp.ConvertVideo(
+                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
+                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
+                        }
                     }
                     catch (Exception E)
                     {
@@ -348,7 +346,8 @@ namespace DTConverter
 
                 // Every checkbox has a different DataContext, corresponding to DisplayedConversionParameters
                 cBox.DataContext = cp;
-                
+                sPanel.DataContext = cp;
+
                 ConversionList.Add(cp);
 
                 PreviewTasks.Add(TF.StartNew(() => ProbeSourceInfoAndPreviewImage(cp)));
@@ -848,7 +847,7 @@ namespace DTConverter
             {
                 if (DisplayedConversionParameters != null)
                 {
-                    if (DisplayedConversionParameters.IsCreatingPreviewIn)
+                    if (DisplayedConversionParameters.VideoConversionStatus == ConversionStatus.CreatingPreviewIn)
                     {
                         DisplayedConversionParameters.KillProcessPreviewIn();
                     }
@@ -887,7 +886,7 @@ namespace DTConverter
             {
                 if (DisplayedConversionParameters != null)
                 {
-                    if (DisplayedConversionParameters.IsCreatingPreviewOut)
+                    if (DisplayedConversionParameters.VideoConversionStatus == ConversionStatus.CreatingPreviewOut)
                     {
                         DisplayedConversionParameters.KillProcessPreviewOut();
                     }

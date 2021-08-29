@@ -39,6 +39,8 @@
         <SolidColorBrush x:Key="Sky8" Color="#daebe8"/>
 
         <local:ConversionParameters x:Key="CP" />
+        <local:BackgroundConverter x:Key="BkgConverter"/>
+
         <ObjectDataProvider x:Key="VideoEncodersValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="local:VideoEncoders"/>
@@ -152,6 +154,7 @@
                         <Style TargetType="StackPanel">
                             <Setter Property="Orientation" Value="Horizontal"/>
                             <Setter Property="ContextMenu" Value="{StaticResource ResourceKey=MnFile}" />
+                            <Setter Property="Background" Value="{Binding VideoConversionStatus , Converter={StaticResource BkgConverter} }"/>
                         </Style>
                         <Style TargetType="TreeViewItem">
                             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -393,9 +396,9 @@
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
-                        
+
                         <GridSplitter Grid.Row="1"  HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
-                        
+
                         <DockPanel Grid.Row="2">
                             <DockPanel.Resources>
                                 <Style TargetType="Image">
@@ -412,7 +415,8 @@
                                     <ColumnDefinition Name="ColPreviewOut" Width="1*"/>
                                 </Grid.ColumnDefinitions>
                                 <DockPanel Grid.Column="0">
-                                    <CheckBox Visibility="Hidden" DockPanel.Dock="Top"/><!-- this checkbox is here only for correct alignment -->
+                                    <CheckBox Visibility="Hidden" DockPanel.Dock="Top"/>
+                                    <!-- this checkbox is here only for correct alignment -->
                                     <Grid Name="GrdPreviewIn" >
                                         <Image Name="ImgPvwIn"/>
                                     </Grid>

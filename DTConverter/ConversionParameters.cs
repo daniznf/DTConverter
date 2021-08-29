@@ -27,6 +27,7 @@ namespace DTConverter
 {
     public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy }
     public enum AudioEncoders { pcm_s16le }
+    public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
 
     /// <summary>
     /// Contains all parameters for each conversion, a VideoInfo and an instance of FFmpegWrapper
@@ -53,8 +54,8 @@ namespace DTConverter
                 Seconds = 10
             };
             DurationTime = new TimeDuration()
-            { 
-                Seconds = 5 
+            {
+                Seconds = 5
             };
             PreviewTime = new TimeDuration();
             CropParams = new Crop();
@@ -68,6 +69,8 @@ namespace DTConverter
             };
 
             IsValid = false;
+            VideoConversionStatus = ConversionStatus.None;
+            AudioConversionStatus = ConversionStatus.None;
 
             IsConversionEnabled = true;
             IsVideoEnabled = true;
@@ -120,10 +123,10 @@ namespace DTConverter
 
             IsCropEnabled = copyFrom.IsCropEnabled;
             CropParams = copyFrom.CropParams;
-            
+
             IsPaddingEnabled = copyFrom.IsPaddingEnabled;
             PaddingParams = copyFrom.PaddingParams;
-            
+
             IsSliceEnabled = copyFrom.IsSliceEnabled;
             SliceParams = copyFrom.SliceParams;
         }
@@ -246,7 +249,7 @@ namespace DTConverter
                 OnPropertyChanged("StartTime");
             }
         }
-        
+
         private TimeDuration _DurationTime;
         public TimeDuration DurationTime
         {
@@ -349,7 +352,7 @@ namespace DTConverter
                         VideoResolutionParams.Multiple = 8;
                         break;
                 }
-                
+
                 OnPropertyChanged("VideoEncoder");
                 OnPropertyChanged("IsVideoEncoderCopy");
                 OnPropertyChanged("IsVideoEncoderH264");
@@ -383,7 +386,7 @@ namespace DTConverter
                 OnPropertyChanged("VideoResolutionParams");
             }
         }
-        
+
         private int _VideoBitrate;
         // Video Bitrate in Kb/s
         public int VideoBitrate
@@ -395,7 +398,7 @@ namespace DTConverter
                 OnPropertyChanged("VideoBitrate");
             }
         }
-        
+
         private double _OutFrameRate;
         public double OutFrameRate
         {
@@ -495,47 +498,25 @@ namespace DTConverter
             }
         }
 
-        private bool _IsCreatingPreviewIn;
-        public bool IsCreatingPreviewIn
+        private ConversionStatus _VideoConversionStatus;
+        public ConversionStatus VideoConversionStatus
         {
-            get => _IsCreatingPreviewIn;
+            get => _VideoConversionStatus;
             set
             {
-                _IsCreatingPreviewIn = value;
-                OnPropertyChanged("IsCreatingPreviewIn");
+                _VideoConversionStatus = value;
+                OnPropertyChanged("VideoConversionStatus");
             }
         }
-
-        private bool _IsCreatingPreviewOut;
-        public bool IsCreatingPreviewOut
+        
+        private ConversionStatus _AudioConversionStatus;
+        public ConversionStatus AudioConversionStatus
         {
-            get => _IsCreatingPreviewOut;
+            get => _AudioConversionStatus;
             set
             {
-                _IsCreatingPreviewOut = value;
-                OnPropertyChanged("IsCreatingPreviewOut");
-            }
-        }
-
-        private bool _IsConvertingVideo;
-        public bool IsConvertingVideo
-        {
-            get => _IsConvertingVideo;
-            set
-            {
-                _IsConvertingVideo = value;
-                OnPropertyChanged("IsConvertingVideo");
-            }
-        }
-
-        private bool _IsConvertingAudio;
-        public bool IsConvertingAudio
-        {
-            get => _IsConvertingAudio;
-            set
-            {
-                _IsConvertingAudio = value;
-                OnPropertyChanged("IsConvertingAudio");
+                _AudioConversionStatus = value;
+                OnPropertyChanged("AudioConversionStatus");
             }
         }
 
@@ -577,9 +558,9 @@ namespace DTConverter
         /// </summary>
         public void CreateImagePreviewIn(DataReceivedEventHandler outputDataReceived, DataReceivedEventHandler errorDataReceived)
         {
-            if (!_IsCreatingPreviewIn)
+            if (VideoConversionStatus != ConversionStatus.CreatingPreviewIn)
             {
-                IsCreatingPreviewIn = true;
+                VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, PreviewResolution,
@@ -599,14 +580,12 @@ namespace DTConverter
                             }
                         }
                     }
+                    VideoConversionStatus = ConversionStatus.None;
                 }
                 catch (Exception E)
                 {
+                    VideoConversionStatus = ConversionStatus.Failed;
                     throw E;
-                }
-                finally
-                {
-                    IsCreatingPreviewIn = false;
                 }
             }
         }
@@ -618,7 +597,7 @@ namespace DTConverter
                 if (ProcessPreviewIn != null && !ProcessPreviewIn.HasExited)
                 {
                     ProcessPreviewIn.Kill();
-                    IsCreatingPreviewIn = false;
+                    VideoConversionStatus = ConversionStatus.None;
                 }
             }
             catch (Exception E) { }
@@ -631,9 +610,9 @@ namespace DTConverter
         /// </summary>
         public void CreateImagePreviewOut(DataReceivedEventHandler outputDataReceived, DataReceivedEventHandler errorDataReceived)
         {
-            if (!_IsCreatingPreviewOut)
+            if (VideoConversionStatus != ConversionStatus.CreatingPreviewOut)
             {
-                IsCreatingPreviewOut = true;
+                VideoConversionStatus = ConversionStatus.CreatingPreviewOut;
                 try
                 {
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, VideoResolutionParams,
@@ -653,14 +632,12 @@ namespace DTConverter
                             }
                         }
                     }
+                    VideoConversionStatus = ConversionStatus.None;
                 }
                 catch (Exception E)
                 {
+                    VideoConversionStatus = ConversionStatus.Failed;
                     throw E;
-                }
-                finally
-                {
-                    IsCreatingPreviewOut = false;
                 }
             }
         }
@@ -672,7 +649,7 @@ namespace DTConverter
                 if (ProcessPreviewOut != null && !ProcessPreviewOut.HasExited)
                 {
                     ProcessPreviewOut.Kill();
-                    IsCreatingPreviewOut = false;
+                    VideoConversionStatus = ConversionStatus.None;
                 }
             }
             catch (Exception E) { }
@@ -685,9 +662,9 @@ namespace DTConverter
         /// </summary>
         public void ConvertVideo(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
         {
-            if (!_IsConvertingVideo)
+            if (VideoConversionStatus != ConversionStatus.Converting)
             {
-                IsConvertingVideo = true;
+                VideoConversionStatus = ConversionStatus.Converting;
                 try
                 {
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
@@ -711,17 +688,19 @@ namespace DTConverter
                             if (!VideoConversionProcess.HasExited)
                             {
                                 VideoConversionProcess.WaitForExit();
+                                if (VideoConversionProcess.ExitCode != 0)
+                                {
+                                    throw new Exception($"Conversion Failed ({VideoConversionProcess.ExitCode})");
+                                }
                             }
                         }
                     }
+                    VideoConversionStatus = ConversionStatus.Success;
                 }
                 catch (Exception E)
                 {
+                    VideoConversionStatus = ConversionStatus.Failed;
                     throw E;
-                }
-                finally
-                {
-                    IsConvertingVideo = false;
                 }
             }
         }
@@ -736,7 +715,7 @@ namespace DTConverter
                 if (VideoConversionProcess != null && !VideoConversionProcess.HasExited)
                 {
                     VideoConversionProcess.Kill();
-                    IsConvertingVideo = false;
+                    VideoConversionStatus = ConversionStatus.None;
                 }
             }
             catch (Exception E) { }
