@@ -417,9 +417,7 @@ namespace DTConverter
             
             if (duration.Seconds > 0)
             {
-                if ((duration.DurationType == DurationTypes.Seconds) ||
-                    (duration.DurationType == DurationTypes.MilliSeconds) ||
-                    (duration.DurationType == DurationTypes.MicroSeconds))
+                if (duration.DurationType != DurationTypes.Frames)
                 {
                     vArgsOut.Add($"-t {duration.Seconds.ToString().Replace(',', '.')}s");
                 }

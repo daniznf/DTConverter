@@ -1254,6 +1254,22 @@ namespace DTConverter
             }
             TxtDurationTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
+
+        private void BtnSetStart_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisplayedConversionParameters != null)
+            {
+                DisplayedConversionParameters.StartTime.Seconds = DisplayedConversionParameters.PreviewTime.Seconds;
+            }
+        }
+
+        private void BtnSetEnd_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisplayedConversionParameters != null)
+            {
+                DisplayedConversionParameters.DurationTime.Seconds = DisplayedConversionParameters.PreviewTime.Seconds - DisplayedConversionParameters.StartTime.Seconds;
+            }
+        }
         #endregion
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)

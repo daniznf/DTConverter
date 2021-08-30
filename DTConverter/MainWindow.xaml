@@ -133,9 +133,9 @@
                 <ColumnDefinition Width="6*" MinWidth="576px" />
             </Grid.ColumnDefinitions>
             <DockPanel>
-                <Label Content="Drop files here!" AllowDrop="True" Drop="TvwVideos_Drop" DockPanel.Dock="Top" HorizontalContentAlignment="Center" Width="256px" Margin="0,4px,0,2px" />
-                <Button Name="BtnConvert" Content="Start Conversions" DockPanel.Dock="Bottom" Background="{StaticResource Sky4}" Height="64px" FontSize="14px" Click="BtnStartConvert_Click"/>
-                <TreeView Name="TvwVideos" Grid.Column="0" Margin="0,2,0,2" AllowDrop="True" Drop="TvwVideos_Drop" SelectedItemChanged="TvwVideos_SelectedItemChanged">
+                <Label Content="Drop files here!" AllowDrop="True" Drop="TvwVideos_Drop" DockPanel.Dock="Top" HorizontalContentAlignment="Center" Width="256px" Margin="0,4px,0,4px" />
+                <Button Name="BtnConvert" Content="Start Conversions" DockPanel.Dock="Bottom" Margin="0,4px,0,0" Background="{StaticResource Sky4}" Height="64px" FontSize="14px" Click="BtnStartConvert_Click"/>
+                <TreeView Name="TvwVideos" Grid.Column="0" Margin="0" AllowDrop="True" Drop="TvwVideos_Drop" SelectedItemChanged="TvwVideos_SelectedItemChanged">
                     <TreeView.Resources>
                         <ContextMenu x:Key="MnDirectory">
                             <MenuItem Header="Check items" Click="MnCheckItems_Click"/>
@@ -411,8 +411,17 @@
                                 </Style>
                             </DockPanel.Resources>
                             <DockPanel DockPanel.Dock="Bottom" >
+                                <DockPanel.Resources>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Width" Value="32px"/>
+                                        <Setter Property="Height" Value="32px"/>
+                                        <Setter Property="Margin" Value="0,2px,0,0"/>
+                                    </Style>
+                                </DockPanel.Resources>
+                                <Button Name="BtnSetStart" FontFamily="Segoe MDL2 Assets" FontSize="14px" Content="&#xf745;" DockPanel.Dock="Left" Click="BtnSetStart_Click"/>
                                 <Label Content="{Binding PreviewTime.HMS, Mode=OneWay}" Width="96px" DockPanel.Dock="Right" VerticalAlignment="Center"/>
-                                <Slider Maximum="{Binding SourceInfo.Duration.Seconds}" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTime.Seconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
+                                <Button Name="BtnSetEnd" FontFamily="Segoe MDL2 Assets" FontSize="14px" Content="&#xf743;" DockPanel.Dock="Right" Click="BtnSetEnd_Click"/>
+                                <Slider Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTime.Seconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
                             </DockPanel>
                             <Grid Background="Gray" Name="GrdAllPreviews">
                                 <Grid.ColumnDefinitions>
