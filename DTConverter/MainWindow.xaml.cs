@@ -31,6 +31,7 @@ using System.Windows.Media.Imaging;
 using Path = System.IO.Path;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Data;
 
 namespace DTConverter
 {
@@ -71,6 +72,22 @@ namespace DTConverter
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "IsCropEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "IsPaddingEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "IsSliceEnabled");
+
+            // start time cannot be in frames, so add manually every timeunit except frames
+            CbxStartTimeUnit.Items.Clear();
+            foreach (object dt in Enum.GetValues(typeof(DurationTypes)))
+            {
+                if (!(dt is DurationTypes.Frames))
+                {
+                    CbxStartTimeUnit.Items.Add(dt);
+                }
+            }
+            CbxStartTimeUnit.SelectedItem = DurationTypes.Seconds;
+
+            // Binding needs to be done in code
+            Binding bdg = new Binding("StartTime.DurationType");
+            bdg.Mode = BindingMode.OneWay;
+            CbxStartTimeUnit.SetBinding(ComboBox.TextProperty, bdg);
 
             UpdateImgPreviewIn();
 
@@ -1118,6 +1135,112 @@ namespace DTConverter
                 cp.ResetDefaultValues();
                 Task.Run(() => cp.ProbeVideoInfo());
             }
+        }
+        #endregion
+
+        #region Time Events
+        private void TxtStartTime_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (DisplayedConversionParameters != null && TxtStartTime.Text != "")
+            {
+                try
+                {
+                    switch (CbxStartTimeUnit.SelectedItem)
+                    {
+                        case DurationTypes.Seconds:
+                            DisplayedConversionParameters.StartTime.Seconds = Convert.ToDouble(TxtStartTime.Text);
+                            break;
+                        case DurationTypes.MilliSeconds:
+                            DisplayedConversionParameters.StartTime.MilliSeconds = Convert.ToDouble(TxtStartTime.Text);
+                            break;
+                        case DurationTypes.MicroSeconds:
+                            DisplayedConversionParameters.StartTime.MicroSeconds = Convert.ToDouble(TxtStartTime.Text);
+                            break;
+                        case DurationTypes.Frames:
+                            DisplayedConversionParameters.StartTime.Frames = Convert.ToInt32(TxtStartTime.Text);
+                            break;
+                        case DurationTypes.HMS:
+                            DisplayedConversionParameters.StartTime.HMS = TxtStartTime.Text;
+                            break;
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private void CbxStartTimeUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        { 
+            switch (CbxStartTimeUnit.SelectedItem)
+            { 
+                case DurationTypes.Seconds:
+                    TxtStartTime.SetBinding(TextBox.TextProperty, "StartTime.Seconds");
+                    break;
+                case DurationTypes.MilliSeconds:
+                    TxtStartTime.SetBinding(TextBox.TextProperty, "StartTime.MilliSeconds");
+                    break;
+                case DurationTypes.MicroSeconds:
+                    TxtStartTime.SetBinding(TextBox.TextProperty, "StartTime.MicroSeconds");
+                    break;
+                case DurationTypes.Frames:
+                    TxtStartTime.SetBinding(TextBox.TextProperty, "StartTime.Frames");
+                    break;
+                case DurationTypes.HMS:
+                    TxtStartTime.SetBinding(TextBox.TextProperty, "StartTime.HMS");
+                    break;
+            }
+            TxtStartTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+
+        private void TxtDurationTime_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (DisplayedConversionParameters != null && TxtDurationTime.Text != "")
+            {
+                try
+                {
+                    switch (CbxDurationTimeUnit.SelectedItem)
+                    {
+                        case DurationTypes.Seconds:
+                            DisplayedConversionParameters.DurationTime.Seconds = Convert.ToDouble(TxtDurationTime.Text);
+                            break;
+                        case DurationTypes.MilliSeconds:
+                            DisplayedConversionParameters.DurationTime.MilliSeconds = Convert.ToDouble(TxtDurationTime.Text);
+                            break;
+                        case DurationTypes.MicroSeconds:
+                            DisplayedConversionParameters.DurationTime.MicroSeconds = Convert.ToDouble(TxtDurationTime.Text);
+                            break;
+                        case DurationTypes.Frames:
+                            DisplayedConversionParameters.DurationTime.Frames = Convert.ToInt32(TxtDurationTime.Text);
+                            break;
+                        case DurationTypes.HMS:
+                            DisplayedConversionParameters.DurationTime.HMS = TxtDurationTime.Text;
+                            break;
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private void CbxDurationTimeUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (CbxDurationTimeUnit.SelectedItem)
+            {
+                case DurationTypes.Seconds:
+                    TxtDurationTime.SetBinding(TextBox.TextProperty, "DurationTime.Seconds");
+                    break;
+                case DurationTypes.MilliSeconds:
+                    TxtDurationTime.SetBinding(TextBox.TextProperty, "DurationTime.MilliSeconds");
+                    break;
+                case DurationTypes.MicroSeconds:
+                    TxtDurationTime.SetBinding(TextBox.TextProperty, "DurationTime.MicroSeconds");
+                    break;
+                case DurationTypes.Frames:
+                    TxtDurationTime.SetBinding(TextBox.TextProperty, "DurationTime.Frames");
+                    break;
+                case DurationTypes.HMS:
+                    TxtDurationTime.SetBinding(TextBox.TextProperty, "DurationTime.HMS");
+                    break;
+            }
+            TxtDurationTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
         #endregion
 

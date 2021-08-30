@@ -418,8 +418,8 @@ namespace DTConverter
             if (duration.Seconds > 0)
             {
                 if ((duration.DurationType == DurationTypes.Seconds) ||
-                    (duration.DurationType == DurationTypes.Milliseconds) ||
-                    (duration.DurationType == DurationTypes.Microseconds))
+                    (duration.DurationType == DurationTypes.MilliSeconds) ||
+                    (duration.DurationType == DurationTypes.MicroSeconds))
                 {
                     vArgsOut.Add($"-t {duration.Seconds.ToString().Replace(',', '.')}s");
                 }

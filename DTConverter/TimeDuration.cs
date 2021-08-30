@@ -23,7 +23,7 @@ using System.ComponentModel;
 
 namespace DTConverter
 {
-    public enum DurationTypes { Seconds, Milliseconds, Microseconds, Frames }
+    public enum DurationTypes { Seconds, MilliSeconds, MicroSeconds, Frames, HMS }
     public class TimeDuration: INotifyPropertyChanged
     {
         public TimeDuration()
@@ -100,22 +100,14 @@ namespace DTConverter
             }
         }
 
-        public double Hours
-        {
-            get => Seconds / 60 / 60;
-            set => Seconds = value * 60 * 60;
-        }
-        public double Minutes
-        {
-            get => Seconds / 60;
-            set => Seconds = value * 60;
-        }
+        
 
         /// <summary>
         /// Sets the total number of seconds.
-        /// Gets the number of seconds if DurationType is not Frames, otherwise gets 0
+        /// Gets the number of seconds if DurationType is not Frames, otherwise gets 0.
         /// </summary>
-        public double Seconds {
+        public double Seconds 
+        {
             get
             {
                 if (!(DurationType == DurationTypes.Frames))
@@ -130,7 +122,7 @@ namespace DTConverter
             set
             {
                 // 39036.123s
-                double seconds = value;
+                double seconds = 1.0 * value;
                 double minutes = 0;
                 double hours = 0;
                 
@@ -159,15 +151,25 @@ namespace DTConverter
             }
         }
 
+        public double Hours
+        {
+            get => Seconds / 60 / 60;
+            set => Seconds = value * 60 * 60;
+        }
+
+        public double Minutes
+        {
+            get => Seconds / 60;
+            set => Seconds = value * 60;
+        }
+
         public double MilliSeconds
         {
             get => Seconds * 1000;
             set
             {
-                Seconds = value / 1000;
-                OnPropertyChanged("MilliSeconds");
-                OnPropertyChanged("MicroSeconds");
-                OnPropertyChanged("Seconds");
+                Seconds = 1.0 * value / 1000;
+                DurationType = DurationTypes.MilliSeconds;
             }
         }
 
@@ -176,10 +178,8 @@ namespace DTConverter
             get => Seconds * 1000 * 1000;
             set
             {
-                Seconds = value / 1000 / 1000;
-                OnPropertyChanged("MilliSeconds");
-                OnPropertyChanged("MicroSeconds");
-                OnPropertyChanged("Seconds");
+                Seconds = 1.0 * value / 1000 / 1000;
+                DurationType = DurationTypes.MicroSeconds;
             }
         }
 
@@ -248,10 +248,12 @@ namespace DTConverter
                         S = int.Parse(splitted[0]);
                     }
 
-                    DurationType = DurationTypes.Seconds;
+                    DurationType = DurationTypes.HMS;
 
-                    OnPropertyChanged("HMS");
                     OnPropertyChanged("Seconds");
+                    OnPropertyChanged("MilliSeconds");
+                    OnPropertyChanged("MicroSeconds");
+                    OnPropertyChanged("HMS");
                 }
                 catch (Exception E)
                 {

@@ -49,14 +49,8 @@ namespace DTConverter
         {
             // Changing all public properties (not _variables) Bindings will be notified
             VideoResolutionParams = new VideoResolution();
-            StartTime = new TimeDuration()
-            {
-                Seconds = 10
-            };
-            DurationTime = new TimeDuration()
-            {
-                Seconds = 5
-            };
+            StartTime = new TimeDuration();
+            DurationTime = new TimeDuration();
             PreviewTime = new TimeDuration();
             CropParams = new Crop();
             PaddingParams = new Padding();
