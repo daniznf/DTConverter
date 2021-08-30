@@ -199,20 +199,20 @@ namespace DTConverter
 
                 if (H > 0)
                 {
-                    outTime = H.ToString() + ":";
+                    outTime = H.ToString("00") + ":";
                 }
-                outTime += M.ToString() + ":";
+                outTime += M.ToString("00") + ":";
                 
-                outTime += S.ToString();
+                outTime += S.ToString("00");
                 
                 if (ms > 0)
                 {
-                    outTime += "." + ms.ToString();
+                    outTime += "." + ms.ToString("000");
                 }
 
                 if (us > 0)
                 {
-                    outTime += us.ToString();
+                    outTime += us.ToString("000");
                 }
                 return outTime;
             }
