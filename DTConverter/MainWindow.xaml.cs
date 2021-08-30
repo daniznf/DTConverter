@@ -32,6 +32,7 @@ using Path = System.IO.Path;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Data;
+using System.Globalization;
 
 namespace DTConverter
 {
@@ -101,6 +102,8 @@ namespace DTConverter
 
             ConversionList = new List<ConversionParameters>();
         }
+
+        // TODO: Frame interpolation ?
 
         private void Current_Exit(object sender, ExitEventArgs e)
         {
@@ -1141,30 +1144,34 @@ namespace DTConverter
         #region Time Events
         private void TxtStartTime_KeyUp(object sender, KeyEventArgs e)
         {
-            if (DisplayedConversionParameters != null && TxtStartTime.Text != "")
+            TxtStartTime.Text = TxtStartTime.Text.Replace(',', '.');
+            if (e.Key == Key.Enter)
             {
-                try
+                if (DisplayedConversionParameters != null && TxtStartTime.Text != "")
                 {
-                    switch (CbxStartTimeUnit.SelectedItem)
+                    try
                     {
-                        case DurationTypes.Seconds:
-                            DisplayedConversionParameters.StartTime.Seconds = Convert.ToDouble(TxtStartTime.Text);
-                            break;
-                        case DurationTypes.MilliSeconds:
-                            DisplayedConversionParameters.StartTime.MilliSeconds = Convert.ToDouble(TxtStartTime.Text);
-                            break;
-                        case DurationTypes.MicroSeconds:
-                            DisplayedConversionParameters.StartTime.MicroSeconds = Convert.ToDouble(TxtStartTime.Text);
-                            break;
-                        case DurationTypes.Frames:
-                            DisplayedConversionParameters.StartTime.Frames = Convert.ToInt32(TxtStartTime.Text);
-                            break;
-                        case DurationTypes.HMS:
-                            DisplayedConversionParameters.StartTime.HMS = TxtStartTime.Text;
-                            break;
+                        switch (CbxStartTimeUnit.SelectedItem)
+                        {
+                            case DurationTypes.Seconds:
+                                DisplayedConversionParameters.StartTime.Seconds = Convert.ToDouble(TxtStartTime.Text, CultureInfo.InvariantCulture);
+                                break;
+                            case DurationTypes.MilliSeconds:
+                                DisplayedConversionParameters.StartTime.MilliSeconds = Convert.ToDouble(TxtStartTime.Text);
+                                break;
+                            case DurationTypes.MicroSeconds:
+                                DisplayedConversionParameters.StartTime.MicroSeconds = Convert.ToDouble(TxtStartTime.Text);
+                                break;
+                            case DurationTypes.Frames:
+                                DisplayedConversionParameters.StartTime.Frames = Convert.ToInt32(TxtStartTime.Text);
+                                break;
+                            case DurationTypes.HMS:
+                                DisplayedConversionParameters.StartTime.HMS = TxtStartTime.Text;
+                                break;
+                        }
                     }
+                    catch { }
                 }
-                catch { }
             }
         }
 
@@ -1193,30 +1200,35 @@ namespace DTConverter
 
         private void TxtDurationTime_KeyUp(object sender, KeyEventArgs e)
         {
-            if (DisplayedConversionParameters != null && TxtDurationTime.Text != "")
+            TxtDurationTime.Text = TxtDurationTime.Text.Replace(',', '.');
+            if (e.Key == Key.Enter)
             {
-                try
+                
+                if (DisplayedConversionParameters != null && TxtDurationTime.Text != "")
                 {
-                    switch (CbxDurationTimeUnit.SelectedItem)
+                    try
                     {
-                        case DurationTypes.Seconds:
-                            DisplayedConversionParameters.DurationTime.Seconds = Convert.ToDouble(TxtDurationTime.Text);
-                            break;
-                        case DurationTypes.MilliSeconds:
-                            DisplayedConversionParameters.DurationTime.MilliSeconds = Convert.ToDouble(TxtDurationTime.Text);
-                            break;
-                        case DurationTypes.MicroSeconds:
-                            DisplayedConversionParameters.DurationTime.MicroSeconds = Convert.ToDouble(TxtDurationTime.Text);
-                            break;
-                        case DurationTypes.Frames:
-                            DisplayedConversionParameters.DurationTime.Frames = Convert.ToInt32(TxtDurationTime.Text);
-                            break;
-                        case DurationTypes.HMS:
-                            DisplayedConversionParameters.DurationTime.HMS = TxtDurationTime.Text;
-                            break;
+                        switch (CbxDurationTimeUnit.SelectedItem)
+                        {
+                            case DurationTypes.Seconds:
+                                DisplayedConversionParameters.DurationTime.Seconds = Convert.ToDouble(TxtDurationTime.Text);
+                                break;
+                            case DurationTypes.MilliSeconds:
+                                DisplayedConversionParameters.DurationTime.MilliSeconds = Convert.ToDouble(TxtDurationTime.Text);
+                                break;
+                            case DurationTypes.MicroSeconds:
+                                DisplayedConversionParameters.DurationTime.MicroSeconds = Convert.ToDouble(TxtDurationTime.Text);
+                                break;
+                            case DurationTypes.Frames:
+                                DisplayedConversionParameters.DurationTime.Frames = Convert.ToInt32(TxtDurationTime.Text);
+                                break;
+                            case DurationTypes.HMS:
+                                DisplayedConversionParameters.DurationTime.HMS = TxtDurationTime.Text;
+                                break;
+                        }
                     }
+                    catch { }
                 }
-                catch { }
             }
         }
 

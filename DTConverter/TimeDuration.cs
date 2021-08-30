@@ -33,7 +33,7 @@ namespace DTConverter
 
         // HMS:      [-][HH:]MM:SS[.m...]
         // s,ms,us:  [-]S+[.m...][s|ms|us]
-        private int H, M, S, d;
+        private int H, M, S, ms, us;
         
         /// <summary>
         /// Specifies if the duration is in frames or in a time format.
@@ -112,7 +112,7 @@ namespace DTConverter
             {
                 if (!(DurationType == DurationTypes.Frames))
                 {
-                    return S + (M * 60) + (H * 3600) + (1.0 * d / 1000);
+                    return S + (M * 60) + (H * 3600) + ( ms / 1000.0) + ( us / 1000.0 / 1000);
                 }
                 else
                 {
@@ -125,6 +125,7 @@ namespace DTConverter
                 double seconds = 1.0 * value;
                 double minutes = 0;
                 double hours = 0;
+                double msDouble = 0;
                 
                 if (seconds > 60)
                 {
@@ -140,7 +141,10 @@ namespace DTConverter
                 H = Convert.ToInt32(Math.Truncate(hours));
                 M = Convert.ToInt32(Math.Truncate(minutes));
                 S = Convert.ToInt32(Math.Truncate(seconds));
-                d = Convert.ToInt32((seconds-Math.Truncate(seconds)) * 1000);
+                
+                msDouble = (seconds - Math.Truncate(seconds)) * 1000;
+                ms = Convert.ToInt32(Math.Truncate(msDouble));
+                us = Convert.ToInt32((msDouble - Math.Truncate(msDouble)) * 1000);
 
                 DurationType = DurationTypes.Seconds;
 
@@ -168,7 +172,7 @@ namespace DTConverter
             get => Seconds * 1000;
             set
             {
-                Seconds = 1.0 * value / 1000;
+                Seconds = value / 1000.0;
                 DurationType = DurationTypes.MilliSeconds;
             }
         }
@@ -178,7 +182,7 @@ namespace DTConverter
             get => Seconds * 1000 * 1000;
             set
             {
-                Seconds = 1.0 * value / 1000 / 1000;
+                Seconds = value / 1000.0 / 1000.0;
                 DurationType = DurationTypes.MicroSeconds;
             }
         }
@@ -201,9 +205,14 @@ namespace DTConverter
                 
                 outTime += S.ToString();
                 
-                if (d > 0)
+                if (ms > 0)
                 {
-                    outTime += "." + d.ToString();
+                    outTime += "." + ms.ToString();
+                }
+
+                if (us > 0)
+                {
+                    outTime += us.ToString();
                 }
                 return outTime;
             }
@@ -217,18 +226,28 @@ namespace DTConverter
                     if (splitted.Length > 1)
                     {
                         string strms = splitted[1];
-                        if (strms.Length == 1)
+                        switch (strms.Length)
                         {
-                            d = int.Parse(strms) * 100;
+                            case 1:
+                                strms += "00000";
+                                break;
+                            case 2:
+                                strms += "0000";
+                                break;
+                            case 3:
+                                strms += "000";
+                                break;
+                            case 4:
+                                strms += "00";
+                                break;
+                            case 5:
+                                strms += "0";
+                                break;
+                            case 6:
+                                break;
                         }
-                        else if (strms.Length == 2)
-                        {
-                            d = int.Parse(strms) * 10;
-                        }
-                        else
-                        {
-                            d = int.Parse(strms);
-                        }
+                        ms = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) / 1000.0));
+                        us = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) % 1000.0));
                     }
 
                     splitted = splitted[0].Split(':');
@@ -257,7 +276,7 @@ namespace DTConverter
                 }
                 catch (Exception E)
                 {
-                    H = M = S = d = 0;
+                    H = M = S = ms = us = 0;
                 }
             }
         }
