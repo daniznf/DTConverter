@@ -559,6 +559,7 @@ namespace DTConverter
                 {
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, PreviewResolution,
                         0, 0, 0, false, false, null, false, null, false, null, SourceInfo);
+                    ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
                         ProcessPreviewIn.BeginOutputReadLine();
@@ -613,6 +614,7 @@ namespace DTConverter
                         0, 0, Rotation, false, IsCropEnabled, CropParams, IsPaddingEnabled, PaddingParams, IsSliceEnabled, SliceParams, SourceInfo);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
+                    ProcessPreviewOut.StartInfo.Arguments += " -y";
                     if (ProcessPreviewOut.Start())
                     {
                         ProcessPreviewOut.BeginOutputReadLine();

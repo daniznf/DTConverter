@@ -608,7 +608,7 @@ namespace DTConverter
                         for (int c = 1; c <= slices.HorizontalNumber; c++)
                         {
                             destinationPathMapped = Slicer.GetSliceName(destinationPath, r, c);
-                            vMaps.Add($"-map \"[out_r{r}c{c}]\" {strArgsOut} \"{destinationPathMapped}\"");
+                            vMaps.Add($"-map \"[out_r{r}c{c}]\" {strArgsOut} \"{destinationPathMapped}\" -y");
                         }
                     }
 
@@ -627,7 +627,7 @@ namespace DTConverter
                 ffArguments = $"{strArgsIn} {strArgsOut} \"{destinationPath}\"";
             }
 
-            ffArguments += " -y";
+            //ffArguments += " -y";
 
             // Process
 
