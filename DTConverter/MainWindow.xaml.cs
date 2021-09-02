@@ -147,7 +147,7 @@ namespace DTConverter
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        SttMessages.Content = "Warning! " + message;
+                        SttMessages.Content = "⚠ " + message;
                         SttMessages.Foreground = Brushes.DarkRed;
                         SttMessages.FontWeight = FontWeights.Bold;
                     });
