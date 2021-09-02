@@ -454,6 +454,7 @@
                             <TextBlock Text="Audio" HorizontalAlignment="Center" Margin="10,0,0,0" />
                         </StackPanel>
                     </TabItem.Header>
+                    <Label Content="This section will be available soon..." HorizontalContentAlignment="Center" Width="300px"></Label>
                 </TabItem>
                 <TabItem Header="General">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
