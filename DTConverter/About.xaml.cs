@@ -33,8 +33,7 @@ namespace DTConverter
         {
             InitializeComponent();
             Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            LblVersion.Content = v.ToString(3);
-            TxtName.Text += " v" + v.ToString(2);
+            LblVersion.Content = "v" + v.ToString(3);
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
