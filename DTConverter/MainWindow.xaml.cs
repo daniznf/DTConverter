@@ -103,8 +103,6 @@ namespace DTConverter
             ConversionList = new List<ConversionParameters>();
         }
 
-        // TODO: Frame interpolation ?
-
         private void Current_Exit(object sender, ExitEventArgs e)
         {
             CleanWorkDir();
@@ -1136,7 +1134,18 @@ namespace DTConverter
             {
                 ConversionParameters cp = ConversionList.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
                 cp.ResetDefaultValues();
-                Task.Run(() => cp.ProbeVideoInfo());
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        cp.ProbeVideoInfo();
+                    }
+                    catch (Exception E)
+                    {
+                        WriteStatus(E.Message, true);
+                    }
+                });
+
             }
         }
         #endregion

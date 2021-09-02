@@ -34,7 +34,8 @@ namespace DTConverter
     /// </summary>
     public static class FFmpegWrapper
     {
-        public static string FFversion { get; private set; }
+        public static string FFmpegVersion { get; private set; }
+        public static string FFprobeVersion { get; private set; }
 
         /// <summary>
         /// Video encoders found by FFmpeg, this collection is retrieved for future use
@@ -62,25 +63,55 @@ namespace DTConverter
             AudioEncoderDictionary = new Dictionary<string, string>();
 
             outMessages("Checking FFmpeg...", false);
-            Task findFFmpegTask = Task.Run(() => FFmpegWrapper.FFmpegPath = FindExePath("ffmpeg.exe", outMessages));
-            Task findFFprobeTask = Task.Run(() => FFmpegWrapper.FFprobePath = FindExePath("ffprobe.exe", outMessages));
-            //Task findFFplayTask = Task.Run(() => FFmpegWrapper.FFplayPath = FindExePath("ffplay.exe", outMessages));
+
+            // local search
+            FFmpegWrapper.FFmpegPath = FindExePath("ffmpeg.exe", Directory.GetCurrentDirectory());
+            FFmpegWrapper.FFprobePath = FindExePath("ffprobe.exe", Directory.GetCurrentDirectory());
+            //FFmpegWrapper.FFplayPath = FindExePath("ffplay.exe", Directory.GetCurrentDirectory());
+
+            Task FFmpegVersionTask = Task.Run(() =>
+            {
+                try
+                {
+                    CheckFFmpegVersion();
+                }
+                catch (Exception E)
+                {
+                    errors = true;
+                    outMessages(E.Message, true);
+                }
+            });
+
+
+            Task FFprobeVersionTask = Task.Run(() =>
+            {
+                try
+                {
+                    CheckFFprobeVersion();
+                }
+                catch (Exception E)
+                {
+                    errors = true;
+                    outMessages(E.Message, true);
+                }
+            });
 
             outMessages("Checking FFmpeg......", false);
-            findFFmpegTask.Wait();
-            findFFprobeTask.Wait();
-            //findFFplayTask.Wait();          
+
+            FFprobeVersionTask.Wait();
+            FFmpegVersionTask.Wait();
 
             outMessages("Checking FFmpeg.........", false);
+
             if (FFmpegWrapper.FFmpegPath == null)
             {
-                outMessages("Could not find FFmpeg executable!", true);
                 errors = true;
+                outMessages("Could not find FFmpeg executable!", true);
             }
             else if (FFmpegWrapper.FFprobePath == null)
             {
-                outMessages("Could not find FFprobe executable!", false);
                 errors = true;
+                outMessages("Could not find FFprobe executable!", false);
             }
             //else if (FFmpegWrapper.FFplayPath == null)
             //{
@@ -89,142 +120,177 @@ namespace DTConverter
             //}
             else if (!FFmpegWrapper.VideoEncoderDictionary.ContainsKey("hap"))
             {
-                outMessages("HAP Codec not found! Please install it.", true);
                 errors = true;
+                outMessages("HAP Codec not found! Please install it.", true);
             }
 
             findCompleted.Invoke(!errors);
         }
 
         /// <summary>
-        /// Tries to launch a new process using passed fileName. If a local executable is found, it will be preferred.
-        /// If exe is ffmpeg.exe, Video and Audio encoders will be probed
+        /// Checks recursively to find fileName in parentDir
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="outMessages"></param>
-        /// <param name="outErrors"></param>
+        /// <param name="fileName">File to search</param>
+        /// <param name="parendDir">Parent in which to search</param>
         /// <returns></returns>
-        private static string FindExePath(string fileName, Action<string, bool> outMessages)
+        private static string FindExePath(string fileName, string parendDir)
         {
-            // if exe is correctly installed on system, we can just call it
-            string returningFileName = fileName;
+            string returningPath;
 
-            // if a local executable is present, we use this one
-            try
+            foreach (string eachFile in Directory.GetFiles(parendDir))
             {
-                foreach (string eachFile in Directory.GetFiles(Directory.GetCurrentDirectory()))
+                if (fileName.ToLower() == Path.GetFileName(eachFile).ToLower())
                 {
-                    if (fileName == eachFile.ToLower())
-                    {
-                        returningFileName = eachFile;
-                    }
+                    return Path.Combine(parendDir, eachFile);
                 }
             }
-            catch (Exception E) 
+            foreach (string eachDir in Directory.GetDirectories(parendDir))
             {
-                outMessages(E.Message, true);
+                returningPath = FindExePath(fileName, eachDir);
+                if (returningPath != null)
+                {
+                    return returningPath;
+                }
             }
+            return null;
+        }
 
-            Process fProc;
+        /// Tries to read version by launching a new process with FFmpegPath if not null, defaulting to ffmpeg.exe and FFprobePath and ffprobe.exe.
+        /// Video and Audio encoders will be probed by this method.
+        private static void CheckFFmpegVersion()
+        {
+            string line;
+
             ProcessStartInfo startInfo;
             startInfo = new ProcessStartInfo() { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
 
-            startInfo.FileName = returningFileName;
-            if (fileName.ToLower().Contains("ffmpeg"))
+            if (FFmpegWrapper.FFmpegPath != null)
             {
-                startInfo.Arguments = "-encoders";
+                startInfo.FileName = FFmpegWrapper.FFmpegPath;
             }
             else
             {
-                startInfo.Arguments = "-version";
+                startInfo.FileName = "ffmpeg.exe";
             }
-            fProc = Process.Start(startInfo);
-            fProc.WaitForExit(2000);
+            startInfo.Arguments = "-encoders";
+            
+            Process ffmpegProc;
+            ffmpegProc = Process.Start(startInfo);
+            ffmpegProc.WaitForExit(1000);
+            FFmpegWrapper.FFmpegPath = startInfo.FileName;
 
-            string line;
-            if (fileName.ToLower().Contains("ffmpeg"))
-            {
-                while (!fProc.StandardOutput.EndOfStream)
-                {
-                    try
-                    {
-                        // Enumerates encoders, lines will be like:
-                        // V..... hap                  Vidvox Hap
-                        line = fProc.StandardOutput.ReadLine().Trim();
-                        string[] splitted = line.Split(' ');
-                        //we will get a long array with a lot of "" elements
-                        if ((splitted[0].Length == 6) && splitted[0].Contains('.'))
-                        {
-                            string encoderName = "";
-                            string encoderDescription = "";
-                            int j = 0;
-
-                            for (int i = 0; i < splitted.Length; i++)
-                            {
-                                if (splitted[i].Length > 0)
-                                {
-                                    if (j == 0)
-                                    {
-                                        // first valid element is the capabilities string
-                                        j++;
-                                    }
-                                    else if (j == 1)
-                                    {
-                                        // second valid element is encoder name
-                                        encoderName = splitted[i];
-                                        j++;
-                                    }
-                                    else if (j > 1)
-                                    {
-                                        // after this point, it's all description
-                                        encoderDescription += splitted[i] + " ";
-                                    }
-                                }
-                            }
-
-                            if (splitted[0].Contains('V'))
-                            {
-                                if (encoderName != "=")
-                                {
-                                    FFmpegWrapper.VideoEncoderDictionary.Add(encoderName, encoderDescription);
-                                }
-                            }
-                            if (splitted[0].Contains('A'))
-                            {
-                                if (encoderName != "=")
-                                {
-                                    FFmpegWrapper.AudioEncoderDictionary.Add(encoderName, encoderDescription);
-                                }
-                            }
-                        }
-                    }
-
-                    catch (Exception E)
-                    {
-                        outMessages(E.Message, true);
-                    }
-                }
-            }
-
-            while (!fProc.StandardError.EndOfStream)
+            // Read Video and Audio Encoders
+            while (!ffmpegProc.StandardOutput.EndOfStream)
             {
                 try
                 {
-                    line = fProc.StandardError.ReadLine();
-                    if (line.ToLower().Contains("version"))
+                    // Enumerates encoders, lines will be like:
+                    // V..... hap                  Vidvox Hap
+                    line = ffmpegProc.StandardOutput.ReadLine().Trim();
+                    string[] splitted = line.Split(' ');
+                    //we will get a long array with a lot of "" elements
+                    if ((splitted[0].Length == 6) && splitted[0].Contains('.'))
                     {
-                        FFmpegWrapper.FFversion = line.Replace("version", "").Replace("ffmpeg", "").Trim();
+                        string encoderName = "";
+                        string encoderDescription = "";
+                        int j = 0;
+
+                        for (int i = 0; i < splitted.Length; i++)
+                        {
+                            if (splitted[i].Length > 0)
+                            {
+                                if (j == 0)
+                                {
+                                    // first valid element is the capabilities string
+                                    j++;
+                                }
+                                else if (j == 1)
+                                {
+                                    // second valid element is encoder name
+                                    encoderName = splitted[i];
+                                    j++;
+                                }
+                                else if (j > 1)
+                                {
+                                    // after this point, it's all description
+                                    encoderDescription += splitted[i] + " ";
+                                }
+                            }
+                        }
+
+                        if (splitted[0].Contains('V'))
+                        {
+                            if (encoderName != "=")
+                            {
+                                FFmpegWrapper.VideoEncoderDictionary.Add(encoderName, encoderDescription);
+                            }
+                        }
+                        if (splitted[0].Contains('A'))
+                        {
+                            if (encoderName != "=")
+                            {
+                                FFmpegWrapper.AudioEncoderDictionary.Add(encoderName, encoderDescription);
+                            }
+                        }
                     }
                 }
-                catch (Exception E)
-                {
-                    outMessages(E.Message, true);
-                }
+                catch { }
             }
 
-            return returningFileName;
+
+            // Version is printed in StandardError 
+            while (!ffmpegProc.StandardError.EndOfStream)
+            {
+                try
+                {
+                    line = ffmpegProc.StandardError.ReadLine().Trim();
+                    if (line.Contains("version") && line.Contains("ffmpeg"))
+                    {
+                        FFmpegWrapper.FFmpegVersion = line.Replace("version", "").Replace("ffmpeg", "").Trim().Split(' ')[0];
+                    }
+                }
+                catch { }
+            }
         }
-        
+
+        /// Tries to read version by launching a new process with FFprobePath if not null, defaulting to ffprobe.exe.
+        private static void CheckFFprobeVersion()
+        {
+            string line;
+            
+            ProcessStartInfo startInfo;
+            startInfo = new ProcessStartInfo() { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            if (FFmpegWrapper.FFprobePath != null)
+            {
+                startInfo.FileName = FFmpegWrapper.FFprobePath;
+            }
+            else
+            {
+                startInfo.FileName = "ffprobe.exe";
+            }
+            startInfo.Arguments = "-version";
+
+            Process ffprobeProc;
+            ffprobeProc = Process.Start(startInfo);
+            ffprobeProc.WaitForExit(1000);
+            FFmpegWrapper.FFprobePath = startInfo.FileName;
+
+            // Version is printed in StandardOutput 
+            while (!ffprobeProc.StandardOutput.EndOfStream)
+            {
+                try
+                {
+                    line = ffprobeProc.StandardOutput.ReadLine().ToLower();
+                    if (line.Contains("version") && line.Contains("ffprobe"))
+                    {
+                        FFmpegWrapper.FFprobeVersion = line.Replace("version", "").Replace("ffprobe", "").Trim().Split(' ')[0];
+                    }
+                }
+                catch { }
+            }
+        }
+            
+
         /// <summary>
         /// Probes all possible informations from SourcePath. 
         /// This method takes few seconds to execute so it should be run in a separate Process or Task
