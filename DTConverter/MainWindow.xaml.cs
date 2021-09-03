@@ -1066,6 +1066,14 @@ namespace DTConverter
             {
                 path = tvTarget.Tag.ToString();
             }
+            else if (pTarget is Label lbTarget)
+            {
+                path = lbTarget.Content.ToString();
+                if (! Directory.Exists(Directory.GetParent(path).FullName))
+                {
+                    path = Directory.GetParent(path).Parent.FullName;
+                }
+            }
 
             if (path != null)
             {

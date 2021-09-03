@@ -244,163 +244,177 @@
                             <RowDefinition Height="4px"/>
                             <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
-                            <StackPanel Name="PnlVideoSettings" Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}" ToolTip="Values for conversion. Use 0 to keep deault">
-                                <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" >
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="Encoder"/>
-                                        <ComboBox Name="CbxVideoEncoders" Width="128px" SelectedIndex="0" Text="{Binding VideoEncoder}" ItemsSource="{Binding Source={StaticResource VideoEncodersValues}}" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                        <Label Content="Resolution"/>
-                                        <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionParams.Horizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
-                                        <Label Content="x" Width="24px" HorizontalContentAlignment="Center"/>
-                                        <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionParams.Vertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
-                                        <Label Content="px" HorizontalContentAlignment="Left"/>
-                                        <Label Content="Multiple" />
-                                        <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionParams.Multiple}">
-                                            <ComboBoxItem Content="0"/>
-                                            <ComboBoxItem Content="2"/>
-                                            <ComboBoxItem Content="4"/>
-                                            <ComboBoxItem Content="8"/>
-                                            <ComboBoxItem Content="16"/>
-                                        </ComboBox>
-                                    </StackPanel>
-                                </StackPanel>
+                        <DockPanel Name="PnlVideoSettings">
+                            <DockPanel.Resources>
+                                <Style TargetType="Label"/>
+                            </DockPanel.Resources>
+                            <Label Name="LblDestinationVideoPath" DockPanel.Dock="Bottom" Content="{Binding DestinationVideoPath}" HorizontalAlignment="Center">
+                                <Label.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Open containing folder" Click="MnOpenContainingFolder_Click"/>
+                                    </ContextMenu>
+                                </Label.ContextMenu>
+                            </Label>
 
-                                <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="Framerate"/>
-                                        <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}"/>
-                                        <Label Content="FPS" HorizontalContentAlignment="Left" />
-                                    </StackPanel>
-                                    <StackPanel Name="PnlVideoBitrate" Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderH264}">
-                                        <Label Content="Bitrate" />
-                                        <TextBox Name="TxtVideoBitrate"  Text="{Binding VideoBitrate}" />
-                                        <Label Content="Mbps" HorizontalContentAlignment="Left" />
-                                    </StackPanel>
-                                </StackPanel>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
+                                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}" ToolTip="Values for conversion. Use 0 to keep deault">
 
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <StackPanel.Resources>
-                                        <Style TargetType="Label">
-                                            <Setter Property="Width" Value="64px"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Padding" Value="5px,0,5px,0"/>
-                                        </Style>
-                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}">
-                                            <EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_PreviewKeyUp"/>
-                                        </Style>
-                                    </StackPanel.Resources>
+                                    <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" >
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="Encoder"/>
+                                            <ComboBox Name="CbxVideoEncoders" Width="128px" SelectedIndex="0" Text="{Binding VideoEncoder}" ItemsSource="{Binding Source={StaticResource VideoEncodersValues}}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                            <Label Content="Resolution"/>
+                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionParams.Horizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
+                                            <Label Content="x" Width="24px" HorizontalContentAlignment="Center"/>
+                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionParams.Vertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
+                                            <Label Content="px" HorizontalContentAlignment="Left"/>
+                                            <Label Content="Multiple" />
+                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionParams.Multiple}">
+                                                <ComboBoxItem Content="0"/>
+                                                <ComboBoxItem Content="2"/>
+                                                <ComboBoxItem Content="4"/>
+                                                <ComboBoxItem Content="8"/>
+                                                <ComboBoxItem Content="16"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="Framerate"/>
+                                            <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}"/>
+                                            <Label Content="FPS" HorizontalContentAlignment="Left" />
+                                        </StackPanel>
+                                        <StackPanel Name="PnlVideoBitrate" Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderH264}">
+                                            <Label Content="Bitrate" />
+                                            <TextBox Name="TxtVideoBitrate"  Text="{Binding VideoBitrate}" />
+                                            <Label Content="Mbps" HorizontalContentAlignment="Left" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Width" Value="64px"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="Padding" Value="5px,0,5px,0"/>
+                                            </Style>
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}">
+                                                <EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_PreviewKeyUp"/>
+                                            </Style>
+                                        </StackPanel.Resources>
+
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_Checked" Unchecked="ChkEnableCrop_Unchecked" IsChecked="True"/>
+                                            <DockPanel Name="PnlCrop" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible">
+                                                <StackPanel DockPanel.Dock="Top">
+                                                    <Label Content="Top" />
+                                                    <TextBox Name="txtCropTop" Text="{Binding CropParams.Top}"/>
+                                                </StackPanel>
+                                                <StackPanel DockPanel.Dock="Bottom">
+                                                    <Label Content="Bottom"/>
+                                                    <TextBox Name="txtCropBottom" Text="{Binding CropParams.Bottom}"/>
+                                                </StackPanel>
+                                                <StackPanel DockPanel.Dock="Left">
+                                                    <Label Content="Left"/>
+                                                    <TextBox Name="txtCropLeft" Text="{Binding CropParams.Left}"/>
+                                                </StackPanel>
+                                                <StackPanel DockPanel.Dock="Right">
+                                                    <Label Content="Right"/>
+                                                    <TextBox Name="txtCropRight" Text="{Binding CropParams.Right}"/>
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Vertical" >
+                                            <CheckBox Name="ChkEnablePadding" Content="Padding" Checked="ChkEnablePadding_Checked" Unchecked="ChkEnablePadding_Unchecked" IsChecked="True"/>
+                                            <DockPanel Name="PnlPadding" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible" >
+                                                <StackPanel DockPanel.Dock="Top">
+                                                    <Label Content="Top" />
+                                                    <TextBox Name="txtPaddingTop" Text="{Binding PaddingParams.Top}"/>
+                                                </StackPanel>
+                                                <StackPanel DockPanel.Dock="Bottom">
+                                                    <Label Content="Bottom"/>
+                                                    <TextBox Name="txtPaddingBottom" Text="{Binding PaddingParams.Bottom}"/>
+                                                </StackPanel>
+                                                <StackPanel DockPanel.Dock="Left">
+                                                    <Label Content="Left" />
+                                                    <TextBox Name="txtPaddingLeft" Text="{Binding PaddingParams.Left}"/>
+                                                </StackPanel>
+                                                <StackPanel DockPanel.Dock="Right">
+                                                    <Label Content="Right" />
+                                                    <TextBox Name="txtPaddingRight" Text="{Binding PaddingParams.Right}"/>
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Vertical" Width="128">
+                                            <Label Content="Rotation" Width="64px"/>
+                                            <ComboBox Name="CbxRotation"  SelectedIndex="0" Text="{Binding Rotation}" SelectionChanged="CbxRotation_SelectionChanged">
+                                                <ComboBoxItem Content="0" />
+                                                <ComboBoxItem Content="90"/>
+                                                <ComboBoxItem Content="180"/>
+                                                <ComboBoxItem Content="270"/>
+                                            </ComboBox>
+                                            <CheckBox Name="ChkRotateMetadataOnly" Content="Metadata Only" IsChecked="{Binding RotateMetadataOnly}" IsEnabled="{Binding IsVideoEncoderCopy}"/>
+                                        </StackPanel>
+                                    </StackPanel>
 
                                     <StackPanel Orientation="Vertical">
-                                        <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_Checked" Unchecked="ChkEnableCrop_Unchecked" IsChecked="True"/>
-                                        <DockPanel Name="PnlCrop" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible">
-                                            <StackPanel DockPanel.Dock="Top">
-                                                <Label Content="Top" />
-                                                <TextBox Name="txtCropTop" Text="{Binding CropParams.Top}"/>
+                                        <StackPanel.Resources>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Width" Value="128px"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                                            </Style>
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}">
+                                                <EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_PreviewKeyUp"/>
+                                            </Style>
+                                            <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
+                                                <EventSetter Event="SelectionChanged" Handler="CbxHorizontalVerticalSlices_SelectionChanged"/>
+                                            </Style>
+                                        </StackPanel.Resources>
+                                        <CheckBox Name="ChkEnableSlices" Content="Slice" Checked="ChkEnableSlices_Checked" Unchecked="ChkEnableSlices_Unchecked" IsChecked="True" />
+                                        <StackPanel Name="PnlSlices" Orientation="Vertical" Visibility="Visible">
+                                            <StackPanel>
+                                                <Label Content="Horizontal slices"/>
+                                                <ComboBox Name="CbxHorizontalSlices" SelectedIndex="0" Text="{Binding SliceParams.HorizontalNumber}">
+                                                    <ComboBoxItem Content="1"/>
+                                                    <ComboBoxItem Content="2"/>
+                                                    <ComboBoxItem Content="3"/>
+                                                    <ComboBoxItem Content="4"/>
+                                                    <ComboBoxItem Content="5"/>
+                                                    <ComboBoxItem Content="6"/>
+                                                    <ComboBoxItem Content="7"/>
+                                                    <ComboBoxItem Content="8"/>
+                                                </ComboBox>
+                                                <Label Content="Horizontal overlap" />
+                                                <TextBox Name="TxtHOverlap" Text="{Binding SliceParams.HorizontalOverlap}"/>
+                                                <Label Content="px" HorizontalContentAlignment="Left" Width="32px"/>
                                             </StackPanel>
-                                            <StackPanel DockPanel.Dock="Bottom">
-                                                <Label Content="Bottom"/>
-                                                <TextBox Name="txtCropBottom" Text="{Binding CropParams.Bottom}"/>
+                                            <StackPanel>
+                                                <Label Content="Vertical slices" />
+                                                <ComboBox Name="CbxVerticalSlices" SelectedIndex="0" Text="{Binding SliceParams.VerticalNumber}">
+                                                    <ComboBoxItem Content="1"/>
+                                                    <ComboBoxItem Content="2"/>
+                                                    <ComboBoxItem Content="3"/>
+                                                    <ComboBoxItem Content="4"/>
+                                                    <ComboBoxItem Content="5"/>
+                                                    <ComboBoxItem Content="6"/>
+                                                    <ComboBoxItem Content="7"/>
+                                                    <ComboBoxItem Content="8"/>
+                                                </ComboBox>
+                                                <Label Content="Vertical overlap" />
+                                                <TextBox Name="TxtVOverlap" Text="{Binding SliceParams.VerticalOverlap}" />
+                                                <Label Content="px" HorizontalContentAlignment="Left" Width="32px"/>
                                             </StackPanel>
-                                            <StackPanel DockPanel.Dock="Left">
-                                                <Label Content="Left"/>
-                                                <TextBox Name="txtCropLeft" Text="{Binding CropParams.Left}"/>
-                                            </StackPanel>
-                                            <StackPanel DockPanel.Dock="Right">
-                                                <Label Content="Right"/>
-                                                <TextBox Name="txtCropRight" Text="{Binding CropParams.Right}"/>
-                                            </StackPanel>
-                                        </DockPanel>
-                                    </StackPanel>
-
-                                    <StackPanel Orientation="Vertical" >
-                                        <CheckBox Name="ChkEnablePadding" Content="Padding" Checked="ChkEnablePadding_Checked" Unchecked="ChkEnablePadding_Unchecked" IsChecked="True"/>
-                                        <DockPanel Name="PnlPadding" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible" >
-                                            <StackPanel DockPanel.Dock="Top">
-                                                <Label Content="Top" />
-                                                <TextBox Name="txtPaddingTop" Text="{Binding PaddingParams.Top}"/>
-                                            </StackPanel>
-                                            <StackPanel DockPanel.Dock="Bottom">
-                                                <Label Content="Bottom"/>
-                                                <TextBox Name="txtPaddingBottom" Text="{Binding PaddingParams.Bottom}"/>
-                                            </StackPanel>
-                                            <StackPanel DockPanel.Dock="Left">
-                                                <Label Content="Left" />
-                                                <TextBox Name="txtPaddingLeft" Text="{Binding PaddingParams.Left}"/>
-                                            </StackPanel>
-                                            <StackPanel DockPanel.Dock="Right">
-                                                <Label Content="Right" />
-                                                <TextBox Name="txtPaddingRight" Text="{Binding PaddingParams.Right}"/>
-                                            </StackPanel>
-                                        </DockPanel>
-                                    </StackPanel>
-
-                                    <StackPanel Orientation="Vertical" Width="128">
-                                        <Label Content="Rotation" Width="64px"/>
-                                        <ComboBox Name="CbxRotation"  SelectedIndex="0" Text="{Binding Rotation}" SelectionChanged="CbxRotation_SelectionChanged">
-                                            <ComboBoxItem Content="0" />
-                                            <ComboBoxItem Content="90"/>
-                                            <ComboBoxItem Content="180"/>
-                                            <ComboBoxItem Content="270"/>
-                                        </ComboBox>
-                                        <CheckBox Name="ChkRotateMetadataOnly" Content="Metadata Only" IsChecked="{Binding RotateMetadataOnly}" IsEnabled="{Binding IsVideoEncoderCopy}"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <StackPanel Orientation="Vertical">
-                                    <StackPanel.Resources>
-                                        <Style TargetType="Label">
-                                            <Setter Property="Width" Value="128px"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
-                                        </Style>
-                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}">
-                                            <EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_PreviewKeyUp"/>
-                                        </Style>
-                                        <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
-                                            <EventSetter Event="SelectionChanged" Handler="CbxHorizontalVerticalSlices_SelectionChanged"/>
-                                        </Style>
-                                    </StackPanel.Resources>
-                                    <CheckBox Name="ChkEnableSlices" Content="Slice" Checked="ChkEnableSlices_Checked" Unchecked="ChkEnableSlices_Unchecked" IsChecked="True" />
-                                    <StackPanel Name="PnlSlices" Orientation="Vertical" Visibility="Visible">
-                                        <StackPanel>
-                                            <Label Content="Horizontal slices"/>
-                                            <ComboBox Name="CbxHorizontalSlices" SelectedIndex="0" Text="{Binding SliceParams.HorizontalNumber}">
-                                                <ComboBoxItem Content="1"/>
-                                                <ComboBoxItem Content="2"/>
-                                                <ComboBoxItem Content="3"/>
-                                                <ComboBoxItem Content="4"/>
-                                                <ComboBoxItem Content="5"/>
-                                                <ComboBoxItem Content="6"/>
-                                                <ComboBoxItem Content="7"/>
-                                                <ComboBoxItem Content="8"/>
-                                            </ComboBox>
-                                            <Label Content="Horizontal overlap" />
-                                            <TextBox Name="TxtHOverlap" Text="{Binding SliceParams.HorizontalOverlap}"/>
-                                            <Label Content="px" HorizontalContentAlignment="Left" Width="32px"/>
-                                        </StackPanel>
-                                        <StackPanel>
-                                            <Label Content="Vertical slices" />
-                                            <ComboBox Name="CbxVerticalSlices" SelectedIndex="0" Text="{Binding SliceParams.VerticalNumber}">
-                                                <ComboBoxItem Content="1"/>
-                                                <ComboBoxItem Content="2"/>
-                                                <ComboBoxItem Content="3"/>
-                                                <ComboBoxItem Content="4"/>
-                                                <ComboBoxItem Content="5"/>
-                                                <ComboBoxItem Content="6"/>
-                                                <ComboBoxItem Content="7"/>
-                                                <ComboBoxItem Content="8"/>
-                                            </ComboBox>
-                                            <Label Content="Vertical overlap" />
-                                            <TextBox Name="TxtVOverlap" Text="{Binding SliceParams.VerticalOverlap}" />
-                                            <Label Content="px" HorizontalContentAlignment="Left" Width="32px"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
+                            </ScrollViewer>
+                        </DockPanel>
 
                         <GridSplitter Grid.Row="1"  HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
 
