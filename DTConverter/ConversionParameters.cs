@@ -22,6 +22,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 
 namespace DTConverter
 {
@@ -271,6 +272,23 @@ namespace DTConverter
         }
         public string PreviewTimeHMS => _PreviewTime.HMS;
 
+        public GridLength ShowColPreviewOut
+        {
+            get
+            {
+                if (_IsCropEnabled || _IsPaddingEnabled || _IsSliceEnabled ||
+                    _IsResolutionEnabled ||
+                    _Rotation != 0)
+                {
+                    return new GridLength(1, GridUnitType.Star);
+                }
+                else
+                {
+                    return new GridLength(0, GridUnitType.Star);
+                }
+            }
+        }
+
         private VideoResolution _PreviewResolution;
         public VideoResolution PreviewResolution
         {
@@ -375,6 +393,17 @@ namespace DTConverter
             }
         }
 
+        public bool _IsResolutionEnabled;
+        public bool IsResolutionEnabled
+        {
+            get => _IsResolutionEnabled;
+            set
+            {
+                _IsResolutionEnabled = value;
+                OnPropertyChanged("_IsResolutionEnabled");
+                OnPropertyChanged("ShowColPreviewOut");
+            }
+        }
         private VideoResolution _VideoResolutionParams;
         public VideoResolution VideoResolutionParams
         {
@@ -417,6 +446,7 @@ namespace DTConverter
             {
                 _Rotation = value;
                 OnPropertyChanged("Rotation");
+                OnPropertyChanged("ShowColPreviewOut");
             }
         }
 
@@ -439,6 +469,7 @@ namespace DTConverter
             {
                 _IsCropEnabled = value;
                 OnPropertyChanged("IsCropEnabled");
+                OnPropertyChanged("ShowColPreviewOut");
             }
         }
 
@@ -456,11 +487,12 @@ namespace DTConverter
         private bool _IsPaddingEnabled;
         public bool IsPaddingEnabled
         {
-            get => _IsPaddingEnabled;
+            get =>_IsPaddingEnabled;
             set
             {
                 _IsPaddingEnabled = value;
                 OnPropertyChanged("IsPaddingEnabled");
+                OnPropertyChanged("ShowColPreviewOut");
             }
         }
 
@@ -468,6 +500,7 @@ namespace DTConverter
         public Padding PaddingParams
         {
             get => _PaddingParams;
+
             set
             {
                 _PaddingParams = value;
@@ -483,6 +516,7 @@ namespace DTConverter
             {
                 _IsSliceEnabled = value;
                 OnPropertyChanged("IsSliceEnabled");
+                OnPropertyChanged("ShowColPreviewOut");
             }
         }
 

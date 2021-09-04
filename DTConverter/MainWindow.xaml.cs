@@ -73,6 +73,7 @@ namespace DTConverter
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "IsCropEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "IsPaddingEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "IsSliceEnabled");
+            
 
             // start time cannot be in frames, so add manually every timeunit except frames
             CbxStartTimeUnit.Items.Clear();
@@ -601,12 +602,18 @@ namespace DTConverter
         #endregion
 
         #region Crop Padding Slices
-        private void ChkEnableCrop_Checked(object sender, RoutedEventArgs e)
+        private async void ChkEnableCrop_Checked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlCrop.Visibility = Visibility.Visible;
-                OpenGrdPreviewOut();
+                
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
             }
         }
 
@@ -615,16 +622,21 @@ namespace DTConverter
             if (IsInitialized)
             {
                 PnlCrop.Visibility = Visibility.Collapsed;
-                TryCloseColCrop();
             }
         }
 
-        private void ChkEnablePadding_Checked(object sender, RoutedEventArgs e)
+        private async void ChkEnablePadding_Checked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlPadding.Visibility = Visibility.Visible;
-                OpenGrdPreviewOut();
+                
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
             }
         }
 
@@ -633,17 +645,21 @@ namespace DTConverter
             if (IsInitialized)
             {
                 PnlPadding.Visibility = Visibility.Collapsed;
-                TryCloseColCrop();
             }
         }
 
-        private void ChkEnableSlices_Checked(object sender, RoutedEventArgs e)
+        private async void ChkEnableSlices_Checked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlSlices.Visibility = Visibility.Visible;
-                OpenGrdPreviewOut();
-                //ChkOriginal.IsChecked = false;
+
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
             }
         }
 
@@ -655,40 +671,7 @@ namespace DTConverter
                 //CbxHorizontalSlices.SelectedIndex = 0;
                 //CbxVerticalSlices.SelectedIndex = 0;
                 ChkOriginal.IsChecked = true;
-                TryCloseColCrop();
             }
-        }
-
-        /// <summary>
-        /// Opens GrdPreviewOut, calls SliceGrdPreviewOut, and regenerates all previews
-        /// </summary>
-        private async void OpenGrdPreviewOut()
-        {
-            ColPreviewOut.Width = new GridLength(1, GridUnitType.Star);
-            SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
-
-            Task pvwIn = RegeneratePreviewInImages();
-            Task pvwOut = RegeneratePreviewOutImages();
-            await pvwIn.ConfigureAwait(true);
-            await pvwOut.ConfigureAwait(true);
-            UpdateImgPreviewIn();
-            UpdateImgPreviewOut();
-        }
-        
-        /// <summary>
-        /// Closes ColPreviewOut only if ChkEnableCrop and ChkEnablePadding and ChkEnableSlices are unchecked at the same time
-        /// </summary>
-        private async void TryCloseColCrop()
-        {
-            if (!ChkEnableCrop.IsChecked.Value && !ChkEnablePadding.IsChecked.Value && !ChkEnableSlices.IsChecked.Value)
-            {
-                ColPreviewOut.Width = new GridLength(0, GridUnitType.Star);
-            }
-            //ChkOriginal.IsChecked = true;
-
-            Task pvwIn = RegeneratePreviewInImages();
-            await pvwIn.ConfigureAwait(true);
-            UpdateImgPreviewIn();
         }
 
         /// <summary>
@@ -985,7 +968,7 @@ namespace DTConverter
             if (sender is ComboBox cbs)
             {
                 cbs.GetBindingExpression(ComboBox.TextProperty).UpdateSource();
-                
+
                 Task pvwIn = RegeneratePreviewInImages();
                 Task pvwOut = RegeneratePreviewOutImages();
                 await pvwIn.ConfigureAwait(true);

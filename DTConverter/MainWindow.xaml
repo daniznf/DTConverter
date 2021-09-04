@@ -440,7 +440,7 @@
                             <Grid Background="Gray" Name="GrdAllPreviews">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Name="ColPreviewIn" Width="1*"/>
-                                    <ColumnDefinition Name="ColPreviewOut" Width="1*"/>
+                                    <ColumnDefinition Name="ColPreviewOut" Width="{Binding ShowColPreviewOut}"/>
                                 </Grid.ColumnDefinitions>
                                 <DockPanel Grid.Column="0">
                                     <CheckBox Visibility="Hidden" DockPanel.Dock="Top"/>
