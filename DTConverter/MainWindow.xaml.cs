@@ -331,7 +331,6 @@ namespace DTConverter
         /// Probing video info and creating preview image will be done in a new Task
         /// </summary>
         /// <param name="file">Full name of file to add</param>
-        //private async Task AddTvwFile(string file)
         private void AddTvwFile(string file)
         {
             if (SearchTvw(file, TvwVideos) == null)
@@ -567,10 +566,7 @@ namespace DTConverter
                     ChangingDisplayedConversionParameters = false;
 
                     UpdateImgPreviewIn();
-                    if (ChkEnableCrop.IsChecked.Value || ChkEnablePadding.IsChecked.Value || ChkEnableSlices.IsChecked.Value)
-                    {
-                        UpdateImgPreviewOut();
-                    }
+                    UpdateImgPreviewOut();
                 }
             }
         }
@@ -654,6 +650,8 @@ namespace DTConverter
             {
                 PnlSlices.Visibility = Visibility.Visible;
 
+                SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
+
                 Task pvwIn = RegeneratePreviewInImages();
                 Task pvwOut = RegeneratePreviewOutImages();
                 await pvwIn.ConfigureAwait(true);
@@ -668,9 +666,9 @@ namespace DTConverter
             if (IsInitialized)
             {
                 PnlSlices.Visibility = Visibility.Collapsed;
-                //CbxHorizontalSlices.SelectedIndex = 0;
-                //CbxVerticalSlices.SelectedIndex = 0;
                 ChkOriginal.IsChecked = true;
+                SliceGrdPreviewOut(1,1);
+                UpdateImgPreviewOut();
             }
         }
 
@@ -680,7 +678,7 @@ namespace DTConverter
         /// </summary>
         private void SliceGrdPreviewOut(int rows, int columns)
         {
-            if ((rows > 1) || (columns > 1))
+            if ((rows > 1 || columns > 1) && ChkEnableSlices.IsChecked.Value)
             {
                 GrdPreviewOut.Children.Clear();
 
