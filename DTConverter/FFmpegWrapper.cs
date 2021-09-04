@@ -457,6 +457,7 @@ namespace DTConverter
             List<string> vArgsIn = new List<string>();
             List<string> vFilters = new List<string>();
             List<string> vArgsOut = new List<string>();
+            List<string> metadatas = new List<string>();
 
             string strArgsIn = "";
             string strvFilters = "";
@@ -578,20 +579,20 @@ namespace DTConverter
             }
 
             // Rotation
-            string metadata = "";
+            string metadataRot = "-metadata:s:v:0 ";
             if (rotateMetadataOnly)
             {
                 if (rotation == 90)
                 {
-                    metadata += "rotate=-90";
+                    metadatas.Add($"{metadataRot} rotate=-90");
                 }
                 else if (rotation == 180)
                 {
-                    metadata += "rotate=-180";
+                    metadatas.Add($"{metadataRot} rotate=-180 ");
                 }
                 else if (rotation == 270)
                 {
-                    metadata += "rotate=-270";
+                    metadatas.Add($"{metadataRot} rotate=-270 ");
                 }
             }
             else
@@ -610,11 +611,10 @@ namespace DTConverter
                 }
             }
 
-            if (metadata != "")
-            {
-                vArgsOut.Add($"-metadata:s:v:0 {metadata}");
-            }
-
+            metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
+            
+            vArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
+            
             string strArgsOut;
             strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
 
