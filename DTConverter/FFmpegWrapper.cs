@@ -427,7 +427,7 @@ namespace DTConverter
         public static Process ConvertVideo(string sourcePath, string destinationPath,
             TimeDuration start, TimeDuration duration,
             VideoEncoders videoEncoder,
-            VideoResolution videoResolution,
+            bool isResolutionEnabled, VideoResolution videoResolution,
             int videoBitrate, double outFramerate,
             int rotation, bool rotateMetadataOnly,
             bool isCropEnabled, Crop crop,
@@ -540,12 +540,12 @@ namespace DTConverter
                 vArgsOut.Add($"-f {vFormat}");
             }
 
-            if ((videoResolution.Horizontal > 0) && (videoResolution.Vertical > 0))
+            if (isResolutionEnabled)
             {
-                //if (!isSliceEnabled)
-                {
-                    vArgsOut.Add($"-s {videoResolution.Horizontal}x{videoResolution.Vertical}");
-                }
+                int hResolution = videoResolution.Horizontal > 0 ? videoResolution.Horizontal : videoInfo.HorizontalResolution;
+                int vResolution = videoResolution.Vertical > 0 ? videoResolution.Vertical : videoInfo.VerticalResolution;
+                
+                vArgsOut.Add($"-s {hResolution}x{vResolution}");
             }
 
             // force CBR

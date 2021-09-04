@@ -27,7 +27,7 @@
         mc:Ignorable="d"
         Icon="DTConverter_icon.ico"
         Name="DTWindow"
-        Title="DT Converter" Width="1280" Height="800" MinWidth="800" MinHeight="480">
+        Title="DT Converter" Width="1280" Height="1024" MinWidth="800" MinHeight="480">
     <Window.Resources>
         <SolidColorBrush x:Key="Sky1" Color="#bccad6"/>
         <SolidColorBrush x:Key="Sky2" Color="#8d9db6"/>
@@ -264,21 +264,6 @@
                                             <Label Content="Encoder"/>
                                             <ComboBox Name="CbxVideoEncoders" Width="128px" SelectedIndex="0" Text="{Binding VideoEncoder}" ItemsSource="{Binding Source={StaticResource VideoEncodersValues}}" />
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                            <Label Content="Resolution"/>
-                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionParams.Horizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
-                                            <Label Content="x" Width="24px" HorizontalContentAlignment="Center"/>
-                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionParams.Vertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
-                                            <Label Content="px" HorizontalContentAlignment="Left"/>
-                                            <Label Content="Multiple" />
-                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionParams.Multiple}">
-                                                <ComboBoxItem Content="0"/>
-                                                <ComboBoxItem Content="2"/>
-                                                <ComboBoxItem Content="4"/>
-                                                <ComboBoxItem Content="8"/>
-                                                <ComboBoxItem Content="16"/>
-                                            </ComboBox>
-                                        </StackPanel>
                                     </StackPanel>
 
                                     <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
@@ -307,7 +292,7 @@
                                             </Style>
                                         </StackPanel.Resources>
 
-                                        <StackPanel Orientation="Vertical">
+                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                             <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_Checked" Unchecked="ChkEnableCrop_Unchecked" IsChecked="True"/>
                                             <DockPanel Name="PnlCrop" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible">
                                                 <StackPanel DockPanel.Dock="Top">
@@ -329,7 +314,7 @@
                                             </DockPanel>
                                         </StackPanel>
 
-                                        <StackPanel Orientation="Vertical" >
+                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                             <CheckBox Name="ChkEnablePadding" Content="Padding" Checked="ChkEnablePadding_Checked" Unchecked="ChkEnablePadding_Unchecked" IsChecked="True"/>
                                             <DockPanel Name="PnlPadding" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible" >
                                                 <StackPanel DockPanel.Dock="Top">
@@ -363,7 +348,7 @@
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                         <StackPanel.Resources>
                                             <Style TargetType="Label">
                                                 <Setter Property="Width" Value="128px"/>
@@ -410,6 +395,25 @@
                                                 <TextBox Name="TxtVOverlap" Text="{Binding SliceParams.VerticalOverlap}" />
                                                 <Label Content="px" HorizontalContentAlignment="Left" Width="32px"/>
                                             </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_Checked" Unchecked="ChkEnableResolution_Unchecked" IsChecked="True"/>
+                                        <StackPanel Name="PnlResolution">
+                                            <Label Content="Resolution"/>
+                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionParams.Horizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
+                                            <Label Content="x" Width="24px" HorizontalContentAlignment="Center"/>
+                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionParams.Vertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
+                                            <Label Content="px" HorizontalContentAlignment="Left"/>
+                                            <Label Content="Multiple" />
+                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionParams.Multiple}">
+                                                <ComboBoxItem Content="0"/>
+                                                <ComboBoxItem Content="2"/>
+                                                <ComboBoxItem Content="4"/>
+                                                <ComboBoxItem Content="8"/>
+                                                <ComboBoxItem Content="16"/>
+                                            </ComboBox>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>

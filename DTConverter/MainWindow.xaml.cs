@@ -73,7 +73,8 @@ namespace DTConverter
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "IsCropEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "IsPaddingEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "IsSliceEnabled");
-            
+            ChkEnableResolution.SetBinding(CheckBox.IsCheckedProperty, "IsVideoResolutionEnabled");
+
 
             // start time cannot be in frames, so add manually every timeunit except frames
             CbxStartTimeUnit.Items.Clear();
@@ -752,6 +753,29 @@ namespace DTConverter
                     UpdateImgPreviewIn();
                     UpdateImgPreviewOut();
                 }
+            }
+        }
+
+        private async void ChkEnableResolution_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IsInitialized)
+            {
+                PnlResolution.Visibility = Visibility.Visible;
+
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
+            }
+        }
+
+        private void ChkEnableResolution_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (IsInitialized)
+            {
+                PnlResolution.Visibility = Visibility.Collapsed;
             }
         }
 

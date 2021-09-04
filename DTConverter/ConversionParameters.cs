@@ -112,6 +112,7 @@ namespace DTConverter
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
 
+            IsVideoResolutionEnabled = copyFrom.IsVideoResolutionEnabled;
             VideoResolutionParams.Horizontal = copyFrom.VideoResolutionParams.Horizontal;
             VideoResolutionParams.Vertical = copyFrom.VideoResolutionParams.Vertical;
             VideoBitrate = copyFrom.VideoBitrate;
@@ -277,7 +278,7 @@ namespace DTConverter
             get
             {
                 if (_IsCropEnabled || _IsPaddingEnabled || _IsSliceEnabled ||
-                    _IsResolutionEnabled ||
+                    _IsVideoResolutionEnabled ||
                     _Rotation != 0)
                 {
                     return new GridLength(1, GridUnitType.Star);
@@ -395,13 +396,13 @@ namespace DTConverter
             }
         }
 
-        public bool _IsResolutionEnabled;
-        public bool IsResolutionEnabled
+        public bool _IsVideoResolutionEnabled;
+        public bool IsVideoResolutionEnabled
         {
-            get => _IsResolutionEnabled;
+            get => _IsVideoResolutionEnabled;
             set
             {
-                _IsResolutionEnabled = value;
+                _IsVideoResolutionEnabled = value;
                 OnPropertyChanged("_IsResolutionEnabled");
                 OnPropertyChanged("ShowColPreviewOut");
             }
@@ -598,7 +599,7 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
-                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, PreviewResolution,
+                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, true, PreviewResolution,
                         0, 0, 0, false, false, null, false, null, false, null, SourceInfo);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
@@ -651,7 +652,7 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewOut;
                 try
                 {
-                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, VideoResolutionParams,
+                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, IsVideoResolutionEnabled, VideoResolutionParams,
                         0, 0, Rotation, false, IsCropEnabled, CropParams, IsPaddingEnabled, PaddingParams, IsSliceEnabled, SliceParams, SourceInfo);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
@@ -709,7 +710,7 @@ namespace DTConverter
                         VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath,
                             StartTime, DurationTime,
                             VideoEncoder,
-                            VideoResolutionParams,
+                            IsVideoResolutionEnabled, VideoResolutionParams,
                              VideoBitrate, OutFrameRate,
                              Rotation, RotateMetadataOnly,
                              IsCropEnabled, CropParams,
