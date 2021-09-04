@@ -375,12 +375,14 @@ namespace DTConverter
                 OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotCopy");
                 OnPropertyChanged("IsVideoEncoderNotHAP");
+                OnPropertyChanged("IsVideoEncoderNotStillImage");
             }
         }
         public bool IsVideoEncoderCopy => VideoEncoder == VideoEncoders.Copy;
-        public bool IsVideoEncoderH264 => VideoEncoder == VideoEncoders.H264;
         public bool IsVideoEncoderNotCopy => VideoEncoder != VideoEncoders.Copy;
+        public bool IsVideoEncoderH264 => VideoEncoder == VideoEncoders.H264;
         public bool IsVideoEncoderNotHAP => !VideoEncoder.ToString().ToLower().Contains("hap");
+        public bool IsVideoEncoderNotStillImage => !VideoEncoder.ToString().ToLower().Contains("still");
 
         private AudioEncoders _AudioEncoder;
         public AudioEncoders AudioEncoder

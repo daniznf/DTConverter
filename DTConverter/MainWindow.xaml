@@ -282,7 +282,7 @@
                                     </StackPanel>
 
                                     <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                        <StackPanel Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderNotStillImage}">
                                             <Label Content="Framerate"/>
                                             <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}"/>
                                             <Label Content="FPS" HorizontalContentAlignment="Left" />
