@@ -738,9 +738,8 @@ namespace DTConverter
         {
             if (IsInitialized)
             {
-                CbxHorizontalSlices.GetBindingExpression(ComboBox.TextProperty).UpdateSource();
-                CbxVerticalSlices.GetBindingExpression(ComboBox.TextProperty).UpdateSource();
-
+                CbxHorizontalSlices.Text = (CbxHorizontalSlices.SelectedItem as ComboBoxItem).Content.ToString();
+                
                 if ((CbxVerticalSlices.SelectedItem is ComboBoxItem cbSelectedVertical) && 
                     (CbxHorizontalSlices.SelectedItem is ComboBoxItem cbSelectedHorizontal))
                 {
@@ -891,33 +890,29 @@ namespace DTConverter
                     {
                         DisplayedConversionParameters.KillProcessPreviewOut();
                     }
-                    if (DisplayedConversionParameters.IsCropEnabled ||
-                        DisplayedConversionParameters.IsPaddingEnabled ||
-                        DisplayedConversionParameters.IsSliceEnabled)
-                    {
-                        foreach (UIElement uiEl in GrdPreviewOut.Children)
-                        {
-                            if (uiEl is Image imgOut)
-                            {
-                                imgOut.Source = null;
-                            }
-                        }
 
-                        return Task.Run(() =>
+                    foreach (UIElement uiEl in GrdPreviewOut.Children)
+                    {
+                        if (uiEl is Image imgOut)
                         {
-                            try
-                            {
-                                DisplayedConversionParameters.CreateImagePreviewOut(
-                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                                WriteStatus("", false);
-                            }
-                            catch (Exception E)
-                            {
-                                WriteStatus(E.Message, true);
-                            }
-                        });
+                            imgOut.Source = null;
+                        }
                     }
+
+                    return Task.Run(() =>
+                    {
+                        try
+                        {
+                            DisplayedConversionParameters.CreateImagePreviewOut(
+                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                            WriteStatus("", false);
+                        }
+                        catch (Exception E)
+                        {
+                            WriteStatus(E.Message, true);
+                        }
+                    });
                 }
             }
             return  Task.Run(() => { return; });
@@ -965,9 +960,9 @@ namespace DTConverter
 
         private async void CbxRotation_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ComboBox cbs)
+            if (IsInitialized)
             {
-                cbs.GetBindingExpression(ComboBox.TextProperty).UpdateSource();
+                CbxRotation.Text = (CbxRotation.SelectedItem as ComboBoxItem).Content.ToString();
 
                 Task pvwIn = RegeneratePreviewInImages();
                 Task pvwOut = RegeneratePreviewOutImages();
