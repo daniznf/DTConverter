@@ -604,13 +604,8 @@ namespace DTConverter
             if (IsInitialized)
             {
                 PnlCrop.Visibility = Visibility.Visible;
-                
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+
+                await RegenerateUpdatePreviews ();
             }
         }
 
@@ -620,12 +615,7 @@ namespace DTConverter
             {
                 PnlCrop.Visibility = Visibility.Collapsed;
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -634,13 +624,8 @@ namespace DTConverter
             if (IsInitialized)
             {
                 PnlPadding.Visibility = Visibility.Visible;
-                
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -650,12 +635,7 @@ namespace DTConverter
             {
                 PnlPadding.Visibility = Visibility.Collapsed;
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -667,12 +647,7 @@ namespace DTConverter
 
                 SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -684,12 +659,7 @@ namespace DTConverter
                 ChkOriginal.IsChecked = true;
                 SliceGrdPreviewOut(1,1);
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -762,16 +732,8 @@ namespace DTConverter
                 if ((CbxVerticalSlices.SelectedItem is ComboBoxItem cbSelectedVertical) && 
                     (CbxHorizontalSlices.SelectedItem is ComboBoxItem cbSelectedHorizontal))
                 {
-                    Task pvwIn = RegeneratePreviewInImages();
-                    Task pvwOut = RegeneratePreviewOutImages();
-
-                    await pvwIn.ConfigureAwait(true);
-                    await pvwOut.ConfigureAwait(true);
-
                     SliceGrdPreviewOut(Convert.ToInt32(cbSelectedVertical.Content), Convert.ToInt32(cbSelectedHorizontal.Content));
-
-                    UpdateImgPreviewIn();
-                    UpdateImgPreviewOut();
+                    await RegenerateUpdatePreviews();
                 }
             }
         }
@@ -782,12 +744,7 @@ namespace DTConverter
             {
                 PnlResolution.Visibility = Visibility.Visible;
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -797,12 +754,7 @@ namespace DTConverter
             {
                 PnlResolution.Visibility = Visibility.Collapsed;
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
@@ -884,6 +836,16 @@ namespace DTConverter
                     }
                 });
             }
+        }
+
+        private async Task RegenerateUpdatePreviews()
+        {
+            Task pvwIn = RegeneratePreviewInImages();
+            Task pvwOut = RegeneratePreviewOutImages();
+            await pvwIn.ConfigureAwait(true);
+            await pvwOut.ConfigureAwait(true);
+            UpdateImgPreviewIn();
+            UpdateImgPreviewOut();
         }
 
         /// <summary>
@@ -992,23 +954,13 @@ namespace DTConverter
                     tbs.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 }
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
 
         private async void AnyonePreviewRegeneration_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            Task pvwIn = RegeneratePreviewInImages();
-            Task pvwOut = RegeneratePreviewOutImages();
-            await pvwIn.ConfigureAwait(true);
-            await pvwOut.ConfigureAwait(true);
-            UpdateImgPreviewIn();
-            UpdateImgPreviewOut();
+            await RegenerateUpdatePreviews();
         }
 
         private async void CbxRotation_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1017,12 +969,7 @@ namespace DTConverter
             {
                 CbxRotation.Text = (CbxRotation.SelectedItem as ComboBoxItem).Content.ToString();
 
-                Task pvwIn = RegeneratePreviewInImages();
-                Task pvwOut = RegeneratePreviewOutImages();
-                await pvwIn.ConfigureAwait(true);
-                await pvwOut.ConfigureAwait(true);
-                UpdateImgPreviewIn();
-                UpdateImgPreviewOut();
+                await RegenerateUpdatePreviews();
             }
         }
         #endregion
