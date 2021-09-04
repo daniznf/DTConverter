@@ -614,11 +614,18 @@ namespace DTConverter
             }
         }
 
-        private void ChkEnableCrop_Unchecked(object sender, RoutedEventArgs e)
+        private async void ChkEnableCrop_Unchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlCrop.Visibility = Visibility.Collapsed;
+
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
             }
         }
 
@@ -637,11 +644,18 @@ namespace DTConverter
             }
         }
 
-        private void ChkEnablePadding_Unchecked(object sender, RoutedEventArgs e)
+        private async void ChkEnablePadding_Unchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlPadding.Visibility = Visibility.Collapsed;
+
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
             }
         }
 
@@ -662,13 +676,19 @@ namespace DTConverter
             }
         }
 
-        private void ChkEnableSlices_Unchecked(object sender, RoutedEventArgs e)
+        private async void ChkEnableSlices_Unchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlSlices.Visibility = Visibility.Collapsed;
                 ChkOriginal.IsChecked = true;
                 SliceGrdPreviewOut(1,1);
+
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
                 UpdateImgPreviewOut();
             }
         }
@@ -771,11 +791,18 @@ namespace DTConverter
             }
         }
 
-        private void ChkEnableResolution_Unchecked(object sender, RoutedEventArgs e)
+        private async void ChkEnableResolution_Unchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
                 PnlResolution.Visibility = Visibility.Collapsed;
+
+                Task pvwIn = RegeneratePreviewInImages();
+                Task pvwOut = RegeneratePreviewOutImages();
+                await pvwIn.ConfigureAwait(true);
+                await pvwOut.ConfigureAwait(true);
+                UpdateImgPreviewIn();
+                UpdateImgPreviewOut();
             }
         }
 
@@ -920,21 +947,25 @@ namespace DTConverter
                             imgOut.Source = null;
                         }
                     }
-
-                    return Task.Run(() =>
+                    if (ChkEnableCrop.IsChecked.Value || ChkEnablePadding.IsChecked.Value || ChkEnableSlices.IsChecked.Value ||
+                        (CbxRotation.SelectedItem as ComboBoxItem).Content.ToString() != "0" ||
+                        ChkEnableResolution.IsChecked.Value)
                     {
-                        try
+                        return Task.Run(() =>
                         {
-                            DisplayedConversionParameters.CreateImagePreviewOut(
-                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                            WriteStatus("", false);
-                        }
-                        catch (Exception E)
-                        {
-                            WriteStatus(E.Message, true);
-                        }
-                    });
+                            try
+                            {
+                                DisplayedConversionParameters.CreateImagePreviewOut(
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                                WriteStatus("", false);
+                            }
+                            catch (Exception E)
+                            {
+                                WriteStatus(E.Message, true);
+                            }
+                        });
+                    }
                 }
             }
             return  Task.Run(() => { return; });
