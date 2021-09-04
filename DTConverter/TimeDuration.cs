@@ -141,8 +141,10 @@ namespace DTConverter
                 H = Convert.ToInt32(Math.Truncate(hours));
                 M = Convert.ToInt32(Math.Truncate(minutes));
                 S = Convert.ToInt32(Math.Truncate(seconds));
-                
+
                 msDouble = (seconds - Math.Truncate(seconds)) * 1000;
+                // 10.51 - 10 = 0.50999999999999979
+                msDouble = Math.Round(msDouble, 3);
                 ms = Convert.ToInt32(Math.Truncate(msDouble));
                 us = Convert.ToInt32((msDouble - Math.Truncate(msDouble)) * 1000);
 

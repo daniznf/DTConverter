@@ -389,7 +389,7 @@ namespace DTConverter
                         Horizontal = 640,
                         Vertical = Convert.ToInt32(640 / cp.SourceInfo.AspectRatio)
                     };
-                    cp.PreviewTime.Seconds = cp.SourceInfo.Duration.Seconds / 2;
+                    cp.PreviewTimeSeconds = cp.SourceInfo.Duration.Seconds / 2;
                     cp.PreviewResolution = vr;
                     try
                     {
@@ -1276,7 +1276,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.StartTime.Seconds = DisplayedConversionParameters.PreviewTime.Seconds;
+                DisplayedConversionParameters.StartTime.Seconds = DisplayedConversionParameters.PreviewTimeSeconds;
             }
         }
 
@@ -1284,7 +1284,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.DurationTime.Seconds = DisplayedConversionParameters.PreviewTime.Seconds - DisplayedConversionParameters.StartTime.Seconds;
+                DisplayedConversionParameters.DurationTime.Seconds = DisplayedConversionParameters.PreviewTimeSeconds - DisplayedConversionParameters.StartTime.Seconds;
             }
         }
         #endregion

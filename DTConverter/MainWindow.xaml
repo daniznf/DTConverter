@@ -433,9 +433,9 @@
                                     </Style>
                                 </DockPanel.Resources>
                                 <Button Name="BtnSetStart" FontFamily="Segoe MDL2 Assets" FontSize="14px" Content="&#xf745;" DockPanel.Dock="Left" Click="BtnSetStart_Click"/>
-                                <Label Content="{Binding PreviewTime.HMS, Mode=OneWay}" Width="96px" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                                <Label Content="{Binding PreviewTimeHMS, Mode=OneWay}" Width="96px" DockPanel.Dock="Right" VerticalAlignment="Center"/>
                                 <Button Name="BtnSetEnd" FontFamily="Segoe MDL2 Assets" FontSize="14px" Content="&#xf743;" DockPanel.Dock="Right" Click="BtnSetEnd_Click"/>
-                                <Slider Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTime.Seconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
+                                <Slider Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
                             </DockPanel>
                             <Grid Background="Gray" Name="GrdAllPreviews">
                                 <Grid.ColumnDefinitions>

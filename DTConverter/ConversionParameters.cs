@@ -51,7 +51,7 @@ namespace DTConverter
             VideoResolutionParams = new VideoResolution();
             StartTime = new TimeDuration();
             DurationTime = new TimeDuration();
-            PreviewTime = new TimeDuration();
+            _PreviewTime = new TimeDuration();
             CropParams = new Crop();
             PaddingParams = new Padding();
             SliceParams = new Slicer();
@@ -98,7 +98,10 @@ namespace DTConverter
 
             StartTime = copyFrom.StartTime;
             DurationTime = copyFrom.DurationTime;
-            PreviewTime = copyFrom.PreviewTime;
+            _PreviewTime = new TimeDuration()
+            {
+                Seconds = copyFrom.PreviewTimeSeconds
+            };
 
             PreviewResolution = copyFrom.PreviewResolution;
 
@@ -256,15 +259,17 @@ namespace DTConverter
         }
 
         private TimeDuration _PreviewTime;
-        public TimeDuration PreviewTime
+        public double PreviewTimeSeconds
         {
-            get => _PreviewTime;
+            get => _PreviewTime.Seconds;
             set
             {
-                _PreviewTime = value;
-                OnPropertyChanged("PreviewTime");
+                _PreviewTime.Seconds = Math.Round(value, 3);
+                OnPropertyChanged("PreviewTimeSeconds");
+                OnPropertyChanged("PreviewTimeHMS");
             }
         }
+        public string PreviewTimeHMS => _PreviewTime.HMS;
 
         private VideoResolution _PreviewResolution;
         public VideoResolution PreviewResolution
