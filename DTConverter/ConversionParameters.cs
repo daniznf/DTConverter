@@ -50,8 +50,8 @@ namespace DTConverter
         {
             // Changing all public properties (not _variables) Bindings will be notified
             VideoResolutionParams = new VideoResolution();
-            StartTime = new TimeDuration();
-            DurationTime = new TimeDuration();
+            _StartTime = new TimeDuration();
+            _DurationTime = new TimeDuration();
             _PreviewTime = new TimeDuration();
             CropParams = new Crop();
             PaddingParams = new Padding();
@@ -97,13 +97,10 @@ namespace DTConverter
             // Isvalid should not be copied, we don't want user to copy a valid item into a non-valid item
             // ThumbnailPath should not be copied
 
-            StartTime = copyFrom.StartTime;
-            DurationTime = copyFrom.DurationTime;
-            _PreviewTime = new TimeDuration()
-            {
-                Seconds = copyFrom.PreviewTimeSeconds
-            };
-
+            _StartTime.Seconds = copyFrom.StartTimeSeconds;
+            _DurationTime.Seconds = copyFrom.DurationTimeSeconds;
+            PreviewTimeSeconds = copyFrom.PreviewTimeSeconds;
+            
             PreviewResolution = copyFrom.PreviewResolution;
 
             IsConversionEnabled = copyFrom.IsConversionEnabled;
@@ -161,7 +158,7 @@ namespace DTConverter
                     if ((VideoEncoder == VideoEncoders.JPG_Sequence) || (VideoEncoder == VideoEncoders.PNG_Sequence))
                     {
                         outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                        int nDigits = DurationTime.GetFrames(OutFrameRate).ToString().Length;
+                        int nDigits = _DurationTime.GetFrames(OutFrameRate).ToString().Length;
                         outPath += $"-%0{nDigits}d";
                     }
 
@@ -239,7 +236,7 @@ namespace DTConverter
 
         private TimeDuration _StartTime;
         /// Start time must be in seconds
-        public TimeDuration StartTime
+        /*public TimeDuration StartTime
         {
             get => _StartTime;
             set
@@ -248,15 +245,113 @@ namespace DTConverter
                 OnPropertyChanged("StartTime");
             }
         }
+        */
+        public double StartTimeSeconds
+        {
+            get
+            {
+                return _StartTime.Seconds;
+            }
+            set
+            {
+                _StartTime.Seconds = value;
+                DurationTimeSeconds = EndTimeSeconds - value;
+                OnPropertyChanged("StartTimeSeconds");
+                OnPropertyChanged("StartTimeHMS");
+                OnPropertyChanged("DurationTimeSeconds");
+                OnPropertyChanged("DurationTimeHMS");
+            }
+        }
+        public string StartTimeHMS
+        {
+            get
+            {
+                return _StartTime.HMS;
+            }
+            set
+            {
+                _StartTime.HMS = value;
+                _DurationTime.Seconds = EndTimeSeconds - new TimeDuration() { HMS = value }.Seconds;
+                OnPropertyChanged("StartTimeSeconds");
+                OnPropertyChanged("StartTimeHMS");
+                OnPropertyChanged("DurationTimeSeconds");
+                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("EndTimeSeconds");
+                OnPropertyChanged("EndTimeHMS");
+            }
+        }
+
+        public double EndTimeSeconds
+        {
+            get
+            {
+                return _StartTime.Seconds + _DurationTime.Seconds;
+            }
+            set
+            {
+                _DurationTime.Seconds = value - _StartTime.Seconds;
+                OnPropertyChanged("EndTimeSeconds");
+                OnPropertyChanged("EndTimeHMS");
+                OnPropertyChanged("DurationTimeSeconds");
+                OnPropertyChanged("DurationTimeHMS");
+            }
+        }
+        public string EndTimeHMS
+        {
+            get
+            {
+                return new TimeDuration() { Seconds = _StartTime.Seconds + _DurationTime.Seconds }.HMS;
+            }
+            set
+            {
+                _DurationTime.Seconds = new TimeDuration() { HMS = value }.Seconds - _StartTime.Seconds;
+                OnPropertyChanged("EndTimeSeconds");
+                OnPropertyChanged("EndTimeHMS");
+                OnPropertyChanged("DurationTimeSeconds");
+                OnPropertyChanged("DurationTimeHMS");
+            }
+        }
 
         private TimeDuration _DurationTime;
-        public TimeDuration DurationTime
+        /*public TimeDuration DurationTime
         {
             get => _DurationTime;
             set
             {
                 _DurationTime = value;
                 OnPropertyChanged("DurationTime");
+                OnPropertyChanged("EndTime");
+            }
+        }
+        */
+        public double DurationTimeSeconds
+        {
+            get
+            {
+                return _DurationTime.Seconds;
+            }
+            set
+            {
+                _DurationTime.Seconds = value;
+                OnPropertyChanged("DurationTimeSeconds");
+                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("EndTimeSeconds");
+                OnPropertyChanged("EndTimeHMS");
+            }
+        }
+        public string DurationTimeHMS
+        {
+            get
+            {
+                return _DurationTime.HMS;
+            }
+            set
+            {
+                _DurationTime.HMS = value;
+                OnPropertyChanged("DurationTimeSeconds");
+                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("EndTimeSeconds");
+                OnPropertyChanged("EndTimeHMS");
             }
         }
 
@@ -708,7 +803,7 @@ namespace DTConverter
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
                     {
                         VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath,
-                            StartTime, DurationTime,
+                            _StartTime, _DurationTime,
                             VideoEncoder,
                             IsVideoResolutionEnabled, VideoResolutionParams,
                              VideoBitrate, OutFrameRate,

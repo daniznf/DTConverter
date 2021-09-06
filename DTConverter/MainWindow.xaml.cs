@@ -1146,6 +1146,8 @@ namespace DTConverter
                 {
                     try
                     {
+                        // TODO: Handle start time insertion
+                        /*
                         switch (CbxStartTimeUnit.SelectedItem)
                         {
                             case DurationTypes.Seconds:
@@ -1164,6 +1166,7 @@ namespace DTConverter
                                 DisplayedConversionParameters.StartTime.HMS = TxtStartTime.Text;
                                 break;
                         }
+                        */
                     }
                     catch { }
                 }
@@ -1203,6 +1206,8 @@ namespace DTConverter
                 {
                     try
                     {
+                        // TODO: Handle start time insertion
+                        /*
                         switch (CbxDurationTimeUnit.SelectedItem)
                         {
                             case DurationTypes.Seconds:
@@ -1221,6 +1226,7 @@ namespace DTConverter
                                 DisplayedConversionParameters.DurationTime.HMS = TxtDurationTime.Text;
                                 break;
                         }
+                        */
                     }
                     catch { }
                 }
@@ -1250,19 +1256,35 @@ namespace DTConverter
             TxtDurationTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
 
-        private void BtnSetStart_Click(object sender, RoutedEventArgs e)
+        private void BtnMarkIn_Click(object sender, RoutedEventArgs e)
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.StartTime.Seconds = DisplayedConversionParameters.PreviewTimeSeconds;
+                DisplayedConversionParameters.StartTimeSeconds = DisplayedConversionParameters.PreviewTimeSeconds;
             }
         }
 
-        private void BtnSetEnd_Click(object sender, RoutedEventArgs e)
+        private void BtnMarkOut_Click(object sender, RoutedEventArgs e)
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.DurationTime.Seconds = DisplayedConversionParameters.PreviewTimeSeconds - DisplayedConversionParameters.StartTime.Seconds;
+                DisplayedConversionParameters.EndTimeSeconds = DisplayedConversionParameters.PreviewTimeSeconds;
+            }
+        }
+
+        private void BtnGotoIn_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisplayedConversionParameters != null)
+            {
+                DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.StartTimeSeconds;
+            }
+        }
+
+        private void BtnGotoOut_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisplayedConversionParameters != null)
+            {
+                DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.EndTimeSeconds;
             }
         }
         #endregion

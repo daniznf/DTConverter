@@ -428,6 +428,7 @@
                                     <Setter Property="Margin" Value="1px"/>
                                 </Style>
                             </DockPanel.Resources>
+                            
                             <DockPanel DockPanel.Dock="Bottom" >
                                 <DockPanel.Resources>
                                     <Style TargetType="Button">
@@ -436,11 +437,15 @@
                                         <Setter Property="Margin" Value="0,2px,0,0"/>
                                     </Style>
                                 </DockPanel.Resources>
-                                <Button Name="BtnSetStart" FontFamily="Segoe MDL2 Assets" FontSize="14px" Content="&#xf745;" DockPanel.Dock="Left" Click="BtnSetStart_Click"/>
-                                <Label Content="{Binding PreviewTimeHMS, Mode=OneWay}" Width="96px" DockPanel.Dock="Right" VerticalAlignment="Center"/>
-                                <Button Name="BtnSetEnd" FontFamily="Segoe MDL2 Assets" FontSize="14px" Content="&#xf743;" DockPanel.Dock="Right" Click="BtnSetEnd_Click"/>
-                                <Slider Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
+                                <TextBox Text="{Binding StartTimeHMS}" DockPanel.Dock="Left" Width="96px" HorizontalAlignment="Left"/>
+                                <Button Name="BtnMarkIn" Content="In" DockPanel.Dock="Left" Click="BtnMarkIn_Click"/>
+                                <Button Name="BtnGotoIn" FontFamily="Segoe MDL2 Assets" Content="&#xf743;" DockPanel.Dock="Left" Click="BtnGotoIn_Click"/>
+                                <TextBox Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right"/>
+                                <Button Name="BtnMarkOut" Content="Out" DockPanel.Dock="Right" Click="BtnMarkOut_Click"/>
+                                <Button Name="BtnGotoOut" FontFamily="Segoe MDL2 Assets"  Content="&#xf745;" DockPanel.Dock="Right" Click="BtnGotoOut_Click"/>
+                                <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" ToolTip="{Binding PreviewTimeHMS}" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
                             </DockPanel>
+                            
                             <Grid Background="Gray" Name="GrdAllPreviews">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Name="ColPreviewIn" Width="1*"/>
@@ -479,14 +484,14 @@
                         <StackPanel Name="PnlGeneral" Orientation="Vertical" IsEnabled="{Binding IsConversionEnabled}" ToolTip="Values for conversion. Use 0 to keep deault">
                             <StackPanel Name="PnlStartTime" Orientation="Horizontal">
                                 <Label Content="Start Time" />
-                                <TextBox Name="TxtStartTime"  Text="{Binding StartTime.Seconds}" Width="92" KeyUp="TxtStartTime_KeyUp"/>
+                                <TextBox Name="TxtStartTime"  Text="{Binding StartTimeSeconds}" Width="92" KeyUp="TxtStartTime_KeyUp"/>
                                 <ComboBox Name="CbxStartTimeUnit" Width="128" SelectedIndex="0" SelectionChanged="CbxStartTimeUnit_SelectionChanged">
                                     <ComboBoxItem Content="Seconds"/>
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Name="PnlDurationTime" Orientation="Horizontal">
                                 <Label Content="Duration Time" />
-                                <TextBox Name="TxtDurationTime"  Text="{Binding DurationTime.Seconds}" Width="92" KeyUp="TxtDurationTime_KeyUp"/>
+                                <TextBox Name="TxtDurationTime"  Text="{Binding DurationTimeSeconds}" Width="92" KeyUp="TxtDurationTime_KeyUp"/>
                                 <ComboBox Name="CbxDurationTimeUnit" Width="128" SelectedItem="{Binding DurationTime.DurationType, Mode=OneWay}" SelectedIndex="0" SelectionChanged="CbxDurationTimeUnit_SelectionChanged" ItemsSource="{Binding Source={StaticResource TimeDurationValues}}"/>
                             </StackPanel>
                         </StackPanel>
