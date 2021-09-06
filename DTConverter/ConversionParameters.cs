@@ -234,18 +234,8 @@ namespace DTConverter
             }
         }
 
-        private TimeDuration _StartTime;
         /// Start time must be in seconds
-        /*public TimeDuration StartTime
-        {
-            get => _StartTime;
-            set
-            {
-                _StartTime = value;
-                OnPropertyChanged("StartTime");
-            }
-        }
-        */
+        private TimeDuration _StartTime;
         public double StartTimeSeconds
         {
             get
@@ -254,12 +244,14 @@ namespace DTConverter
             }
             set
             {
-                _StartTime.Seconds = value;
-                DurationTimeSeconds = EndTimeSeconds - value;
+                if (value <= EndTimeSeconds)
+                {
+                    DurationTimeSeconds = EndTimeSeconds - value;
+                    _StartTime.Seconds = value;
+                }
+
                 OnPropertyChanged("StartTimeSeconds");
                 OnPropertyChanged("StartTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
             }
         }
         public string StartTimeHMS
@@ -270,14 +262,7 @@ namespace DTConverter
             }
             set
             {
-                _StartTime.HMS = value;
-                _DurationTime.Seconds = EndTimeSeconds - new TimeDuration() { HMS = value }.Seconds;
-                OnPropertyChanged("StartTimeSeconds");
-                OnPropertyChanged("StartTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("EndTimeHMS");
+                StartTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
             }
         }
 
@@ -289,11 +274,9 @@ namespace DTConverter
             }
             set
             {
-                _DurationTime.Seconds = value - _StartTime.Seconds;
+                DurationTimeSeconds = value - _StartTime.Seconds;
                 OnPropertyChanged("EndTimeSeconds");
                 OnPropertyChanged("EndTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
             }
         }
         public string EndTimeHMS
@@ -304,26 +287,12 @@ namespace DTConverter
             }
             set
             {
-                _DurationTime.Seconds = new TimeDuration() { HMS = value }.Seconds - _StartTime.Seconds;
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("EndTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
+                double sValue = new TimeDuration() { HMS = value }.Seconds;
+                EndTimeSeconds = sValue;
             }
         }
 
         private TimeDuration _DurationTime;
-        /*public TimeDuration DurationTime
-        {
-            get => _DurationTime;
-            set
-            {
-                _DurationTime = value;
-                OnPropertyChanged("DurationTime");
-                OnPropertyChanged("EndTime");
-            }
-        }
-        */
         public double DurationTimeSeconds
         {
             get
@@ -332,11 +301,20 @@ namespace DTConverter
             }
             set
             {
-                _DurationTime.Seconds = value;
+                if (_SourceInfo != null)
+                {
+                    double durationLeft = _SourceInfo.Duration.Seconds - _StartTime.Seconds;
+                    if (value <= durationLeft)
+                    {
+                        _DurationTime.Seconds = value;
+                    }
+                    else
+                    {
+                        _DurationTime.Seconds = durationLeft;
+                    }
+                }
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("EndTimeHMS");
             }
         }
         public string DurationTimeHMS
@@ -347,11 +325,8 @@ namespace DTConverter
             }
             set
             {
-                _DurationTime.HMS = value;
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("EndTimeHMS");
+                double sValue = new TimeDuration() { HMS = value }.Seconds;
+                DurationTimeSeconds = sValue;
             }
         }
 
@@ -502,16 +477,8 @@ namespace DTConverter
                 OnPropertyChanged("ShowColPreviewOut");
             }
         }
+
         private VideoResolution _VideoResolutionParams;
-        /*public VideoResolution VideoResolutionParams
-        {
-            get => _VideoResolutionParams;
-            set
-            {
-                _VideoResolutionParams = value;
-                OnPropertyChanged("VideoResolutionParams");
-            }
-        }*/
         public int VideoResolutionHorizontal
         {
             get
@@ -574,11 +541,36 @@ namespace DTConverter
             }
         }
 
+        private bool _IsVideoBitrateEnabled;
+        public bool IsVideoBitrateEnabled
+        {
+            get => _IsVideoBitrateEnabled;
+            set
+            {
+                _IsVideoBitrateEnabled = value;
+                OnPropertyChanged("IsVideoBitrateEnabled");
+                OnPropertyChanged("VideoBitrate");
+            }
+        }
         private int _VideoBitrate;
-        // Video Bitrate in Kb/s
+        /// Video Bitrate in Kb/s
         public int VideoBitrate
         {
-            get => _VideoBitrate;
+            get
+            {
+                if (IsVideoBitrateEnabled)
+                {
+                    return _VideoBitrate;
+                }
+                else
+                {
+                    if (_SourceInfo != null)
+                    {
+                        return _SourceInfo.VideoBitrate;
+                    }
+                }
+                return 0;
+            }
             set
             {
                 _VideoBitrate = value;
@@ -586,10 +578,35 @@ namespace DTConverter
             }
         }
 
+        private bool _IsOutFramerateEnabled;
+        public bool IsOutFramerateEnabled
+        {
+            get => _IsOutFramerateEnabled;
+            set
+            {
+                _IsOutFramerateEnabled = value;
+                OnPropertyChanged("IsOutFramerateEnabled");
+                OnPropertyChanged("OutFrameRate");
+            }
+        }
         private double _OutFrameRate;
         public double OutFrameRate
         {
-            get => _OutFrameRate;
+            get
+            {
+                if (_IsOutFramerateEnabled)
+                {
+                    return _OutFrameRate;
+                }
+                else
+                {
+                    if (_SourceInfo != null)
+                    {
+                        return Math.Round(_SourceInfo.FrameRate, 2);
+                    }
+                }
+                return 0;
+            }
             set
             {
                 _OutFrameRate = value;
@@ -732,8 +749,9 @@ namespace DTConverter
                 SourceInfo = FFmpegWrapper.ProbeVideoInfo(SourcePath, 1000);
             }
 
-            if (SourceInfo != null && SourceInfo.Duration != null)
+            if (_SourceInfo != null && _SourceInfo.Duration != null)
             {
+                DurationTimeSeconds = _SourceInfo.Duration.Seconds;
                 IsValid = true;
             }
             else
@@ -756,7 +774,9 @@ namespace DTConverter
                 try
                 {
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, true, PreviewResolution,
-                        0, 0, 0, false, false, null, false, null, false, null);
+                        false, 0,
+                        false, 0,
+                        0, false, false, null, false, null, false, null);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
@@ -809,7 +829,9 @@ namespace DTConverter
                 try
                 {
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, IsVideoResolutionEnabled, _VideoResolutionParams,
-                        0, 0, Rotation, false, IsCropEnabled, CropParams, IsPaddingEnabled, PaddingParams, IsSliceEnabled, SliceParams);
+                        false, 0,
+                        false, 0,
+                        Rotation, false, IsCropEnabled, CropParams, IsPaddingEnabled, PaddingParams, IsSliceEnabled, SliceParams);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
                     ProcessPreviewOut.StartInfo.Arguments += " -y";
@@ -867,7 +889,8 @@ namespace DTConverter
                             _StartTime, _DurationTime,
                             VideoEncoder,
                             IsVideoResolutionEnabled, _VideoResolutionParams,
-                             VideoBitrate, OutFrameRate,
+                             IsVideoBitrateEnabled, _VideoBitrate,
+                             IsOutFramerateEnabled, _OutFrameRate,
                              Rotation, RotateMetadataOnly,
                              IsCropEnabled, CropParams,
                              IsPaddingEnabled, PaddingParams,

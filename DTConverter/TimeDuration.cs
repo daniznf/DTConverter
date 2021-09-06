@@ -127,7 +127,7 @@ namespace DTConverter
                 double hours = 0;
                 double msDouble = 0;
                 
-                if (seconds > 60)
+                if (seconds >= 60)
                 {
                     minutes = seconds / 60;
                     seconds -= 60 * Math.Truncate(minutes);
