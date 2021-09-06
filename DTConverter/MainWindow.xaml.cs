@@ -1175,6 +1175,18 @@ namespace DTConverter
                 DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.EndTimeSeconds;
             }
         }
+
+        private void TxtStartTime_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTimeSeconds);
+            AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
+        }
+
+        private void TxtEndTime_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTimeSeconds);
+            AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
+        }
         #endregion
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
