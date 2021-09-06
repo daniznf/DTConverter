@@ -142,13 +142,14 @@
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
+
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="4*" MinWidth="200px"/>
                 <ColumnDefinition Width="2px"/>
                 <ColumnDefinition Width="6*" MinWidth="576px" />
             </Grid.ColumnDefinitions>
-            <DockPanel>
+            <DockPanel Grid.Column="0">
                 <Label Content="Drop files here!" AllowDrop="True" Drop="TvwVideos_Drop" DockPanel.Dock="Top" HorizontalContentAlignment="Center" Width="256px" Margin="0,4px,0,4px" />
                 <Button Name="BtnConvert" Content="Start Conversions" DockPanel.Dock="Bottom" Margin="0,4px,0,0" Background="{StaticResource Sky4}" Height="64px" FontSize="14px" Click="BtnStartConvert_Click"/>
                 <TreeView Name="TvwVideos" Grid.Column="0" Margin="0" AllowDrop="True" Drop="TvwVideos_Drop" SelectedItemChanged="TvwVideos_SelectedItemChanged">
@@ -245,21 +246,27 @@
                     </TreeViewItem>
                 </TreeView>
             </DockPanel>
+
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeDirection="Columns" Margin="0,34px,0,0px"/>
-            <TabControl Grid.Column="2" TabStripPlacement="Top" Margin="0,0,0,0" IsEnabled="{Binding IsValid}">
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Margin="0">
-                            <CheckBox IsChecked="{Binding IsVideoEnabled}" />
-                            <TextBlock Text="Video" HorizontalAlignment="Center" Margin="10,0,0,0" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="4px"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="4px"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <TabControl Grid.Row="0" TabStripPlacement="Top" Margin="0,0,0,0" IsEnabled="{Binding IsValid}">
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Margin="0">
+                                <CheckBox IsChecked="{Binding IsVideoEnabled}" />
+                                <TextBlock Text="Video" HorizontalAlignment="Center" Margin="10,0,0,0" />
+                            </StackPanel>
+                        </TabItem.Header>
+
+
+
                         <DockPanel Name="PnlVideoSettings">
                             <DockPanel.Resources>
                                 <Style TargetType="Label"/>
@@ -440,75 +447,78 @@
                                 </StackPanel>
                             </ScrollViewer>
                         </DockPanel>
+                    </TabItem>
 
-                        <GridSplitter Grid.Row="1"  HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="96px" Margin="0">
+                                <CheckBox IsChecked="{Binding IsAudioEnabled}" />
+                                <TextBlock Text="Audio" HorizontalAlignment="Center" Margin="10,0,0,0" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <Label Content="This section will be available soon..." HorizontalContentAlignment="Center" Width="300px"></Label>
+                    </TabItem>
 
-                        <DockPanel Grid.Row="2">
-                            <DockPanel.Resources>
-                                <Style TargetType="Image">
-                                    <Setter Property="Margin" Value="1px"/>
-                                </Style>
-                            </DockPanel.Resources>
+                    <TabItem Header="General">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
+                            <StackPanel Name="PnlGeneral" Orientation="Vertical" IsEnabled="{Binding IsConversionEnabled}" >
 
-                            <DockPanel DockPanel.Dock="Bottom" >
-                                <DockPanel.Resources>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Width" Value="32px"/>
-                                        <Setter Property="Height" Value="32px"/>
-                                        <Setter Property="Margin" Value="2px"/>
-                                    </Style>
-                                </DockPanel.Resources>
-                                <TextBox Name="TxtStartTime" Text="{Binding StartTimeHMS}" DockPanel.Dock="Left" Width="96px" HorizontalAlignment="Left" LostFocus="TxtStartTime_LostFocus" />
-                                <Button Name="BtnMarkIn" Content="In" DockPanel.Dock="Left" Click="BtnMarkIn_Click"/>
-                                <Button Name="BtnGotoIn" FontFamily="Segoe MDL2 Assets" Content="&#xf743;" DockPanel.Dock="Left" Click="BtnGotoIn_Click"/>
-                                <TextBox Name="TxtEndTime" Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right" LostFocus="TxtEndTime_LostFocus"/>
-                                <Button Name="BtnMarkOut" Content="Out" DockPanel.Dock="Right" Click="BtnMarkOut_Click"/>
-                                <Button Name="BtnGotoOut" FontFamily="Segoe MDL2 Assets"  Content="&#xf745;" DockPanel.Dock="Right" Click="BtnGotoOut_Click"/>
-                                <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" ToolTip="{Binding PreviewTimeHMS}" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
-                            </DockPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
 
-                            <DockPanel Background="Gray">
-                                <CheckBox Name="ChkOriginal" DockPanel.Dock="Top" Content="Show original" Foreground="White" Checked="ChkOriginal_CheckedUnchecked" Unchecked="ChkOriginal_CheckedUnchecked" IsChecked="True"/>
-                                <Grid Name="GrdAllPreviews">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Name="ColPreviewIn" Width="1*"/>
-                                        <ColumnDefinition Name="ColPreviewOut" Width="{Binding ShowColPreviewOut}"/>
-                                    </Grid.ColumnDefinitions>
-                                    <DockPanel Grid.Column="0">
-                                        <!-- this checkbox is here only for correct alignment -->
-                                        <Grid Name="GrdPreviewIn" >
-                                            <Image Name="ImgPvwIn"/>
-                                        </Grid>
-                                    </DockPanel>
-                                    <DockPanel Grid.Column="1" >
-                                        <Grid Name="GrdPreviewOut" HorizontalAlignment="Center">
-                                            <!-- RowDefinitions and ColumnDefinitions will be added at runtime -->
-                                            <Image Name="ImgPvwOut"/>
-                                            <!-- up to RxC images will be added at runtime-->
-                                        </Grid>
-                                    </DockPanel>
+                </TabControl>
+
+                <GridSplitter Grid.Row="1"  HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
+
+                <DockPanel Grid.Row="2" Background="Gray">
+                    <DockPanel.Resources>
+                        <Style TargetType="Image">
+                            <Setter Property="Margin" Value="2px"/>
+                        </Style>
+                    </DockPanel.Resources>
+
+                    <DockPanel DockPanel.Dock="Bottom" >
+                        <DockPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Width" Value="32px"/>
+                                <Setter Property="Height" Value="32px"/>
+                                <Setter Property="Margin" Value="2px"/>
+                            </Style>
+                        </DockPanel.Resources>
+                        <TextBox Name="TxtStartTime" Text="{Binding StartTimeHMS}" DockPanel.Dock="Left" Width="96px" HorizontalAlignment="Left" LostFocus="TxtStartTime_LostFocus" />
+                        <Button Name="BtnMarkIn" Content="In" DockPanel.Dock="Left" Click="BtnMarkIn_Click"/>
+                        <Button Name="BtnGotoIn" FontFamily="Segoe MDL2 Assets" Content="&#xf743;" DockPanel.Dock="Left" Click="BtnGotoIn_Click"/>
+                        <TextBox Name="TxtEndTime" Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right" LostFocus="TxtEndTime_LostFocus"/>
+                        <Button Name="BtnMarkOut" Content="Out" DockPanel.Dock="Right" Click="BtnMarkOut_Click"/>
+                        <Button Name="BtnGotoOut" FontFamily="Segoe MDL2 Assets"  Content="&#xf745;" DockPanel.Dock="Right" Click="BtnGotoOut_Click"/>
+                        <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" ToolTip="{Binding PreviewTimeHMS}" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <CheckBox Name="ChkOriginal" DockPanel.Dock="Top" Content="Show original" Foreground="White" Checked="ChkOriginal_CheckedUnchecked" Unchecked="ChkOriginal_CheckedUnchecked" IsChecked="True"/>
+                        <Grid Name="GrdAllPreviews">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Name="ColPreviewIn" Width="1*"/>
+                                <ColumnDefinition Name="ColPreviewOut" Width="{Binding ShowColPreviewOut}"/>
+                            </Grid.ColumnDefinitions>
+                            <DockPanel Grid.Column="0">
+                                <!-- this checkbox is here only for correct alignment -->
+                                <Grid Name="GrdPreviewIn" >
+                                    <Image Name="ImgPvwIn"/>
                                 </Grid>
                             </DockPanel>
-                        </DockPanel>
-                    </Grid>
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Width="96px" Margin="0">
-                            <CheckBox IsChecked="{Binding IsAudioEnabled}" />
-                            <TextBlock Text="Audio" HorizontalAlignment="Center" Margin="10,0,0,0" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <Label Content="This section will be available soon..." HorizontalContentAlignment="Center" Width="300px"></Label>
-                </TabItem>
-                <TabItem Header="General">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
-                        <StackPanel Name="PnlGeneral" Orientation="Vertical" IsEnabled="{Binding IsConversionEnabled}" >
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-            </TabControl>
+                            <DockPanel Grid.Column="1" >
+                                <Grid Name="GrdPreviewOut" HorizontalAlignment="Center">
+                                    <!-- RowDefinitions and ColumnDefinitions will be added at runtime -->
+                                    <Image Name="ImgPvwOut"/>
+                                    <!-- up to RxC images will be added at runtime-->
+                                </Grid>
+                            </DockPanel>
+                        </Grid>
+                    </DockPanel>
+                </DockPanel>
+            </Grid>
 
             <StackPanel Grid.Column="2"  Height="32px" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <Label Name="LblName" Content="DT Converter" Width="192px"  FontWeight="Bold"/>
