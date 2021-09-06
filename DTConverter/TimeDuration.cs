@@ -251,6 +251,11 @@ namespace DTConverter
                         ms = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) / 1000.0));
                         us = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) % 1000.0));
                     }
+                    else
+                    {
+                        ms = 0;
+                        us = 0;
+                    }
 
                     splitted = splitted[0].Split(':');
                     if (splitted.Length == 3)
