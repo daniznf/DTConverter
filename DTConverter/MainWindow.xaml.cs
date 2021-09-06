@@ -953,7 +953,7 @@ namespace DTConverter
             }
         }
 
-        private async void AnyonePreviewRegeneration_PreviewKeyUp(object sender, KeyEventArgs e)
+        private async void AnyonePreviewRegeneration_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -967,6 +967,11 @@ namespace DTConverter
         }
 
         private async void AnyonePreviewRegeneration_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            await RegenerateUpdatePreviews();
+        }
+
+        private async void AnyonePreviewRegeneration_LostFocus(object sender, RoutedEventArgs e)
         {
             await RegenerateUpdatePreviews();
         }
@@ -1166,6 +1171,7 @@ namespace DTConverter
             if (DisplayedConversionParameters != null)
             {
                 DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.StartTimeSeconds;
+                AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
             }
         }
 
@@ -1174,6 +1180,7 @@ namespace DTConverter
             if (DisplayedConversionParameters != null)
             {
                 DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.EndTimeSeconds;
+                AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
             }
         }
 

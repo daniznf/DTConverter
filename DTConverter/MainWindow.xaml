@@ -83,6 +83,8 @@
             <Setter Property="Height" Value="32px"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!--<EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_KeyUp"/>-->
+            <EventSetter Event="LostFocus" Handler="AnyonePreviewRegeneration_LostFocus"/>
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}"/>
 
@@ -315,9 +317,6 @@
                                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                                 <Setter Property="Padding" Value="5px,0,5px,0"/>
                                             </Style>
-                                            <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}">
-                                                <EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_PreviewKeyUp"/>
-                                            </Style>
                                         </StackPanel.Resources>
 
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
@@ -382,9 +381,6 @@
                                                 <Setter Property="Width" Value="128px"/>
                                                 <Setter Property="HorizontalContentAlignment" Value="Right"/>
                                             </Style>
-                                            <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxBase}">
-                                                <EventSetter Event="PreviewKeyUp" Handler="AnyonePreviewRegeneration_PreviewKeyUp"/>
-                                            </Style>
                                             <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
                                                 <EventSetter Event="SelectionChanged" Handler="CbxHorizontalVerticalSlices_SelectionChanged"/>
                                             </Style>
@@ -430,9 +426,9 @@
                                         <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
                                         <StackPanel Name="PnlResolution">
                                             <Label Content="Resolution"/>
-                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionHorizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
+                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding VideoResolutionHorizontal}"/>
                                             <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
-                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
+                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}"/>
                                             <Label Content="px" HorizontalContentAlignment="Left"/>
                                             <Label Content="Multiple" />
                                             <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
@@ -486,10 +482,10 @@
                                 <Setter Property="Margin" Value="2px"/>
                             </Style>
                         </DockPanel.Resources>
-                        <TextBox Name="TxtStartTime" Text="{Binding StartTimeHMS}" DockPanel.Dock="Left" Width="96px" HorizontalAlignment="Left" LostFocus="TxtStartTime_LostFocus" />
+                        <TextBox Name="TxtStartTime" Text="{Binding StartTimeHMS}" DockPanel.Dock="Left" Width="96px" HorizontalAlignment="Left"/>
                         <Button Name="BtnMarkIn" Content="In" DockPanel.Dock="Left" Click="BtnMarkIn_Click"/>
                         <Button Name="BtnGotoIn" FontFamily="Segoe MDL2 Assets" Content="&#xf743;" DockPanel.Dock="Left" Click="BtnGotoIn_Click"/>
-                        <TextBox Name="TxtEndTime" Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right" LostFocus="TxtEndTime_LostFocus"/>
+                        <TextBox Name="TxtEndTime" Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right"/>
                         <Button Name="BtnMarkOut" Content="Out" DockPanel.Dock="Right" Click="BtnMarkOut_Click"/>
                         <Button Name="BtnGotoOut" FontFamily="Segoe MDL2 Assets"  Content="&#xf745;" DockPanel.Dock="Right" Click="BtnGotoOut_Click"/>
                         <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" ToolTip="{Binding PreviewTimeHMS}" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
