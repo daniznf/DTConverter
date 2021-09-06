@@ -443,6 +443,7 @@ namespace DTConverter
                 }
 
                 OnPropertyChanged("VideoEncoder");
+                OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("IsVideoEncoderCopy");
                 OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotCopy");
