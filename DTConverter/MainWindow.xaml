@@ -267,14 +267,16 @@
                             <DockPanel.Resources>
                                 <Style TargetType="Label"/>
                             </DockPanel.Resources>
-                            <Label Name="LblDestinationVideoPath" DockPanel.Dock="Bottom" Content="{Binding DestinationVideoPath}" HorizontalAlignment="Center">
-                                <Label.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Open containing folder" Click="MnOpenContainingFolder_Click"/>
-                                    </ContextMenu>
-                                </Label.ContextMenu>
-                            </Label>
-
+                            <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+                                <Label Content="Output destination" DockPanel.Dock="Left" />
+                                <Label Name="LblDestinationVideoPath" Content="{Binding DestinationVideoPath}" HorizontalContentAlignment="Center">
+                                    <Label.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Open containing folder" Click="MnOpenContainingFolder_Click"/>
+                                        </ContextMenu>
+                                    </Label.ContextMenu>
+                                </Label>
+                            </DockPanel>
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
                                 <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}">
                                     <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" >
