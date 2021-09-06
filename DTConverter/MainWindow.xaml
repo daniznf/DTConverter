@@ -286,15 +286,19 @@
                                     </StackPanel>
 
                                     <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderNotStillImage}">
-                                            <Label Content="Framerate"/>
-                                            <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}"/>
-                                            <Label Content="FPS" HorizontalContentAlignment="Left" />
+                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotStillImage}" >
+                                            <CheckBox Name="ChkEnableOutFramerate" Content="Framerate" IsChecked="True" Checked="ChkEnableOutFramerate_Checked" Unchecked="ChkEnableOutFramerate_Checked"/>
+                                            <StackPanel Name="PnlOutFrameRate" Orientation="Horizontal" >
+                                                <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}" Width="64"/>
+                                                <Label Content="FPS" HorizontalContentAlignment="Left" />
+                                            </StackPanel>
                                         </StackPanel>
-                                        <StackPanel Name="PnlVideoBitrate" Orientation="Horizontal" IsEnabled="{Binding IsVideoEncoderH264}">
-                                            <Label Content="Bitrate" />
-                                            <TextBox Name="TxtVideoBitrate"  Text="{Binding VideoBitrate}" />
-                                            <Label Content="Mbps" HorizontalContentAlignment="Left" />
+                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderH264}">
+                                            <CheckBox Name="ChkEnableVideoBitrate" Content="Bitrate" IsChecked="True" Checked="ChkEnableVideoBitrate_Checked" Unchecked="ChkEnableVideoBitrate_Checked"/>
+                                            <StackPanel Name="PnlVideoBitrate" Orientation="Horizontal" >
+                                                <TextBox Name="TxtVideoBitrate" Text="{Binding VideoBitrate}" Width="64"/>
+                                                <Label Content="Kbps" HorizontalContentAlignment="Left" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
 

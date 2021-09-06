@@ -74,6 +74,8 @@ namespace DTConverter
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "IsPaddingEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "IsSliceEnabled");
             ChkEnableResolution.SetBinding(CheckBox.IsCheckedProperty, "IsVideoResolutionEnabled");
+            ChkEnableVideoBitrate.SetBinding(CheckBox.IsCheckedProperty, "IsVideoBitrateEnabled");
+            ChkEnableOutFramerate.SetBinding(CheckBox.IsCheckedProperty, "IsOutFramerateEnabled");
 
 
             // start time cannot be in frames, so add manually every timeunit except frames
@@ -598,7 +600,37 @@ namespace DTConverter
         }
         #endregion
 
-        #region Crop Padding Slices
+        #region Bitrate Framerate Crop Padding Slices
+        private void ChkEnableOutFramerate_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IsInitialized)
+            {
+                if (ChkEnableOutFramerate.IsChecked.Value)
+                {
+                    PnlOutFrameRate.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PnlOutFrameRate.Visibility = Visibility.Hidden;
+                }
+            }
+        }
+
+        private void ChkEnableVideoBitrate_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IsInitialized)
+            {
+                if (ChkEnableVideoBitrate.IsChecked.Value)
+                {
+                    PnlVideoBitrate.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PnlVideoBitrate.Visibility = Visibility.Hidden;
+                }
+            }
+        }
+
         private async void ChkEnableCrop_Checked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)

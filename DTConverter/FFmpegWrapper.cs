@@ -428,7 +428,8 @@ namespace DTConverter
             TimeDuration start, TimeDuration duration,
             VideoEncoders videoEncoder,
             bool isResolutionEnabled, VideoResolution videoResolution,
-            int videoBitrate, double outFramerate,
+            bool isVideoBitrateEnabled, int videoBitrate, 
+            bool isOutFramerateEnabled, double outFramerate,
             int rotation, bool rotateMetadataOnly,
             bool isCropEnabled, Crop crop,
             bool isPaddingEnabled, Padding padding,
@@ -550,12 +551,12 @@ namespace DTConverter
             }
 
             // force CBR
-            if (videoBitrate != 0)
+            if (isVideoBitrateEnabled)
             {
                 vArgsOut.Add($"-b {videoBitrate} -minrate {videoBitrate} -maxrate {videoBitrate}");
             }
 
-            if (outFramerate != 0)
+            if (isOutFramerateEnabled)
             {
                 vArgsOut.Add($"-r {outFramerate}");
             }
