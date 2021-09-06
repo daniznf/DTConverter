@@ -76,6 +76,7 @@ namespace DTConverter
             ChkEnableResolution.SetBinding(CheckBox.IsCheckedProperty, "IsVideoResolutionEnabled");
             ChkEnableVideoBitrate.SetBinding(CheckBox.IsCheckedProperty, "IsVideoBitrateEnabled");
             ChkEnableOutFramerate.SetBinding(CheckBox.IsCheckedProperty, "IsOutFramerateEnabled");
+            ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
 
             UpdateImgPreviewIn();
 

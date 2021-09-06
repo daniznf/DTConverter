@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace DTConverter
 {
@@ -348,15 +349,36 @@ namespace DTConverter
         {
             get
             {
+                GridLength gr;
                 if (_IsCropEnabled || _IsPaddingEnabled || _IsSliceEnabled ||
                     _IsVideoResolutionEnabled ||
                     _Rotation != 0)
                 {
-                    return new GridLength(1, GridUnitType.Star);
+                    gr = new GridLength(1, GridUnitType.Star);
                 }
                 else
                 {
-                    return new GridLength(0, GridUnitType.Star);
+                    gr = new GridLength(0, GridUnitType.Star);
+                }
+                
+                OnPropertyChanged("IsChkOriginalVisible");
+                return gr;
+            }
+        }
+
+        public Visibility IsChkOriginalVisible
+        {
+            get
+            {
+                if (_IsCropEnabled || _IsPaddingEnabled || _IsSliceEnabled ||
+                    _IsVideoResolutionEnabled ||
+                    _Rotation != 0)
+                {
+                    return Visibility.Visible;
+                }
+                else
+                {
+                    return Visibility.Collapsed;
                 }
             }
         }
