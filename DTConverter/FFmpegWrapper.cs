@@ -432,8 +432,7 @@ namespace DTConverter
             int rotation, bool rotateMetadataOnly,
             bool isCropEnabled, Crop crop,
             bool isPaddingEnabled, Padding padding,
-            bool isSliceEnabled, Slicer slices,
-            VideoInfo videoInfo)
+            bool isSliceEnabled, Slicer slices)
         {
             if (FFmpegPath == null)
             {
@@ -540,12 +539,14 @@ namespace DTConverter
                 vArgsOut.Add($"-f {vFormat}");
             }
 
-            if (isResolutionEnabled)
+            if (isResolutionEnabled && videoResolution.Horizontal > 0 && videoResolution.Vertical > 0)
             {
+                /*
                 int hResolution = videoResolution.Horizontal > 0 ? videoResolution.Horizontal : videoInfo.HorizontalResolution;
                 int vResolution = videoResolution.Vertical > 0 ? videoResolution.Vertical : videoInfo.VerticalResolution;
-                
                 vArgsOut.Add($"-s {hResolution}x{vResolution}");
+                */
+                vArgsOut.Add($"-s {videoResolution.Horizontal}x{videoResolution.Vertical}");
             }
 
             // force CBR

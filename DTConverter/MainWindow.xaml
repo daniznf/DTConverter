@@ -109,20 +109,39 @@
         <StatusBar Height="32px" DockPanel.Dock="Bottom" Background="Transparent">
             <StatusBarItem Name="SttMessages" Content="A lot of messages here" HorizontalAlignment="Left"  />
             <StatusBarItem HorizontalAlignment="Right">
-                <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="0">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Margin" Value="2px,0,2px,0"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <TextBlock Text="Input:"/>
-                    <TextBlock Text="{Binding SourceInfo.VideoResolution}" HorizontalAlignment="Right"/>
-                    <TextBlock Text="{Binding SourceInfo.FrameRate}" HorizontalAlignment="Right"/>
-                    <TextBlock Text="FPS"/>
-                    <TextBlock Text="{Binding SourceInfo.VideoBitrate}" HorizontalAlignment="Right"/>
-                    <TextBlock Text="Kb/s"/>
-                    <TextBlock Text="{Binding SourceInfo.VideoCodec}" HorizontalAlignment="Right"/>
-                    <TextBlock Text="{Binding SourceInfo.Duration.HMS}" HorizontalAlignment="Right"/>
+                <StackPanel HorizontalAlignment="Right">
+                    <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="2px,0,2px,0">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Margin" Value="2px,0,2px,0"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="Input:"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoResolution}"/>
+                        <TextBlock Text="{Binding SourceInfo.FrameRate}" />
+                        <TextBlock Text="FPS"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoBitrate}"/>
+                        <TextBlock Text="Kb/s"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoCodec}" />
+                        <TextBlock Text="{Binding SourceInfo.Duration.HMS}"/>
+                    </StackPanel>
+                    <StackPanel Name="PnlOutputVideoProperties" Margin="0">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Margin" Value="2px,0,2px,0"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="|  Output:"/>
+                        <TextBlock Text="{Binding VideoResolutionHorizontal}"/>
+                        <TextBlock Text="x"/>
+                        <TextBlock Text="{Binding VideoResolutionVertical}"/>
+                        <TextBlock Text="{Binding OutFrameRate}"/>
+                        <TextBlock Text="FPS"/>
+                        <TextBlock Text="{Binding VideoBitrate}"/>
+                        <TextBlock Text="Kb/s"/>
+                        <TextBlock Text="{Binding VideoEncoder}"/>
+                        <TextBlock Text="{Binding DurationTimeHMS}"/>
+                    </StackPanel>
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
@@ -402,12 +421,12 @@
                                         <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_Checked" Unchecked="ChkEnableResolution_Unchecked" IsChecked="True"/>
                                         <StackPanel Name="PnlResolution">
                                             <Label Content="Resolution"/>
-                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionParams.Horizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
+                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionHorizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
                                             <Label Content="x" Width="24px" HorizontalContentAlignment="Center"/>
-                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionParams.Vertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
+                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
                                             <Label Content="px" HorizontalContentAlignment="Left"/>
                                             <Label Content="Multiple" />
-                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionParams.Multiple}">
+                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
                                                 <ComboBoxItem Content="0"/>
                                                 <ComboBoxItem Content="2"/>
                                                 <ComboBoxItem Content="4"/>
