@@ -80,7 +80,7 @@
 
         <Style TargetType="TextBox" x:Key="StyleTextBoxBase">
             <Setter Property="Width" Value="32px"/>
-            <Setter Property="Height" Value="24px"/>
+            <Setter Property="Height" Value="32px"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -276,8 +276,7 @@
                             </Label>
 
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
-                                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}" ToolTip="Values for conversion. Use 0 to keep deault">
-
+                                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}">
                                     <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" >
                                         <StackPanel Orientation="Horizontal">
                                             <Label Content="Encoder"/>
@@ -457,7 +456,7 @@
                                     <Style TargetType="Button">
                                         <Setter Property="Width" Value="32px"/>
                                         <Setter Property="Height" Value="32px"/>
-                                        <Setter Property="Margin" Value="0,2px,0,0"/>
+                                        <Setter Property="Margin" Value="2px"/>
                                     </Style>
                                 </DockPanel.Resources>
                                 <TextBox Text="{Binding StartTimeHMS}" DockPanel.Dock="Left" Width="96px" HorizontalAlignment="Left"/>
@@ -504,19 +503,8 @@
                 </TabItem>
                 <TabItem Header="General">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
-                        <StackPanel Name="PnlGeneral" Orientation="Vertical" IsEnabled="{Binding IsConversionEnabled}" ToolTip="Values for conversion. Use 0 to keep deault">
-                            <StackPanel Name="PnlStartTime" Orientation="Horizontal">
-                                <Label Content="Start Time" />
-                                <TextBox Name="TxtStartTime"  Text="{Binding StartTimeSeconds}" Width="92" KeyUp="TxtStartTime_KeyUp"/>
-                                <ComboBox Name="CbxStartTimeUnit" Width="128" SelectedIndex="0" SelectionChanged="CbxStartTimeUnit_SelectionChanged">
-                                    <ComboBoxItem Content="Seconds"/>
-                                </ComboBox>
-                            </StackPanel>
-                            <StackPanel Name="PnlDurationTime" Orientation="Horizontal">
-                                <Label Content="Duration Time" />
-                                <TextBox Name="TxtDurationTime"  Text="{Binding DurationTimeSeconds}" Width="92" KeyUp="TxtDurationTime_KeyUp"/>
-                                <ComboBox Name="CbxDurationTimeUnit" Width="128" SelectedItem="{Binding DurationTime.DurationType, Mode=OneWay}" SelectedIndex="0" SelectionChanged="CbxDurationTimeUnit_SelectionChanged" ItemsSource="{Binding Source={StaticResource TimeDurationValues}}"/>
-                            </StackPanel>
+                        <StackPanel Name="PnlGeneral" Orientation="Vertical" IsEnabled="{Binding IsConversionEnabled}" >
+                            
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
