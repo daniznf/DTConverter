@@ -286,14 +286,14 @@
 
                                     <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotStillImage}" >
-                                            <CheckBox Name="ChkEnableOutFramerate" Content="Framerate" IsChecked="True" Checked="ChkEnableOutFramerate_Checked" Unchecked="ChkEnableOutFramerate_Checked"/>
+                                            <CheckBox Name="ChkEnableOutFramerate" Content="Framerate" IsChecked="True" Checked="ChkEnableOutFramerate_CheckedUnchecked" Unchecked="ChkEnableOutFramerate_CheckedUnchecked"/>
                                             <StackPanel Name="PnlOutFrameRate" Orientation="Horizontal" >
                                                 <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}" Width="64"/>
                                                 <Label Content="FPS" HorizontalContentAlignment="Left" />
                                             </StackPanel>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderH264}">
-                                            <CheckBox Name="ChkEnableVideoBitrate" Content="Bitrate" IsChecked="True" Checked="ChkEnableVideoBitrate_Checked" Unchecked="ChkEnableVideoBitrate_Checked"/>
+                                            <CheckBox Name="ChkEnableVideoBitrate" Content="Bitrate" IsChecked="True" Checked="ChkEnableVideoBitrate_CheckedUnchecked" Unchecked="ChkEnableVideoBitrate_CheckedUnchecked"/>
                                             <StackPanel Name="PnlVideoBitrate" Orientation="Horizontal" >
                                                 <TextBox Name="TxtVideoBitrate" Text="{Binding VideoBitrate}" Width="64"/>
                                                 <Label Content="Kbps" HorizontalContentAlignment="Left" />
@@ -315,7 +315,7 @@
                                         </StackPanel.Resources>
 
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                            <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_Checked" Unchecked="ChkEnableCrop_Unchecked" IsChecked="True"/>
+                                            <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_CheckedUnchecked" Unchecked="ChkEnableCrop_CheckedUnchecked" IsChecked="True"/>
                                             <DockPanel Name="PnlCrop" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible">
                                                 <StackPanel DockPanel.Dock="Top">
                                                     <Label Content="Top" />
@@ -337,7 +337,7 @@
                                         </StackPanel>
 
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                            <CheckBox Name="ChkEnablePadding" Content="Padding" Checked="ChkEnablePadding_Checked" Unchecked="ChkEnablePadding_Unchecked" IsChecked="True"/>
+                                            <CheckBox Name="ChkEnablePadding" Content="Padding" Checked="ChkEnablePadding_CheckedUnchecked" Unchecked="ChkEnablePadding_CheckedUnchecked" IsChecked="True"/>
                                             <DockPanel Name="PnlPadding" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible" >
                                                 <StackPanel DockPanel.Dock="Top">
                                                     <Label Content="Top" />
@@ -383,7 +383,7 @@
                                                 <EventSetter Event="SelectionChanged" Handler="CbxHorizontalVerticalSlices_SelectionChanged"/>
                                             </Style>
                                         </StackPanel.Resources>
-                                        <CheckBox Name="ChkEnableSlices" Content="Slice" Checked="ChkEnableSlices_Checked" Unchecked="ChkEnableSlices_Unchecked" IsChecked="True" />
+                                        <CheckBox Name="ChkEnableSlices" Content="Slice" Checked="ChkEnableSlices_CheckedUnchecked" Unchecked="ChkEnableSlices_CheckedUnchecked" IsChecked="True" />
                                         <StackPanel Name="PnlSlices" Orientation="Vertical" Visibility="Visible">
                                             <StackPanel>
                                                 <Label Content="Horizontal slices"/>
@@ -421,7 +421,7 @@
                                     </StackPanel>
                                     
                                     <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_Checked" Unchecked="ChkEnableResolution_Unchecked" IsChecked="True"/>
+                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
                                         <StackPanel Name="PnlResolution">
                                             <Label Content="Resolution"/>
                                             <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionHorizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
@@ -481,7 +481,7 @@
                                     </Grid>
                                 </DockPanel>
                                 <DockPanel Grid.Column="1" >
-                                    <CheckBox Name="ChkOriginal" DockPanel.Dock="Top" Content="Show original" Foreground="White" Checked="ChkOriginal_Checked" Unchecked="ChkOriginal_Unchecked" IsChecked="True"/>
+                                    <CheckBox Name="ChkOriginal" DockPanel.Dock="Top" Content="Show original" Foreground="White" Checked="ChkOriginal_CheckedUnchecked" Unchecked="ChkOriginal_CheckedUnchecked" IsChecked="True"/>
                                     <Grid Name="GrdPreviewOut" HorizontalAlignment="Center">
                                         <!-- RowDefinitions and ColumnDefinitions will be added at runtime -->
                                         <Image Name="ImgPvwOut"/>

@@ -584,7 +584,7 @@ namespace DTConverter
         #endregion
 
         #region Bitrate Framerate Crop Padding Slices
-        private void ChkEnableOutFramerate_Checked(object sender, RoutedEventArgs e)
+        private void ChkEnableOutFramerate_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
@@ -599,7 +599,7 @@ namespace DTConverter
             }
         }
 
-        private void ChkEnableVideoBitrate_Checked(object sender, RoutedEventArgs e)
+        private void ChkEnableVideoBitrate_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
@@ -614,65 +614,55 @@ namespace DTConverter
             }
         }
 
-        private async void ChkEnableCrop_Checked(object sender, RoutedEventArgs e)
+        private async void ChkEnableCrop_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
-                PnlCrop.Visibility = Visibility.Visible;
-
-                await RegenerateUpdatePreviews ();
-            }
-        }
-
-        private async void ChkEnableCrop_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                PnlCrop.Visibility = Visibility.Collapsed;
+                if (ChkEnableCrop.IsChecked.Value)
+                {
+                    PnlCrop.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PnlCrop.Visibility = Visibility.Collapsed;
+                }
 
                 await RegenerateUpdatePreviews();
             }
         }
 
-        private async void ChkEnablePadding_Checked(object sender, RoutedEventArgs e)
+        private async void ChkEnablePadding_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
-                PnlPadding.Visibility = Visibility.Visible;
+                if (ChkEnablePadding.IsChecked.Value)
+                {
+                    PnlPadding.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PnlPadding.Visibility = Visibility.Collapsed;
+                }
 
                 await RegenerateUpdatePreviews();
             }
         }
 
-        private async void ChkEnablePadding_Unchecked(object sender, RoutedEventArgs e)
+        private async void ChkEnableSlices_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
-                PnlPadding.Visibility = Visibility.Collapsed;
-
-                await RegenerateUpdatePreviews();
-            }
-        }
-
-        private async void ChkEnableSlices_Checked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                PnlSlices.Visibility = Visibility.Visible;
-
-                SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
-
-                await RegenerateUpdatePreviews();
-            }
-        }
-
-        private async void ChkEnableSlices_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                PnlSlices.Visibility = Visibility.Collapsed;
-                ChkOriginal.IsChecked = true;
-                SliceGrdPreviewOut(1,1);
+                if (ChkEnableSlices.IsChecked.Value)
+                {
+                    PnlSlices.Visibility = Visibility.Visible;
+                    SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
+                }
+                else
+                {
+                    PnlSlices.Visibility = Visibility.Collapsed;
+                    ChkOriginal.IsChecked = true;
+                    SliceGrdPreviewOut(1, 1);
+                }
 
                 await RegenerateUpdatePreviews();
             }
@@ -753,21 +743,18 @@ namespace DTConverter
             }
         }
 
-        private async void ChkEnableResolution_Checked(object sender, RoutedEventArgs e)
+        private async void ChkEnableResolution_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
-                PnlResolution.Visibility = Visibility.Visible;
-
-                await RegenerateUpdatePreviews();
-            }
-        }
-
-        private async void ChkEnableResolution_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                PnlResolution.Visibility = Visibility.Collapsed;
+                if (ChkEnableResolution.IsChecked.Value)
+                {
+                    PnlResolution.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PnlResolution.Visibility = Visibility.Collapsed;
+                }
 
                 await RegenerateUpdatePreviews();
             }
@@ -950,14 +937,19 @@ namespace DTConverter
         #endregion
 
         #region Preview Original Crop
-        private void ChkOriginal_Checked(object sender, RoutedEventArgs e)
+        private void ChkOriginal_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
-            ColPreviewIn.Width = new GridLength(1, GridUnitType.Star);
-        }
-
-        private void ChkOriginal_Unchecked(object sender, RoutedEventArgs e)
-        {
-            ColPreviewIn.Width = new GridLength(0, GridUnitType.Star);
+            if (IsInitialized)
+            {
+                if (ChkOriginal.IsChecked.Value)
+                {
+                    ColPreviewIn.Width = new GridLength(1, GridUnitType.Star);
+                }
+                else
+                {
+                    ColPreviewIn.Width = new GridLength(0, GridUnitType.Star);
+                }
+            }
         }
 
         private async void AnyonePreviewRegeneration_PreviewKeyUp(object sender, KeyEventArgs e)
