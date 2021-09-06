@@ -48,6 +48,9 @@ namespace DTConverter
         public MainWindow()
         {
             InitializeComponent();
+            Width = 1024;
+            Height = 600;
+
             System.Drawing.SystemIcons s;
             TvwVideos.Items.Clear();
             TvwVideos.IsEnabled = false;

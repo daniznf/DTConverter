@@ -500,6 +500,8 @@ namespace DTConverter
                 OnPropertyChanged("_IsResolutionEnabled");
                 OnPropertyChanged("ShowColPreviewOut");
                 OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("VideoResolutionHorizontal");
+                OnPropertyChanged("VideoResolutionVertical");
             }
         }
 
@@ -508,7 +510,7 @@ namespace DTConverter
         {
             get
             {
-                if (IsVideoResolutionEnabled && _VideoResolutionParams.Horizontal != 0)
+                if (IsVideoResolutionEnabled && _VideoResolutionParams.Horizontal > 0)
                 {
                     return _VideoResolutionParams.Horizontal;
                 }
@@ -535,7 +537,7 @@ namespace DTConverter
         {
             get
             {
-                if (IsVideoResolutionEnabled && _VideoResolutionParams.Vertical != 0)
+                if (IsVideoResolutionEnabled && _VideoResolutionParams.Vertical > 0)
                 {
                     return _VideoResolutionParams.Vertical;
                 }
@@ -782,6 +784,8 @@ namespace DTConverter
 
             if (_SourceInfo != null && _SourceInfo.Duration != null)
             {
+                VideoResolutionHorizontal = _SourceInfo.HorizontalResolution;
+                VideoResolutionVertical = _SourceInfo.VerticalResolution;
                 DurationTimeSeconds = _SourceInfo.Duration.Seconds;
                 OutFrameRate = _SourceInfo.FrameRate;
                 VideoBitrate = _SourceInfo.VideoBitrate;
