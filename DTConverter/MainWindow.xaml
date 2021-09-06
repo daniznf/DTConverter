@@ -27,7 +27,7 @@
         mc:Ignorable="d"
         Icon="DTConverter_icon.ico"
         Name="DTWindow"
-        Title="DT Converter" Width="1280" Height="1024" MinWidth="800" MinHeight="480">
+        Title="DT Converter" Width="1280" Height="1124" MinWidth="800" MinHeight="480">
     <Window.Resources>
         <SolidColorBrush x:Key="Sky1" Color="#bccad6"/>
         <SolidColorBrush x:Key="Sky2" Color="#8d9db6"/>
@@ -79,7 +79,7 @@
         <Style TargetType="TabItem" BasedOn="{StaticResource StyleTabItemBase}"/>
 
         <Style TargetType="TextBox" x:Key="StyleTextBoxBase">
-            <Setter Property="Width" Value="32px"/>
+            <Setter Property="Width" Value="48px"/>
             <Setter Property="Height" Value="32px"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -88,6 +88,7 @@
 
         <Style TargetType="ComboBox"  x:Key="StyleComboBoxBase">
             <Setter Property="Width" Value="48px"/>
+            <Setter Property="Height" Value="32px"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -110,6 +111,11 @@
             <StatusBarItem Name="SttMessages" Content="A lot of messages here" HorizontalAlignment="Left"  />
             <StatusBarItem HorizontalAlignment="Right">
                 <StackPanel HorizontalAlignment="Right">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Margin" Value="4px,0,4px,0"/>
+                        </Style>
+                    </StackPanel.Resources>
                     <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="2px,0,2px,0">
                         <StackPanel.Resources>
                             <Style TargetType="TextBlock">
@@ -118,27 +124,22 @@
                         </StackPanel.Resources>
                         <TextBlock Text="Input:"/>
                         <TextBlock Text="{Binding SourceInfo.VideoResolution}"/>
-                        <TextBlock Text="{Binding SourceInfo.FrameRate}" />
-                        <TextBlock Text="FPS"/>
-                        <TextBlock Text="{Binding SourceInfo.VideoBitrate}"/>
-                        <TextBlock Text="Kb/s"/>
+                        <TextBlock Text="{Binding SourceInfo.FrameRate}" Margin="2,0,0,0"/>
+                        <TextBlock Text="FPS" Margin="0,0,2,0"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoBitrate}" Margin="2,0,0,0"/>
+                        <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding SourceInfo.VideoCodec}" />
                         <TextBlock Text="{Binding SourceInfo.Duration.HMS}"/>
                     </StackPanel>
                     <StackPanel Name="PnlOutputVideoProperties" Margin="0">
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Margin" Value="2px,0,2px,0"/>
-                            </Style>
-                        </StackPanel.Resources>
                         <TextBlock Text="|  Output:"/>
-                        <TextBlock Text="{Binding VideoResolutionHorizontal}"/>
+                        <TextBlock Text="{Binding VideoResolutionHorizontal}" Margin="2,0,0,0"/>
                         <TextBlock Text="x" Margin="0"/>
-                        <TextBlock Text="{Binding VideoResolutionVertical}"/>
-                        <TextBlock Text="{Binding OutFrameRate}"/>
-                        <TextBlock Text="FPS"/>
-                        <TextBlock Text="{Binding VideoBitrate}"/>
-                        <TextBlock Text="Kb/s"/>
+                        <TextBlock Text="{Binding VideoResolutionVertical}" Margin="0,0,2,0"/>
+                        <TextBlock Text="{Binding OutFrameRate}" Margin="2,0,0,0"/>
+                        <TextBlock Text="FPS" Margin="0,0,2,0"/>
+                        <TextBlock Text="{Binding VideoBitrate}" Margin="2,0,0,0"/>
+                        <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding VideoEncoder}"/>
                         <TextBlock Text="{Binding DurationTimeHMS}"/>
                     </StackPanel>
@@ -318,7 +319,7 @@
 
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                             <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_CheckedUnchecked" Unchecked="ChkEnableCrop_CheckedUnchecked" IsChecked="True"/>
-                                            <DockPanel Name="PnlCrop" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible">
+                                            <DockPanel Name="PnlCrop" LastChildFill="False" Width="240px" Height="128px" Visibility="Visible">
                                                 <StackPanel DockPanel.Dock="Top">
                                                     <Label Content="Top" />
                                                     <TextBox Name="txtCropTop" Text="{Binding CropParams.Top}"/>
@@ -340,7 +341,7 @@
 
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                             <CheckBox Name="ChkEnablePadding" Content="Padding" Checked="ChkEnablePadding_CheckedUnchecked" Unchecked="ChkEnablePadding_CheckedUnchecked" IsChecked="True"/>
-                                            <DockPanel Name="PnlPadding" LastChildFill="False" Width="224px" Height="128px" Visibility="Visible" >
+                                            <DockPanel Name="PnlPadding" LastChildFill="False" Width="240px" Height="128px" Visibility="Visible" >
                                                 <StackPanel DockPanel.Dock="Top">
                                                     <Label Content="Top" />
                                                     <TextBox Name="txtPaddingTop" Text="{Binding PaddingParams.Top}"/>
@@ -360,8 +361,8 @@
                                             </DockPanel>
                                         </StackPanel>
 
-                                        <StackPanel Orientation="Vertical" Width="128">
-                                            <Label Content="Rotation" Width="64px"/>
+                                        <StackPanel Orientation="Vertical" Width="160">
+                                            <Label Content="Rotation" Width="92px" HorizontalContentAlignment="Center"/>
                                             <ComboBox Name="CbxRotation"  SelectedIndex="0" Text="{Binding Rotation}" SelectionChanged="CbxRotation_SelectionChanged">
                                                 <ComboBoxItem Content="0" />
                                                 <ComboBoxItem Content="90"/>
@@ -421,13 +422,13 @@
                                             </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
-                                    
+
                                     <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                         <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
                                         <StackPanel Name="PnlResolution">
                                             <Label Content="Resolution"/>
                                             <TextBox Name="TxtHorizontalResolution" Text="{Binding  VideoResolutionHorizontal}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp" />
-                                            <Label Content="x" Width="24px" HorizontalContentAlignment="Center"/>
+                                            <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
                                             <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}" KeyUp="AnyonePreviewRegeneration_PreviewKeyUp"/>
                                             <Label Content="px" HorizontalContentAlignment="Left"/>
                                             <Label Content="Multiple" />
