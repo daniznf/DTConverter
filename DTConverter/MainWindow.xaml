@@ -113,15 +113,10 @@
                 <StackPanel HorizontalAlignment="Right">
                     <StackPanel.Resources>
                         <Style TargetType="TextBlock">
-                            <Setter Property="Margin" Value="4px,0,4px,0"/>
+                            <Setter Property="Margin" Value="2px,0,2px,0"/>
                         </Style>
                     </StackPanel.Resources>
-                    <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="2px,0,2px,0">
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Margin" Value="2px,0,2px,0"/>
-                            </Style>
-                        </StackPanel.Resources>
+                    <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="20px,0,2px,0">
                         <TextBlock Text="Input:"/>
                         <TextBlock Text="{Binding SourceInfo.VideoResolution}"/>
                         <TextBlock Text="{Binding SourceInfo.FrameRate}" Margin="2,0,0,0"/>
@@ -131,8 +126,9 @@
                         <TextBlock Text="{Binding SourceInfo.VideoCodec}" />
                         <TextBlock Text="{Binding SourceInfo.Duration.HMS}"/>
                     </StackPanel>
-                    <StackPanel Name="PnlOutputVideoProperties" Margin="0">
-                        <TextBlock Text="|  Output:"/>
+                    
+                    <StackPanel Name="PnlOutputVideoProperties" Margin="2,0,0,0">
+                        <TextBlock Text="Output:"/>
                         <TextBlock Text="{Binding VideoResolutionHorizontal}" Margin="2,0,0,0"/>
                         <TextBlock Text="x" Margin="0"/>
                         <TextBlock Text="{Binding VideoResolutionVertical}" Margin="0,0,2,0"/>
