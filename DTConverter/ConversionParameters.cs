@@ -21,6 +21,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 
@@ -147,11 +148,11 @@ namespace DTConverter
                     {
                         outPath += $"_{VideoResolutionHorizontal}x{VideoResolutionVertical}";
                     }
-                    if (OutFrameRate != 0)
+                    if (IsOutFramerateEnabled)
                     {
-                        outPath += $"_{OutFrameRate}";
+                        outPath += $"_{OutFrameRate.ToString(CultureInfo.InvariantCulture)}";
                     }
-                    if (VideoBitrate != 0)
+                    if (IsVideoBitrateEnabled)
                     {
                         outPath += $"_{VideoBitrate}";
                     }
@@ -475,6 +476,7 @@ namespace DTConverter
                 _IsVideoResolutionEnabled = value;
                 OnPropertyChanged("_IsResolutionEnabled");
                 OnPropertyChanged("ShowColPreviewOut");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
 
@@ -503,6 +505,7 @@ namespace DTConverter
                     _VideoResolutionParams.Horizontal = value;
                 }
                 OnPropertyChanged("VideoResolutionHorizontal");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
         public int VideoResolutionVertical
@@ -529,6 +532,7 @@ namespace DTConverter
                     _VideoResolutionParams.Vertical = value;
                 }
                 OnPropertyChanged("VideoResolutionVertical");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
         public int VideoResolutionMultiple
@@ -550,6 +554,7 @@ namespace DTConverter
                 _IsVideoBitrateEnabled = value;
                 OnPropertyChanged("IsVideoBitrateEnabled");
                 OnPropertyChanged("VideoBitrate");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
         private int _VideoBitrate;
@@ -558,7 +563,7 @@ namespace DTConverter
         {
             get
             {
-                if (IsVideoBitrateEnabled)
+                if (_IsVideoBitrateEnabled)
                 {
                     return _VideoBitrate;
                 }
@@ -575,6 +580,7 @@ namespace DTConverter
             {
                 _VideoBitrate = value;
                 OnPropertyChanged("VideoBitrate");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
 
@@ -587,6 +593,7 @@ namespace DTConverter
                 _IsOutFramerateEnabled = value;
                 OnPropertyChanged("IsOutFramerateEnabled");
                 OnPropertyChanged("OutFrameRate");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
         private double _OutFrameRate;
@@ -596,7 +603,7 @@ namespace DTConverter
             {
                 if (_IsOutFramerateEnabled)
                 {
-                    return _OutFrameRate;
+                    return Math.Round(_OutFrameRate, 2);
                 }
                 else
                 {
@@ -611,6 +618,7 @@ namespace DTConverter
             {
                 _OutFrameRate = value;
                 OnPropertyChanged("OutFrameRate");
+                OnPropertyChanged("DestinationVideoPath");
             }
         }
 
@@ -752,6 +760,8 @@ namespace DTConverter
             if (_SourceInfo != null && _SourceInfo.Duration != null)
             {
                 DurationTimeSeconds = _SourceInfo.Duration.Seconds;
+                OutFrameRate = _SourceInfo.FrameRate;
+                VideoBitrate = _SourceInfo.VideoBitrate;
                 IsValid = true;
             }
             else
