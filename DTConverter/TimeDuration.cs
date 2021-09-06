@@ -266,11 +266,14 @@ namespace DTConverter
                     }
                     else if (splitted.Length == 2)
                     {
+                        H = 0;
                         M = int.Parse(splitted[0]);
                         S = int.Parse(splitted[1]);
                     }
                     else if (splitted.Length == 1)
                     {
+                        H = 0;
+                        M = 0;
                         S = int.Parse(splitted[0]);
                     }
 
