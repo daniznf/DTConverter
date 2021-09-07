@@ -134,7 +134,9 @@ namespace DTConverter
 
             VideoResolutionParams = copyFrom.VideoResolutionParams;
 
+            IsVideoBitrateEnabled = copyFrom.IsVideoBitrateEnabled;
             VideoBitrate = copyFrom.VideoBitrate;
+            IsOutFramerateEnabled = copyFrom.IsOutFramerateEnabled;
             OutFrameRate = copyFrom.OutFrameRate;
             Rotation = copyFrom.Rotation;
             RotateMetadataOnly = copyFrom.RotateMetadataOnly;
@@ -227,22 +229,7 @@ namespace DTConverter
         /// After calling ProbeVideoInfo(), it contains all information read from source file
         /// </summary>
         public VideoInfo SourceInfo { get; set; }
-        /*
-        private bool _IsValid;
-        /// <summary>
-        /// Determines if it is a valid video or audio file by checking if duration is null
-        /// </summary>
-        public bool IsValid
-        {
-            get => _IsValid;
-            private set
-            {
-                _IsValid = value;
-                OnPropertyChanged("IsValid");
-            }
-        }
-        */
-
+        
         /// <summary>
         /// Determines if it is a valid video or audio file by checking if duration is null
         /// </summary>
@@ -473,8 +460,6 @@ namespace DTConverter
                 OnPropertyChanged("AudioEncoder");
             }
         }
-
-        
 
         public VideoResolution VideoResolutionParams { get; set; }
 
