@@ -708,10 +708,8 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
-                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, true, PreviewResolution,
-                        false, 0,
-                        false, 0,
-                        0, false, false, null, false, null, false, null);
+                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                        PreviewResolution, 0, 0, 0, false, null, null, null);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
@@ -764,13 +762,7 @@ namespace DTConverter
                 try
                 {
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        VideoResolutionParams.IsEnabled, VideoResolutionParams,
-                        false, 0,
-                        false, 0,
-                        Rotation, false, 
-                        CropParams.IsEnabled, CropParams, 
-                        PaddingParams.IsEnabled, PaddingParams, 
-                        SliceParams.IsEnabled, SliceParams);
+                        VideoResolutionParams, 0, 0, Rotation, false, CropParams, PaddingParams, SliceParams);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
                     ProcessPreviewOut.StartInfo.Arguments += " -y";
@@ -824,16 +816,8 @@ namespace DTConverter
                 {
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
                     {
-                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath,
-                            _StartTime, _DurationTime,
-                            VideoEncoder,
-                            VideoResolutionParams.IsEnabled, VideoResolutionParams,
-                             IsVideoBitrateEnabled, _VideoBitrate,
-                             IsOutFramerateEnabled, _OutFrameRate,
-                             Rotation, RotateMetadataOnly,
-                             CropParams.IsEnabled, CropParams,
-                             PaddingParams.IsEnabled, PaddingParams,
-                             SliceParams.IsEnabled, SliceParams);
+                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, _StartTime, _DurationTime, VideoEncoder,
+                            VideoResolutionParams, _VideoBitrate, _OutFrameRate, Rotation, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())

@@ -427,13 +427,13 @@ namespace DTConverter
         public static Process ConvertVideo(string sourcePath, string destinationPath,
             TimeDuration start, TimeDuration duration,
             VideoEncoders videoEncoder,
-            bool isResolutionEnabled, VideoResolution videoResolution,
-            bool isVideoBitrateEnabled, int videoBitrate, 
-            bool isOutFramerateEnabled, double outFramerate,
+            VideoResolution videoResolution,
+            int videoBitrate, 
+            double outFramerate,
             int rotation, bool rotateMetadataOnly,
-            bool isCropEnabled, Crop crop,
-            bool isPaddingEnabled, Padding padding,
-            bool isSliceEnabled, Slicer slices)
+            Crop crop,
+            Padding padding,
+            Slicer slices)
         {
             if (FFmpegPath == null)
             {
@@ -541,12 +541,12 @@ namespace DTConverter
             }
 
             // force CBR
-            if (isVideoBitrateEnabled)
+            if (videoBitrate > 0)
             {
                 vArgsOut.Add($"-b:v {videoBitrate}k -minrate {videoBitrate}k -maxrate {videoBitrate}k");
             }
 
-            if (isOutFramerateEnabled)
+            if (outFramerate > 0)
             {
                 vArgsOut.Add($"-r {outFramerate}");
             }
@@ -558,19 +558,19 @@ namespace DTConverter
 
             // Filters
             // Crop
-            if (isCropEnabled)
+            if (crop != null && crop.IsEnabled)
             {
                 vFilters.Add($"crop=iw-{crop.Left}-{crop.Right}:ih-{crop.Top}-{crop.Bottom}:{crop.X}:{crop.Y} [cropped]");
             }
 
             // Padding
-            if (isPaddingEnabled)
+            if (padding != null && padding.IsEnabled)
             {
                 vFilters.Add($"pad=iw+{padding.Left}+{padding.Right}:ih+{padding.Top}+{padding.Bottom}:{padding.Left}:{padding.Top} [padded]");
             }
 
             // Scale Resolution
-            if (isResolutionEnabled)
+            if (videoResolution != null && videoResolution.IsEnabled)
             {
                 // -s option uses scale and keep input aspect ratio
                 vFilters.Add($"scale={videoResolution.Horizontal}:{videoResolution.Vertical},setsar=1/1 [scaled]");
@@ -612,7 +612,7 @@ namespace DTConverter
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
             vArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
             
-            if (isSliceEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
+            if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
             {
                 // Add a split filter without the out connection, there will be many connectors!
                 // This split is added here to know the previous out connector like [cropped] or [padded]
@@ -631,7 +631,7 @@ namespace DTConverter
 
                 // vSlices will contain each crop for each slice, like
                 // [split_ric1] crop=w:h:x:y: [out_r1c1]; [split_r1c2] crop=w:h:x:y: [out_r1c2]; [split_r2c1] crop=w:h:x:y: [out_r2c1]; [split_r2c2] crop=w:h:x:y: [out_r2c2]
-                if (isSliceEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
+                if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
                 {
                     List<string> vSlices = new List<string>();
 
