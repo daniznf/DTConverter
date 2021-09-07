@@ -79,10 +79,31 @@ namespace DTConverter
             VideoEncoder = VideoEncoders.HAP;
             AudioEncoder = AudioEncoders.pcm_s16le;
 
+            IsVideoBitrateEnabled = false;
             VideoBitrate = 0;
+            IsOutFramerateEnabled = false;
             OutFrameRate = 0;
             Rotation = 0;
             RotateMetadataOnly = false;
+
+            RefreshProperties();
+        }
+
+        public void RefreshProperties()
+        {
+            PropertyInfo[] innerPInfos;
+            foreach (PropertyInfo pInfo in this.GetType().GetProperties())
+            {
+                OnPropertyChanged(pInfo.Name);
+                innerPInfos = pInfo.GetType().GetProperties();
+                if (innerPInfos != null)
+                {
+                    foreach (PropertyInfo innerPInfo in innerPInfos)
+                    {
+                        OnPropertyChanged(innerPInfo.Name);
+                    }
+                }
+            }
         }
 
         private void SliceParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -143,6 +164,8 @@ namespace DTConverter
             CropParams = copyFrom.CropParams;
             PaddingParams = copyFrom.PaddingParams;
             SliceParams = copyFrom.SliceParams;
+
+            RefreshProperties();
         }
 
         // TODO: implement -pix_fmt

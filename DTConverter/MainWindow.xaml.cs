@@ -1075,28 +1075,6 @@ namespace DTConverter
             }
         }
 
-        private void MnPasteSettingsAll_Click(object sender, RoutedEventArgs e)
-        {
-            UIElement pTarget;
-            pTarget = ((sender as MenuItem).Parent as ContextMenu).PlacementTarget;
-
-            if (pTarget is TreeViewItem tviTarget)
-            {
-                foreach (object obEach in tviTarget.Items)
-                {
-                    if (obEach is StackPanel spEach)
-                    {
-                        ConversionParameters pasteTo;
-                        pasteTo = ConversionList.Find((ConversionParameters C) => C.SourcePath == spEach.Tag.ToString());
-                        if (pasteTo != null)
-                        {
-                            pasteTo.PasteParameters(copyingParameters);
-                        }
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// ConversionParameters that is being copied
         /// </summary>
@@ -1123,6 +1101,28 @@ namespace DTConverter
                 {
                     ConversionParameters cp = ConversionList.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
                     cp.PasteParameters(copyingParameters);
+                }
+            }
+        }
+
+        private void MnPasteSettingsAll_Click(object sender, RoutedEventArgs e)
+        {
+            UIElement pTarget;
+            pTarget = ((sender as MenuItem).Parent as ContextMenu).PlacementTarget;
+
+            if (pTarget is TreeViewItem tviTarget)
+            {
+                foreach (object obEach in tviTarget.Items)
+                {
+                    if (obEach is StackPanel spEach)
+                    {
+                        ConversionParameters pasteTo;
+                        pasteTo = ConversionList.Find((ConversionParameters C) => C.SourcePath == spEach.Tag.ToString());
+                        if (pasteTo != null)
+                        {
+                            pasteTo.PasteParameters(copyingParameters);
+                        }
+                    }
                 }
             }
         }
