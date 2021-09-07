@@ -553,7 +553,7 @@ namespace DTConverter
             // force CBR
             if (isVideoBitrateEnabled)
             {
-                vArgsOut.Add($"-b {videoBitrate} -minrate {videoBitrate} -maxrate {videoBitrate}");
+                vArgsOut.Add($"-b:v {videoBitrate}k -minrate {videoBitrate}k -maxrate {videoBitrate}k");
             }
 
             if (isOutFramerateEnabled)
