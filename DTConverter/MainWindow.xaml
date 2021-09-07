@@ -131,9 +131,9 @@
 
                     <StackPanel Name="PnlOutputVideoProperties" Margin="2,0,0,0">
                         <TextBlock Text="Output:"/>
-                        <TextBlock Text="{Binding VideoResolutionHorizontal}" Margin="2,0,0,0"/>
+                        <TextBlock Text="{Binding VideoFinalResolutionHorizontal}" Margin="2,0,0,0"/>
                         <TextBlock Text="x" Margin="0"/>
-                        <TextBlock Text="{Binding VideoResolutionVertical}" Margin="0,0,2,0"/>
+                        <TextBlock Text="{Binding VideoFinalResolutionVertical}" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding OutFrameRate}" Margin="2,0,0,0"/>
                         <TextBlock Text="FPS" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding VideoBitrate}" Margin="2,0,0,0"/>
@@ -290,7 +290,7 @@
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <Label Content="Multiple" />
-                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
+                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionParams.Multiple}">
                                                 <ComboBoxItem Content="0"/>
                                                 <ComboBoxItem Content="2"/>
                                                 <ComboBoxItem Content="4"/>
@@ -314,17 +314,6 @@
                                                 <TextBox Name="TxtVideoBitrate" Text="{Binding VideoBitrate}" Width="64"/>
                                                 <Label Content="Kbps" HorizontalContentAlignment="Left" />
                                             </StackPanel>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
-                                        <StackPanel Name="PnlResolution">
-                                            <Label Content="Resolution"/>
-                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding VideoResolutionHorizontal}"/>
-                                            <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
-                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}"/>
-                                            <Label Content="px" HorizontalContentAlignment="Left"/>
                                         </StackPanel>
                                     </StackPanel>
                                     
@@ -395,6 +384,17 @@
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
+                                        <StackPanel Name="PnlResolution">
+                                            <Label Content="Resolution"/>
+                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding VideoResolutionParams.Horizontal}"/>
+                                            <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
+                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionParams.Vertical}"/>
+                                            <Label Content="px" HorizontalContentAlignment="Left"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                         <StackPanel.Resources>
                                             <Style TargetType="Label">
                                                 <Setter Property="Width" Value="128px"/>
@@ -457,7 +457,7 @@
 
                     <TabItem Header="General">
                         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
-                            <StackPanel Name="PnlGeneral" Orientation="Vertical" IsEnabled="{Binding IsConversionEnabled}" >
+                            <StackPanel Name="PnlGeneral" Orientation="Vertical">
 
                             </StackPanel>
                         </ScrollViewer>

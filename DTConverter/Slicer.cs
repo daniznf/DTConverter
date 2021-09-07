@@ -29,10 +29,19 @@ namespace DTConverter
         {
             _HorizontalNumber = 1;
             _VerticalNumber = 1;
-            _HorizontalOverlap = 0;
-            _VerticalOverlap = 0;
         }
- 
+
+        private bool _IsEnabled;
+        public bool IsEnabled
+        {
+            get => _IsEnabled;
+            set
+            {
+                _IsEnabled = value;
+                OnPropertyChanged("IsEnabled");
+            }
+        }
+
         private int _HorizontalNumber;
         public int HorizontalNumber
         {
@@ -87,6 +96,10 @@ namespace DTConverter
             return verticalResolution / VerticalNumber + (VerticalOverlap / 2);
         }
 
+        /// <summary>
+        /// Generates the name for given path, adding r and c in a standard way.
+        /// Every method that tries to access an r x c image should call this method.
+        /// </summary>
         public static string GetSliceName(string originalName, int r, int c)
         {
             return Path.Combine(Path.GetDirectoryName(originalName), Path.GetFileNameWithoutExtension(originalName)) + $"_r{r}c{c}" + Path.GetExtension(originalName);

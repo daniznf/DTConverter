@@ -49,7 +49,7 @@ namespace DTConverter
         {
             InitializeComponent();
             Width = 1024;
-            Height = 600;
+            Height = 720;
 
             System.Drawing.SystemIcons s;
             TvwVideos.Items.Clear();
@@ -73,10 +73,10 @@ namespace DTConverter
             LblName.Content += " " + v.ToString(2);
 
             // we do some bindings here, not in XAML, so we can use the XAML editor more confortably
-            ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "IsCropEnabled");
-            ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "IsPaddingEnabled");
-            ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "IsSliceEnabled");
-            ChkEnableResolution.SetBinding(CheckBox.IsCheckedProperty, "IsVideoResolutionEnabled");
+            ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "CropParams.IsEnabled");
+            ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "PaddingParams.IsEnabled");
+            ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "SliceParams.IsEnabled");
+            ChkEnableResolution.SetBinding(CheckBox.IsCheckedProperty, "VideoResolutionParams.IsEnabled");
             ChkEnableVideoBitrate.SetBinding(CheckBox.IsCheckedProperty, "IsVideoBitrateEnabled");
             ChkEnableOutFramerate.SetBinding(CheckBox.IsCheckedProperty, "IsOutFramerateEnabled");
             ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
@@ -703,7 +703,7 @@ namespace DTConverter
                         if (DisplayedConversionParameters != null)
                         {
                             Image im = new Image();
-                            pathRC = DisplayedConversionParameters.getSliceName(DisplayedConversionParameters.ThumbnailPathOut, r + 1, c + 1);
+                            pathRC = Slicer.GetSliceName(DisplayedConversionParameters.ThumbnailPathOut, r + 1, c + 1);
 
                             BitmapImage bi = new BitmapImage();
                             im.Source = bi;
@@ -823,7 +823,7 @@ namespace DTConverter
                         {
                             c = Grid.GetColumn(uiEl);
                             r = Grid.GetRow(uiEl);
-                            pathRC = DisplayedConversionParameters.getSliceName(DisplayedConversionParameters.ThumbnailPathOut, r + 1, c + 1);
+                            pathRC = Slicer.GetSliceName(DisplayedConversionParameters.ThumbnailPathOut, r + 1, c + 1);
                             if (uiEl is Image im)
                             {
                                 if (File.Exists(pathRC))

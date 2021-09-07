@@ -24,12 +24,15 @@ namespace DTConverter
 {
     public class Padding: INotifyPropertyChanged
     {
-        public Padding()
+        private bool _IsEnabled;
+        public bool IsEnabled
         {
-            _Top = 0;
-            _Bottom = 0;
-            _Left = 0;
-            _Right = 0;
+            get => _IsEnabled;
+            set
+            {
+                _IsEnabled = value;
+                OnPropertyChanged("IsEnabled");
+            }
         }
 
         private int _Top;

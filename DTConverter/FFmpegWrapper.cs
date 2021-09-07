@@ -560,7 +560,7 @@ namespace DTConverter
             // Crop
             if (isCropEnabled)
             {
-                vFilters.Add($"crop=iw-{crop.Left}-{crop.Right}:ih-{crop.Top}-{crop.Bottom}:{crop.Left}:{crop.Top} [cropped]");
+                vFilters.Add($"crop=iw-{crop.Left}-{crop.Right}:ih-{crop.Top}-{crop.Bottom}:{crop.X}:{crop.Y} [cropped]");
             }
 
             // Padding

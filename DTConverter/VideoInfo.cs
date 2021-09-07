@@ -18,42 +18,190 @@
     https://github.com/daniznf/DTConverter
  */
 
+using System.ComponentModel;
+
 namespace DTConverter
 {
-    public class VideoInfo
+    public class VideoInfo : INotifyPropertyChanged
     {
-        public string SourcePath { get; set; }
-        public TimeDuration Duration { get; set; }
+        private string _SourcePath;
+        public string SourcePath
+        {
+            get => _SourcePath;
+            set
+            {
+                _SourcePath = value;
+                OnPropertyChanged("SourcePath");
+            }
+        }
 
-        public bool HasVideo { get; set; }
-        public string VideoCodec { get; set; }
-        public string ChromaSubsampling { get; set; }
-        public int HorizontalResolution { get; set; }
-        public int VerticalResolution { get; set; }
+        private TimeDuration _Duration;
+        public TimeDuration Duration 
+        { 
+            get => _Duration;
+            set
+            {
+                _Duration = value;
+                OnPropertyChanged("Duration");
+            }
+        }
+
+        private bool _HasVideo;
+        public bool HasVideo
+        { 
+            get => _HasVideo;
+            set
+            {
+                _HasVideo = value;
+                OnPropertyChanged("HasVideo");
+            }
+        }
+
+        private string _VideoCodec;
+        public string VideoCodec
+        { 
+            get => _VideoCodec;
+            set
+            {
+                _VideoCodec = value;
+                OnPropertyChanged("VideoCodec");
+            }
+        }
+
+        private string _ChromaSubsampling;
+        public string ChromaSubsampling
+        { 
+            get => _ChromaSubsampling;
+            set
+            {
+                _ChromaSubsampling = value;
+                OnPropertyChanged("ChromaSubsampling");
+            }
+        }
+
+        private int _HorizontalResolution;
+        public int HorizontalResolution
+        { 
+            get => _HorizontalResolution;
+            set
+            {
+                _HorizontalResolution = value;
+                OnPropertyChanged("HorizontalResolution");
+            }
+        }
+        private int _VerticalResolution;
+        public int VerticalResolution
+        { 
+            get => _VerticalResolution;
+            set
+            {
+                _VerticalResolution = value;
+                OnPropertyChanged("VerticalResolution");
+            }
+        }
+
         public string VideoResolution => HorizontalResolution.ToString() + "x" + VerticalResolution.ToString();
 
         public double AspectRatio => VerticalResolution != 0 ? 1.0 * HorizontalResolution / VerticalResolution : -1;
+
+        private int _VideoBitrate;
         /// <summary>
         /// Bitrate in kb/s
         /// </summary>
-        public int VideoBitrate { get; set; }
+        public int VideoBitrate
+        { 
+            get => _VideoBitrate;
+            set
+            {
+                _VideoBitrate = value;
+                OnPropertyChanged("VideoBitrate");
+            }
+        }
+
+        private float _FrameRate;
         /// <summary>
         /// Framerate in fps
         /// </summary>
-        public float FrameRate { get; set; }
+        public float FrameRate
+        { 
+            get => _FrameRate;
+            set
+            {
+                _FrameRate = value;
+                OnPropertyChanged("FrameRate");
+            }
+        }
+        
+        private bool _HasAudio;
+        public bool HasAudio
+        { 
+            get => _HasAudio;
+            set
+            {
+                _HasAudio = value;
+                OnPropertyChanged("HasAudio");
+            }
+        }
 
-        public bool HasAudio { get; set; }
-        public string AudioCodec { get; set; }
+        private string _AudioCodec;
+        public string AudioCodec
+        { 
+            get => _AudioCodec;
+            set
+            {
+                _AudioCodec = value;
+                OnPropertyChanged("AudioCodec");
+            }
+        }
 
+        private int _AudioSamplingRate;
         /// <summary>
         /// Sampling rate in Hz
         /// </summary>
-        public int AudioSamplingRate { get; set; }
-        public string AudioChannels { get; set; }
+        public int AudioSamplingRate
+        {
+            get => _AudioSamplingRate;
+            set
+            {
+                _AudioSamplingRate = value;
+                OnPropertyChanged("AudioSamplingRate");
+            }
+        }
 
+        private string _AudioChannels;
+        public string AudioChannels
+        {
+            get => _AudioChannels;
+            set
+            {
+                _AudioChannels = value;
+                OnPropertyChanged("AudioChannels");
+            }
+        }
+
+        private int _AudioBitrate;
         /// <summary>
         /// Bitrate in kb/s
         /// </summary>
-        public int AudioBitrate { get; set; }
+        public int AudioBitrate
+        { 
+            get => _AudioBitrate;
+            set
+            {
+                _AudioBitrate = value;
+                OnPropertyChanged("AudioBitrate");
+            }
+        }
+
+        // This implements INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string info)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(info));
+            }
+        }
     }
 }

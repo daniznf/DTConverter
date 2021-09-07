@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -51,13 +52,17 @@ namespace DTConverter
         public void ResetDefaultValues()
         {
             // Changing all public properties (not _variables) Bindings will be notified
-            _VideoResolutionParams = new VideoResolution();
+            VideoResolutionParams = new VideoResolution();
+            VideoResolutionParams.PropertyChanged += VideoResolutionParams_PropertyChanged;
             _StartTime = new TimeDuration();
             _DurationTime = new TimeDuration();
             _PreviewTime = new TimeDuration();
             CropParams = new Crop();
+            CropParams.PropertyChanged += CropParams_PropertyChanged;
             PaddingParams = new Padding();
+            PaddingParams.PropertyChanged += CropParams_PropertyChanged;
             SliceParams = new Slicer();
+            SliceParams.PropertyChanged += SliceParams_PropertyChanged;
 
             PreviewResolution = new VideoResolution
             {
@@ -65,7 +70,6 @@ namespace DTConverter
                 Vertical = 360
             };
 
-            IsValid = false;
             VideoConversionStatus = ConversionStatus.None;
             AudioConversionStatus = ConversionStatus.None;
 
@@ -79,10 +83,27 @@ namespace DTConverter
             OutFrameRate = 0;
             Rotation = 0;
             RotateMetadataOnly = false;
+        }
 
-            IsCropEnabled = false;
-            IsPaddingEnabled = false;
-            IsSliceEnabled = false;
+        private void SliceParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("ShowColPreviewOut");
+        }
+
+        private void CropParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("ShowColPreviewOut");
+            OnPropertyChanged("DestinationVideoPath");
+            OnPropertyChanged("VideoFinalResolutionHorizontal");
+            OnPropertyChanged("VideoFinalResolutionVertical");
+        }
+
+        private void VideoResolutionParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("DestinationVideoPath");
+            OnPropertyChanged("VideoFinalResolutionHorizontal");
+            OnPropertyChanged("VideoFinalResolutionVertical");
+            OnPropertyChanged("ShowColPreviewOut");
         }
 
         /// <summary>
@@ -96,13 +117,13 @@ namespace DTConverter
             // SourcePath needs to remain original path
             // SourceInfo should not be copied
             // FFWrapper should not be copied
-            // Isvalid should not be copied, we don't want user to copy a valid item into a non-valid item
-            // ThumbnailPath should not be copied
+            // Isvalid should not be copied, user must not copy a valid item into a non-valid item
+            // ThumbnailPathIn should not be copied
 
             _StartTime.Seconds = copyFrom.StartTimeSeconds;
             _DurationTime.Seconds = copyFrom.DurationTimeSeconds;
             PreviewTimeSeconds = copyFrom.PreviewTimeSeconds;
-            
+
             PreviewResolution = copyFrom.PreviewResolution;
 
             IsConversionEnabled = copyFrom.IsConversionEnabled;
@@ -111,21 +132,14 @@ namespace DTConverter
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
 
-            IsVideoResolutionEnabled = copyFrom.IsVideoResolutionEnabled;
-            _VideoResolutionParams.Horizontal = copyFrom.VideoResolutionHorizontal;
-            _VideoResolutionParams.Vertical = copyFrom.VideoResolutionVertical;
+            VideoResolutionParams = copyFrom.VideoResolutionParams;
+
             VideoBitrate = copyFrom.VideoBitrate;
             OutFrameRate = copyFrom.OutFrameRate;
             Rotation = copyFrom.Rotation;
             RotateMetadataOnly = copyFrom.RotateMetadataOnly;
-
-            IsCropEnabled = copyFrom.IsCropEnabled;
             CropParams = copyFrom.CropParams;
-
-            IsPaddingEnabled = copyFrom.IsPaddingEnabled;
             PaddingParams = copyFrom.PaddingParams;
-
-            IsSliceEnabled = copyFrom.IsSliceEnabled;
             SliceParams = copyFrom.SliceParams;
         }
 
@@ -138,6 +152,7 @@ namespace DTConverter
         /// </summary>
         public string DestinationVideoPath
         {
+            // TODO: personalize destination path on user's choice
             get
             {
                 if (SourcePath != null)
@@ -145,9 +160,9 @@ namespace DTConverter
                     string outPath = Path.GetDirectoryName(SourcePath);
                     outPath = Path.Combine(outPath, VideoEncoder.ToString());
                     outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                    if (IsVideoResolutionEnabled)
+                    if (VideoResolutionParams.IsEnabled)
                     {
-                        outPath += $"_{VideoResolutionHorizontal}x{VideoResolutionVertical}";
+                        outPath += $"_{VideoFinalResolutionHorizontal}x{VideoFinalResolutionVertical}";
                     }
                     if (IsOutFramerateEnabled)
                     {
@@ -208,20 +223,11 @@ namespace DTConverter
             }
         }
 
-        private VideoInfo _SourceInfo;
         /// <summary>
         /// After calling ProbeVideoInfo(), it contains all information read from source file
         /// </summary>
-        public VideoInfo SourceInfo
-        {
-            get => _SourceInfo;
-            set
-            {
-                _SourceInfo = value;
-                OnPropertyChanged("SourceInfo");
-            }
-        }
-
+        public VideoInfo SourceInfo { get; set; }
+        /*
         private bool _IsValid;
         /// <summary>
         /// Determines if it is a valid video or audio file by checking if duration is null
@@ -233,6 +239,25 @@ namespace DTConverter
             {
                 _IsValid = value;
                 OnPropertyChanged("IsValid");
+            }
+        }
+        */
+
+        /// <summary>
+        /// Determines if it is a valid video or audio file by checking if duration is null
+        /// </summary>
+        public bool IsValid
+        {
+            get
+            {
+                if (SourceInfo != null)
+                {
+                    if (SourceInfo.Duration != null)
+                    {
+                        return SourceInfo.Duration.Seconds > 0;
+                    }
+                }
+                return false;
             }
         }
 
@@ -258,14 +283,8 @@ namespace DTConverter
         }
         public string StartTimeHMS
         {
-            get
-            {
-                return _StartTime.HMS;
-            }
-            set
-            {
-                StartTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
-            }
+            get => _StartTime.HMS;
+            set => StartTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
         }
 
         public double EndTimeSeconds
@@ -283,15 +302,8 @@ namespace DTConverter
         }
         public string EndTimeHMS
         {
-            get
-            {
-                return new TimeDuration() { Seconds = _StartTime.Seconds + _DurationTime.Seconds }.HMS;
-            }
-            set
-            {
-                double sValue = new TimeDuration() { HMS = value }.Seconds;
-                EndTimeSeconds = sValue;
-            }
+            get => new TimeDuration() { Seconds = _StartTime.Seconds + _DurationTime.Seconds }.HMS;
+            set => EndTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
         }
 
         private TimeDuration _DurationTime;
@@ -303,9 +315,9 @@ namespace DTConverter
             }
             set
             {
-                if (_SourceInfo != null)
+                if (SourceInfo != null)
                 {
-                    double durationLeft = _SourceInfo.Duration.Seconds - _StartTime.Seconds;
+                    double durationLeft = SourceInfo.Duration.Seconds - _StartTime.Seconds;
                     if (value <= durationLeft)
                     {
                         _DurationTime.Seconds = value;
@@ -321,15 +333,8 @@ namespace DTConverter
         }
         public string DurationTimeHMS
         {
-            get
-            {
-                return _DurationTime.HMS;
-            }
-            set
-            {
-                double sValue = new TimeDuration() { HMS = value }.Seconds;
-                DurationTimeSeconds = sValue;
-            }
+            get => _DurationTime.HMS;
+            set => DurationTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
         }
 
         private TimeDuration _PreviewTime;
@@ -350,8 +355,8 @@ namespace DTConverter
             get
             {
                 GridLength gr;
-                if (_IsCropEnabled || _IsPaddingEnabled || _IsSliceEnabled ||
-                    _IsVideoResolutionEnabled ||
+                if (CropParams.IsEnabled || PaddingParams.IsEnabled || SliceParams.IsEnabled ||
+                    VideoResolutionParams.IsEnabled ||
                     _Rotation != 0)
                 {
                     gr = new GridLength(1, GridUnitType.Star);
@@ -370,8 +375,8 @@ namespace DTConverter
         {
             get
             {
-                if (_IsCropEnabled || _IsPaddingEnabled || _IsSliceEnabled ||
-                    _IsVideoResolutionEnabled ||
+                if (CropParams.IsEnabled || PaddingParams.IsEnabled || SliceParams.IsEnabled ||
+                    VideoResolutionParams.IsEnabled ||
                     _Rotation != 0)
                 {
                     return Visibility.Visible;
@@ -383,29 +388,11 @@ namespace DTConverter
             }
         }
 
-        private VideoResolution _PreviewResolution;
-        public VideoResolution PreviewResolution
-        {
-            get => _PreviewResolution;
-            set
-            {
-                _PreviewResolution = value;
-                OnPropertyChanged("PreviewResolution");
-            }
-        }
-
-        private string _ThumbnailPathIn;
-        public string ThumbnailPathIn
-        {
-            get => _ThumbnailPathIn;
-            set
-            {
-                _ThumbnailPathIn = value;
-                OnPropertyChanged("ThumbnailPath");
-                OnPropertyChanged("ThumbnailOutPath");
-            }
-        }
-
+        public VideoResolution PreviewResolution { get; set; }
+        
+        
+        public string ThumbnailPathIn { get; set; }
+        
         public string ThumbnailPathOut => ThumbnailPathIn + "_out";
 
         private bool _IsConversionEnabled;
@@ -451,21 +438,21 @@ namespace DTConverter
                 switch (value)
                 {
                     case VideoEncoders.HAP:
-                        VideoResolutionMultiple = 4;
+                        VideoResolutionParams.Multiple = 4;
                         break;
                     case VideoEncoders.HAP_Alpha:
-                        VideoResolutionMultiple = 4;
+                        VideoResolutionParams.Multiple = 4;
                         break;
                     case VideoEncoders.HAP_Q:
-                        VideoResolutionMultiple = 4;
+                        VideoResolutionParams.Multiple = 4;
                         break;
                 }
 
                 OnPropertyChanged("VideoEncoder");
                 OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("IsVideoEncoderCopy");
-                OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotCopy");
+                OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotHAP");
                 OnPropertyChanged("IsVideoEncoderNotStillImage");
             }
@@ -487,86 +474,76 @@ namespace DTConverter
             }
         }
 
-        public bool _IsVideoResolutionEnabled;
-        public bool IsVideoResolutionEnabled
-        {
-            get => _IsVideoResolutionEnabled;
-            set
-            {
-                _IsVideoResolutionEnabled = value;
-                OnPropertyChanged("_IsResolutionEnabled");
-                OnPropertyChanged("ShowColPreviewOut");
-                OnPropertyChanged("DestinationVideoPath");
-                OnPropertyChanged("VideoResolutionHorizontal");
-                OnPropertyChanged("VideoResolutionVertical");
-            }
-        }
+        
 
-        private VideoResolution _VideoResolutionParams;
-        public int VideoResolutionHorizontal
+        public VideoResolution VideoResolutionParams { get; set; }
+
+        public int VideoFinalResolutionHorizontal
         {
             get
             {
-                if (IsVideoResolutionEnabled && _VideoResolutionParams.Horizontal > 0)
+                int hRes;
+                if (VideoResolutionParams.IsEnabled && VideoResolutionParams.Horizontal > 0)
                 {
-                    return _VideoResolutionParams.Horizontal;
+                    hRes = VideoResolutionParams.Horizontal;
                 }
                 else
                 {
-                    if (_SourceInfo != null)
+                    if (SourceInfo != null)
                     {
-                        return _SourceInfo.HorizontalResolution;
+                        hRes = SourceInfo.HorizontalResolution;
+                    }
+                    else
+                    {
+                        return 0;
                     }
                 }
-                return 0;
-            }
-            set
-            {
-                if (value > 0)
+
+                if (CropParams.IsEnabled)
                 {
-                    _VideoResolutionParams.Horizontal = value;
+                    hRes -= CropParams.Left + CropParams.Right;
                 }
-                OnPropertyChanged("VideoResolutionHorizontal");
-                OnPropertyChanged("DestinationVideoPath");
+                if (PaddingParams.IsEnabled)
+                {
+                    hRes += PaddingParams.Left + PaddingParams.Right;
+                }
+
+                return hRes;
             }
         }
-        public int VideoResolutionVertical
+        public int VideoFinalResolutionVertical
         {
             get
             {
-                if (IsVideoResolutionEnabled && _VideoResolutionParams.Vertical > 0)
+                int vRes;
+                if (VideoResolutionParams.IsEnabled && VideoResolutionParams.Vertical > 0)
                 {
-                    return _VideoResolutionParams.Vertical;
+                    vRes = VideoResolutionParams.Vertical;
                 }
                 else
                 {
-                    if (_SourceInfo != null)
+                    if (SourceInfo != null)
                     {
-                        return _SourceInfo.VerticalResolution;
+                        vRes = SourceInfo.VerticalResolution;
+                    }
+                    else
+                    {
+                        return 0;
                     }
                 }
-                return 0;
-            }
-            set
-            {
-                if (value > 0)
+                if (CropParams.IsEnabled)
                 {
-                    _VideoResolutionParams.Vertical = value;
+                    vRes -= CropParams.Top + CropParams.Bottom;
                 }
-                OnPropertyChanged("VideoResolutionVertical");
-                OnPropertyChanged("DestinationVideoPath");
-            }
-        }
-        public int VideoResolutionMultiple
-        {
-            get => _VideoResolutionParams.Multiple;
-            set
-            {
-                _VideoResolutionParams.Multiple = value;
-                OnPropertyChanged("VideoResolutionMultiple");
-            }
-        }
+                if (PaddingParams.IsEnabled)
+                {
+                    vRes += PaddingParams.Top + PaddingParams.Bottom;
+                }
 
+                return vRes;
+            }
+        }
+        
         private bool _IsVideoBitrateEnabled;
         public bool IsVideoBitrateEnabled
         {
@@ -585,15 +562,15 @@ namespace DTConverter
         {
             get
             {
-                if (_IsVideoBitrateEnabled)
+                if (_IsVideoBitrateEnabled && _VideoBitrate > 0)
                 {
                     return _VideoBitrate;
                 }
                 else
                 {
-                    if (_SourceInfo != null)
+                    if (SourceInfo != null)
                     {
-                        return _SourceInfo.VideoBitrate;
+                        return SourceInfo.VideoBitrate;
                     }
                 }
                 return 0;
@@ -623,15 +600,15 @@ namespace DTConverter
         {
             get
             {
-                if (_IsOutFramerateEnabled)
+                if (_IsOutFramerateEnabled && _OutFrameRate > 0)
                 {
                     return Math.Round(_OutFrameRate, 2);
                 }
                 else
                 {
-                    if (_SourceInfo != null)
+                    if (SourceInfo != null)
                     {
-                        return Math.Round(_SourceInfo.FrameRate, 2);
+                        return Math.Round(SourceInfo.FrameRate, 2);
                     }
                 }
                 return 0;
@@ -667,75 +644,9 @@ namespace DTConverter
             }
         }
 
-        private bool _IsCropEnabled;
-        public bool IsCropEnabled
-        {
-            get => _IsCropEnabled;
-            set
-            {
-                _IsCropEnabled = value;
-                OnPropertyChanged("IsCropEnabled");
-                OnPropertyChanged("ShowColPreviewOut");
-            }
-        }
-
-        private Crop _CropParams;
-        public Crop CropParams
-        {
-            get => _CropParams;
-            set
-            {
-                _CropParams = value;
-                OnPropertyChanged("CropParams");
-            }
-        }
-
-        private bool _IsPaddingEnabled;
-        public bool IsPaddingEnabled
-        {
-            get =>_IsPaddingEnabled;
-            set
-            {
-                _IsPaddingEnabled = value;
-                OnPropertyChanged("IsPaddingEnabled");
-                OnPropertyChanged("ShowColPreviewOut");
-            }
-        }
-
-        private Padding _PaddingParams;
-        public Padding PaddingParams
-        {
-            get => _PaddingParams;
-
-            set
-            {
-                _PaddingParams = value;
-                OnPropertyChanged("PaddingParams");
-            }
-        }
-
-        private bool _IsSliceEnabled;
-        public bool IsSliceEnabled
-        {
-            get => _IsSliceEnabled;
-            set
-            {
-                _IsSliceEnabled = value;
-                OnPropertyChanged("IsSliceEnabled");
-                OnPropertyChanged("ShowColPreviewOut");
-            }
-        }
-
-        private Slicer _SliceParams;
-        public Slicer SliceParams
-        {
-            get => _SliceParams;
-            set
-            {
-                _SliceParams = value;
-                OnPropertyChanged("SliceParams");
-            }
-        }
+        public Crop CropParams { get; set; }
+        public Padding PaddingParams { get; set; }
+        public Slicer SliceParams { get; set; }
 
         private ConversionStatus _VideoConversionStatus;
         public ConversionStatus VideoConversionStatus
@@ -760,15 +671,6 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Generates the name for given path, adding r and c in a standard way.
-        /// Every method that tries to access an r x c image should call this method.
-        /// </summary>
-        public string getSliceName(string originalName, int r, int c)
-        {
-            return Slicer.GetSliceName(originalName, r, c);
-        }
-
-        /// <summary>
         /// Probes all video informations.
         /// This method takes some seconds to execute so it should be run in a separate thread or Task
         /// </summary>
@@ -777,21 +679,20 @@ namespace DTConverter
             if (SourcePath != null)
             {
                 SourceInfo = FFmpegWrapper.ProbeVideoInfo(SourcePath, 1000);
+                OnPropertyChanged("IsValid");
             }
 
-            if (_SourceInfo != null && _SourceInfo.Duration != null)
+            if (SourceInfo != null && SourceInfo.Duration != null)
             {
-                VideoResolutionHorizontal = _SourceInfo.HorizontalResolution;
-                VideoResolutionVertical = _SourceInfo.VerticalResolution;
-                DurationTimeSeconds = _SourceInfo.Duration.Seconds;
-                OutFrameRate = _SourceInfo.FrameRate;
-                VideoBitrate = _SourceInfo.VideoBitrate;
-                IsValid = true;
+                VideoResolutionParams.Horizontal = SourceInfo.HorizontalResolution;
+                VideoResolutionParams.Vertical = SourceInfo.VerticalResolution;
+                DurationTimeSeconds = SourceInfo.Duration.Seconds;
+                OutFrameRate = SourceInfo.FrameRate;
+                VideoBitrate = SourceInfo.VideoBitrate;
             }
             else
             {
                 IsConversionEnabled = false;
-                IsValid = false;
             }
         }
 
@@ -862,10 +763,14 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewOut;
                 try
                 {
-                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG, IsVideoResolutionEnabled, _VideoResolutionParams,
+                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                        VideoResolutionParams.IsEnabled, VideoResolutionParams,
                         false, 0,
                         false, 0,
-                        Rotation, false, IsCropEnabled, CropParams, IsPaddingEnabled, PaddingParams, IsSliceEnabled, SliceParams);
+                        Rotation, false, 
+                        CropParams.IsEnabled, CropParams, 
+                        PaddingParams.IsEnabled, PaddingParams, 
+                        SliceParams.IsEnabled, SliceParams);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
                     ProcessPreviewOut.StartInfo.Arguments += " -y";
@@ -922,13 +827,13 @@ namespace DTConverter
                         VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath,
                             _StartTime, _DurationTime,
                             VideoEncoder,
-                            IsVideoResolutionEnabled, _VideoResolutionParams,
+                            VideoResolutionParams.IsEnabled, VideoResolutionParams,
                              IsVideoBitrateEnabled, _VideoBitrate,
                              IsOutFramerateEnabled, _OutFrameRate,
                              Rotation, RotateMetadataOnly,
-                             IsCropEnabled, CropParams,
-                             IsPaddingEnabled, PaddingParams,
-                             IsSliceEnabled, SliceParams);
+                             CropParams.IsEnabled, CropParams,
+                             PaddingParams.IsEnabled, PaddingParams,
+                             SliceParams.IsEnabled, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())

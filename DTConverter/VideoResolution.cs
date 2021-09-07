@@ -25,11 +25,15 @@ namespace DTConverter
 {
     public class VideoResolution : INotifyPropertyChanged
     {
-        public VideoResolution()
+        private bool _IsEnabled;
+        public bool IsEnabled
         {
-            _Horizontal = 0;
-            _Vertical = 0;
-            _Multiple = 0;
+            get => _IsEnabled;
+            set
+            {
+                _IsEnabled = value;
+                OnPropertyChanged("IsEnabled");
+            }
         }
 
         private int _Horizontal;
