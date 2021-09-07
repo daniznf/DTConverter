@@ -267,8 +267,6 @@
                             </StackPanel>
                         </TabItem.Header>
 
-
-
                         <DockPanel Name="PnlVideoSettings">
                             <DockPanel.Resources>
                                 <Style TargetType="Label"/>
@@ -289,6 +287,16 @@
                                         <StackPanel Orientation="Horizontal">
                                             <Label Content="Encoder"/>
                                             <ComboBox Name="CbxVideoEncoders" Width="128px" SelectedIndex="0" Text="{Binding VideoEncoder}" ItemsSource="{Binding Source={StaticResource VideoEncodersValues}}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="Multiple" />
+                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
+                                                <ComboBoxItem Content="0"/>
+                                                <ComboBoxItem Content="2"/>
+                                                <ComboBoxItem Content="4"/>
+                                                <ComboBoxItem Content="8"/>
+                                                <ComboBoxItem Content="16"/>
+                                            </ComboBox>
                                         </StackPanel>
                                     </StackPanel>
 
@@ -317,14 +325,6 @@
                                             <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
                                             <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}"/>
                                             <Label Content="px" HorizontalContentAlignment="Left"/>
-                                            <Label Content="Multiple" />
-                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
-                                                <ComboBoxItem Content="0"/>
-                                                <ComboBoxItem Content="2"/>
-                                                <ComboBoxItem Content="4"/>
-                                                <ComboBoxItem Content="8"/>
-                                                <ComboBoxItem Content="16"/>
-                                            </ComboBox>
                                         </StackPanel>
                                     </StackPanel>
                                     

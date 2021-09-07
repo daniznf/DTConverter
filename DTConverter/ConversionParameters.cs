@@ -451,16 +451,13 @@ namespace DTConverter
                 switch (value)
                 {
                     case VideoEncoders.HAP:
-                        _VideoResolutionParams.Multiple = 8;
+                        VideoResolutionMultiple = 4;
                         break;
                     case VideoEncoders.HAP_Alpha:
-                        _VideoResolutionParams.Multiple = 8;
+                        VideoResolutionMultiple = 4;
                         break;
                     case VideoEncoders.HAP_Q:
-                        _VideoResolutionParams.Multiple = 8;
-                        break;
-                    case VideoEncoders.H264:
-                        _VideoResolutionParams.Multiple = 8;
+                        VideoResolutionMultiple = 4;
                         break;
                 }
 

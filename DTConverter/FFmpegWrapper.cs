@@ -653,7 +653,9 @@ namespace DTConverter
 
                             x = $"{w}*{c-1}-({ slices.HorizontalOverlap}*{c-1})";
 
-                            vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [out_{sliceConnector}]");                            
+                            vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [cropped_{sliceConnector}]");
+                            vSlices.Add($"[cropped_{sliceConnector}] scale=0:-{videoResolution.Multiple} [scaledh_{sliceConnector}]");
+                            vSlices.Add($"[scaledh_{sliceConnector}] scale=-{videoResolution.Multiple}:0 [out_{sliceConnector}]");
                         }
                     }
 
