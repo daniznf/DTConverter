@@ -540,16 +540,6 @@ namespace DTConverter
                 vArgsOut.Add($"-f {vFormat}");
             }
 
-            if (isResolutionEnabled && videoResolution.Horizontal > 0 && videoResolution.Vertical > 0)
-            {
-                /*
-                int hResolution = videoResolution.Horizontal > 0 ? videoResolution.Horizontal : videoInfo.HorizontalResolution;
-                int vResolution = videoResolution.Vertical > 0 ? videoResolution.Vertical : videoInfo.VerticalResolution;
-                vArgsOut.Add($"-s {hResolution}x{vResolution}");
-                */
-                vArgsOut.Add($"-s {videoResolution.Horizontal}x{videoResolution.Vertical}");
-            }
-
             // force CBR
             if (isVideoBitrateEnabled)
             {
@@ -567,7 +557,6 @@ namespace DTConverter
             }
 
             // Filters
-
             // Crop
             if (isCropEnabled)
             {
@@ -578,6 +567,13 @@ namespace DTConverter
             if (isPaddingEnabled)
             {
                 vFilters.Add($"pad=iw+{padding.Left}+{padding.Right}:ih+{padding.Top}+{padding.Bottom}:{padding.Left}:{padding.Top} [padded]");
+            }
+
+            // Scale Resolution
+            if (isResolutionEnabled)
+            {
+                // -s option uses scale and keep input aspect ratio
+                vFilters.Add($"scale={videoResolution.Horizontal}:{videoResolution.Vertical},setsar=1/1 [scaled]");
             }
 
             // Rotation
@@ -614,18 +610,17 @@ namespace DTConverter
             }
 
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
-            
             vArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
             
-            string strArgsOut;
-            strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
-
             if (isSliceEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
             {
                 // Add a split filter without the out connection, there will be many connectors!
                 // This split is added here to know the previous out connector like [cropped] or [padded]
                 vFilters.Add($"split={slices.HorizontalNumber * slices.VerticalNumber}");
             }
+
+            string strArgsOut;
+            strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
 
             string ffArguments;
 
@@ -658,7 +653,7 @@ namespace DTConverter
 
                             x = $"{w}*{c-1}-({ slices.HorizontalOverlap}*{c-1})";
 
-                            vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y} [out_{sliceConnector}]");
+                            vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [out_{sliceConnector}]");                            
                         }
                     }
 
@@ -695,10 +690,7 @@ namespace DTConverter
                 ffArguments = $"{strArgsIn} {strArgsOut} \"{destinationPath}\"";
             }
 
-            //ffArguments += " -y";
-
             // Process
-
             Process FFmpegProcess = new Process();
             FFmpegProcess.StartInfo = new ProcessStartInfo() { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
             FFmpegProcess.StartInfo.FileName = FFmpegPath;

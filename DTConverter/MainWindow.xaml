@@ -308,7 +308,26 @@
                                             </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
-
+                                    
+                                    <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
+                                        <StackPanel Name="PnlResolution">
+                                            <Label Content="Resolution"/>
+                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding VideoResolutionHorizontal}"/>
+                                            <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
+                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}"/>
+                                            <Label Content="px" HorizontalContentAlignment="Left"/>
+                                            <Label Content="Multiple" />
+                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
+                                                <ComboBoxItem Content="0"/>
+                                                <ComboBoxItem Content="2"/>
+                                                <ComboBoxItem Content="4"/>
+                                                <ComboBoxItem Content="8"/>
+                                                <ComboBoxItem Content="16"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <StackPanel.Resources>
                                             <Style TargetType="Label">
@@ -419,25 +438,6 @@
                                                 <TextBox Name="TxtVOverlap" Text="{Binding SliceParams.VerticalOverlap}" />
                                                 <Label Content="px" HorizontalContentAlignment="Left" Width="32px"/>
                                             </StackPanel>
-                                        </StackPanel>
-                                    </StackPanel>
-
-                                    <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
-                                        <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
-                                        <StackPanel Name="PnlResolution">
-                                            <Label Content="Resolution"/>
-                                            <TextBox Name="TxtHorizontalResolution" Text="{Binding VideoResolutionHorizontal}"/>
-                                            <Label Content="x" Width="32px" HorizontalContentAlignment="Center"/>
-                                            <TextBox Name="TxtVerticalResolution" Text="{Binding VideoResolutionVertical}"/>
-                                            <Label Content="px" HorizontalContentAlignment="Left"/>
-                                            <Label Content="Multiple" />
-                                            <ComboBox Name="CbxResolutionMultiple" SelectedIndex="0" Text="{Binding VideoResolutionMultiple}">
-                                                <ComboBoxItem Content="0"/>
-                                                <ComboBoxItem Content="2"/>
-                                                <ComboBoxItem Content="4"/>
-                                                <ComboBoxItem Content="8"/>
-                                                <ComboBoxItem Content="16"/>
-                                            </ComboBox>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
