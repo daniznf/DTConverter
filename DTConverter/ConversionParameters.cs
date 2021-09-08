@@ -249,10 +249,19 @@ namespace DTConverter
             }
         }
 
+        private VideoInfo _SourceInfo;
         /// <summary>
         /// After calling ProbeVideoInfo(), it contains all information read from source file
         /// </summary>
-        public VideoInfo SourceInfo { get; set; }
+        public VideoInfo SourceInfo
+        {
+            get => _SourceInfo;
+            private set
+            {
+                _SourceInfo = value;
+                OnPropertyChanged("SourceInfo");
+            }
+        }
         
         /// <summary>
         /// Determines if it is a valid video or audio file by checking if duration is null
