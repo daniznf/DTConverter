@@ -24,8 +24,8 @@ Copyright (C) 2021 Daniznf
 
 
 ### Requirements:<br>
-* <a href="http://ffmpeg.org/download.html">FFmpeg</a> (already configured in PATH or with its 3 exes in the same folder as DT Converter)
-* <a href="https://github.com/Vidvox/hap-qt-codec/releases">HAP Codec</a> installed
+* <a href="http://ffmpeg.org/download.html">FFmpeg</a> (copied in the same folder as DT Converter, or configured in PATH)
+* <a href="https://github.com/Vidvox/hap-qt-codec/releases">HAP Codec</a> installed, or ffmpeg binaries built with support to hap codec like <a href="https://www.gyan.dev/ffmpeg/builds/">gyan.dev</a> release full <a href="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z">builds</a>
 * .NET 4.7.2 or later (should be already installed in Windows 10)
 
 
