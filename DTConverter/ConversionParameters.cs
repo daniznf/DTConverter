@@ -287,7 +287,7 @@ namespace DTConverter
         {
             get
             {
-                return _StartTime.Seconds;
+                return Math.Round(_StartTime.Seconds, 6);
             }
             set
             {
@@ -311,7 +311,7 @@ namespace DTConverter
         {
             get
             {
-                return _StartTime.Seconds + _DurationTime.Seconds;
+                return Math.Round(_StartTime.Seconds + _DurationTime.Seconds, 6);
             }
             set
             {
@@ -331,7 +331,7 @@ namespace DTConverter
         {
             get
             {
-                return _DurationTime.Seconds;
+                return Math.Round(_DurationTime.Seconds, 6);
             }
             set
             {
@@ -360,7 +360,7 @@ namespace DTConverter
         private TimeDuration _PreviewTime;
         public double PreviewTimeSeconds
         {
-            get => _PreviewTime.Seconds;
+            get => Math.Round(_PreviewTime.Seconds, 6);
             set
             {
                 _PreviewTime.Seconds = Math.Round(value, 3);
@@ -846,7 +846,7 @@ namespace DTConverter
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
                     {
                         VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, _StartTime, _DurationTime, VideoEncoder,
-                            VideoResolutionParams, _VideoBitrate, _OutFrameRate, Rotation, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
+                            VideoResolutionParams, VideoBitrate, OutFrameRate, Rotation, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())
