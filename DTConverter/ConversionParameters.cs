@@ -186,7 +186,7 @@ namespace DTConverter
                     string outPath = Path.GetDirectoryName(SourcePath);
                     outPath = Path.Combine(outPath, VideoEncoder.ToString());
                     outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                    if (VideoResolutionParams.IsEnabled)
+                    if (VideoResolutionParams.IsEnabled || CropParams.IsEnabled || PaddingParams.IsEnabled)
                     {
                         outPath += $"_{VideoFinalResolutionHorizontal}x{VideoFinalResolutionVertical}";
                     }
@@ -526,16 +526,18 @@ namespace DTConverter
                     {
                         return 0;
                     }
+
+                    if (CropParams.IsEnabled)
+                    {
+                        hRes -= CropParams.Left + CropParams.Right;
+                    }
+                    if (PaddingParams.IsEnabled)
+                    {
+                        hRes += PaddingParams.Left + PaddingParams.Right;
+                    }
                 }
 
-                if (CropParams.IsEnabled)
-                {
-                    hRes -= CropParams.Left + CropParams.Right;
-                }
-                if (PaddingParams.IsEnabled)
-                {
-                    hRes += PaddingParams.Left + PaddingParams.Right;
-                }
+                
 
                 return hRes;
             }
@@ -559,14 +561,15 @@ namespace DTConverter
                     {
                         return 0;
                     }
-                }
-                if (CropParams.IsEnabled)
-                {
-                    vRes -= CropParams.Top + CropParams.Bottom;
-                }
-                if (PaddingParams.IsEnabled)
-                {
-                    vRes += PaddingParams.Top + PaddingParams.Bottom;
+
+                    if (CropParams.IsEnabled)
+                    {
+                        vRes -= CropParams.Top + CropParams.Bottom;
+                    }
+                    if (PaddingParams.IsEnabled)
+                    {
+                        vRes += PaddingParams.Top + PaddingParams.Bottom;
+                    }
                 }
 
                 return vRes;
