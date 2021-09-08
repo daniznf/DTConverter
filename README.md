@@ -47,5 +47,7 @@ https://github.com/daniznf/DTConverter
 
 
 This software uses <a href="http://ffmpeg.org">FFmpeg</a> licensed under the <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPLv2.1</a>.<br>
-This software uses HAP <a href="https://hap.video">HAP</a>.<br>
+This software uses <a href="https://hap.video">HAP</a>.<br>
+
+
 All product names, logos and brands are property of their respective owners.
