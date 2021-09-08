@@ -846,7 +846,10 @@ namespace DTConverter
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
                     {
                         VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, _StartTime, _DurationTime, VideoEncoder,
-                            VideoResolutionParams, VideoBitrate, OutFrameRate, Rotation, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
+                            VideoResolutionParams, 
+                            IsVideoBitrateEnabled? VideoBitrate : 0, 
+                            IsOutFramerateEnabled? OutFrameRate : 0, 
+                            Rotation, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())

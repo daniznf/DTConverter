@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -548,7 +549,7 @@ namespace DTConverter
 
             if (outFramerate > 0)
             {
-                vArgsOut.Add($"-r {outFramerate}");
+                vArgsOut.Add($"-r {outFramerate.ToString(CultureInfo.InvariantCulture)}");
             }
 
             if (duration.DurationType == DurationTypes.Frames)
