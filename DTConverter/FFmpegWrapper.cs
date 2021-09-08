@@ -627,9 +627,6 @@ namespace DTConverter
 
             if (vFilters.Count > 0)
             {
-                // There will be no more vFilters, so aggregate them here
-                strvFilters = vFilters.Aggregate("", AggregateFilters);
-
                 // vSlices will contain each crop for each slice, like
                 // [split_ric1] crop=w:h:x:y: [out_r1c1]; [split_r1c2] crop=w:h:x:y: [out_r1c2]; [split_r2c1] crop=w:h:x:y: [out_r2c1]; [split_r2c2] crop=w:h:x:y: [out_r2c2]
                 if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
@@ -655,11 +652,15 @@ namespace DTConverter
                             x = $"{w}*{c-1}-({ slices.HorizontalOverlap}*{c-1})";
 
                             vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [cropped_{sliceConnector}]");
+                            
+                            // Round final slice resolution to Multiple
                             vSlices.Add($"[cropped_{sliceConnector}] scale=0:-{videoResolution.Multiple} [scaledh_{sliceConnector}]");
                             vSlices.Add($"[scaledh_{sliceConnector}] scale=-{videoResolution.Multiple}:0 [out_{sliceConnector}]");
                         }
                     }
 
+                    // last filter should be the split filter
+                    strvFilters = vFilters.Aggregate("", AggregateFilters);
                     // complete strvFilters with many outputs of the split filter
                     strvFilters += " " + strSplitConnectors + ";";
                     strSlices = vSlices.Aggregate("", AggregateWithSemicolon);
@@ -685,6 +686,11 @@ namespace DTConverter
                 }
                 else
                 {
+                    // Round final resolution to Multiple
+                    vFilters.Add($"scale=0:-{videoResolution.Multiple} [scaledh]");
+                    vFilters.Add($"scale=-{videoResolution.Multiple}:0");
+                    
+                    strvFilters = vFilters.Aggregate("", AggregateFilters);
                     ffArguments = $"{strArgsIn} -filter:v \"{strvFilters}\" {strArgsOut} \"{destinationPath}\"";
                 }
             }
