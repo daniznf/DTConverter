@@ -749,10 +749,10 @@ namespace DTConverter
                         if (!ProcessPreviewIn.HasExited)
                         {
                             ProcessPreviewIn.WaitForExit();
-                            if (ProcessPreviewIn.ExitCode != 0)
-                            {
-                                throw new Exception($"Error creating preview image ({ProcessPreviewIn.ExitCode})");
-                            }
+                        }
+                        if (ProcessPreviewIn.ExitCode != 0)
+                        {
+                            throw new Exception($"Creating input preview image failed with erro {ProcessPreviewIn.ExitCode}");
                         }
                     }
                     VideoConversionStatus = ConversionStatus.None;
@@ -802,10 +802,10 @@ namespace DTConverter
                         if (!ProcessPreviewOut.HasExited)
                         {
                             ProcessPreviewOut.WaitForExit();
-                            if (ProcessPreviewOut.ExitCode != 0)
-                            {
-                                throw new Exception($"Error creating out preview image ({ProcessPreviewOut.ExitCode})");
-                            }
+                        }
+                        if (ProcessPreviewOut.ExitCode != 0)
+                        {
+                            throw new Exception($"Creating output preview image failed with error {ProcessPreviewOut.ExitCode}");
                         }
                     }
                     VideoConversionStatus = ConversionStatus.None;
@@ -856,10 +856,10 @@ namespace DTConverter
                             if (!VideoConversionProcess.HasExited)
                             {
                                 VideoConversionProcess.WaitForExit();
-                                if (VideoConversionProcess.ExitCode != 0)
-                                {
-                                    throw new Exception($"Conversion Failed ({VideoConversionProcess.ExitCode})");
-                                }
+                            }
+                            if (VideoConversionProcess.ExitCode != 0)
+                            {
+                                throw new Exception($"Conversion failed with error {VideoConversionProcess.ExitCode}");
                             }
                         }
                     }
