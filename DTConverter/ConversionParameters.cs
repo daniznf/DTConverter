@@ -86,6 +86,8 @@ namespace DTConverter
             Rotation = 0;
             RotateMetadataOnly = false;
 
+            IsChkOriginalChecked = true;
+
             RefreshProperties();
         }
 
@@ -104,27 +106,6 @@ namespace DTConverter
                     }
                 }
             }
-        }
-
-        private void SliceParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged("ShowColPreviewOut");
-        }
-
-        private void CropParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged("ShowColPreviewOut");
-            OnPropertyChanged("DestinationVideoPath");
-            OnPropertyChanged("VideoFinalResolutionHorizontal");
-            OnPropertyChanged("VideoFinalResolutionVertical");
-        }
-
-        private void VideoResolutionParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged("DestinationVideoPath");
-            OnPropertyChanged("VideoFinalResolutionHorizontal");
-            OnPropertyChanged("VideoFinalResolutionVertical");
-            OnPropertyChanged("ShowColPreviewOut");
         }
 
         /// <summary>
@@ -165,10 +146,31 @@ namespace DTConverter
             PaddingParams = copyFrom.PaddingParams;
             SliceParams = copyFrom.SliceParams;
 
+            IsChkOriginalChecked = copyFrom.IsChkOriginalChecked;
+
             RefreshProperties();
         }
 
-        // TODO: implement -pix_fmt
+        private void SliceParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("ShowColPreviewOut");
+        }
+
+        private void CropParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("ShowColPreviewOut");
+            OnPropertyChanged("DestinationVideoPath");
+            OnPropertyChanged("VideoFinalResolutionHorizontal");
+            OnPropertyChanged("VideoFinalResolutionVertical");
+        }
+
+        private void VideoResolutionParams_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("DestinationVideoPath");
+            OnPropertyChanged("VideoFinalResolutionHorizontal");
+            OnPropertyChanged("VideoFinalResolutionVertical");
+            OnPropertyChanged("ShowColPreviewOut");
+        }
 
         public string SourcePath { get; }
 
@@ -177,7 +179,6 @@ namespace DTConverter
         /// </summary>
         public string DestinationVideoPath
         {
-            // TODO: personalize destination path on user's choice
             get
             {
                 if (SourcePath != null)
@@ -398,6 +399,17 @@ namespace DTConverter
             }
         }
 
+        private bool _IsChkOriginalChecked;
+        public bool IsChkOriginalChecked
+        {
+            get => _IsChkOriginalChecked;
+            set
+            {
+                _IsChkOriginalChecked = value;
+                OnPropertyChanged("IsChkOriginalChecked");
+            }
+        }
+        
         public VideoResolution PreviewResolution { get; set; }
         
         

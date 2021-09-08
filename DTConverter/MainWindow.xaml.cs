@@ -80,6 +80,7 @@ namespace DTConverter
             ChkEnableVideoBitrate.SetBinding(CheckBox.IsCheckedProperty, "IsVideoBitrateEnabled");
             ChkEnableOutFramerate.SetBinding(CheckBox.IsCheckedProperty, "IsOutFramerateEnabled");
             ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
+            ChkOriginal.SetBinding(CheckBox.IsCheckedProperty, "IsChkOriginalChecked");
 
             UpdateImgPreviewIn();
 
@@ -292,7 +293,6 @@ namespace DTConverter
         /// <param name="dir">Full name of directory to add</param>
         private void AddTvwDir(string dir)
         {
-            // TODO: Image sequence detection (maybe we need a full directory recursion?)
             if (SearchTvw(dir, TvwVideos) == null)
             {
                 TreeViewItem tvItem = new TreeViewItem()
@@ -664,7 +664,6 @@ namespace DTConverter
                 else
                 {
                     PnlSlices.Visibility = Visibility.Collapsed;
-                    ChkOriginal.IsChecked = true;
                     SliceGrdPreviewOut(1, 1);
                 }
 
