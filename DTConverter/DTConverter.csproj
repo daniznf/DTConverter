@@ -84,6 +84,7 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VisibilityConverter.cs" />
     <Compile Include="BackgroundConverter.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="Padding.cs" />
