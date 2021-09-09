@@ -30,7 +30,8 @@ using System.Windows.Controls;
 namespace DTConverter
 {
     public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy }
-    public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit }
+    public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit, Copy }
+    public enum AudioChannels { Mono, Stereo, Dual_Mono, s5_1 }
     //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
 
@@ -80,6 +81,7 @@ namespace DTConverter
             VideoEncoder = VideoEncoders.HAP;
             AudioEncoder = AudioEncoders.WAV_16bit;
             AudioRate = 44100;
+            Channels = AudioChannels.Stereo;
 
             IsVideoBitrateEnabled = false;
             VideoBitrate = 0;
@@ -136,6 +138,8 @@ namespace DTConverter
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
             AudioRate = copyFrom.AudioRate;
+            Channels = copyFrom.Channels;
+            SplitChannels = copyFrom.SplitChannels;
 
             VideoResolutionParams = copyFrom.VideoResolutionParams;
 
@@ -713,6 +717,28 @@ namespace DTConverter
             {
                 _AudioRate = value;
                 OnPropertyChanged("_AudioRate");
+            }
+        }
+
+        private AudioChannels _Channels;
+        public AudioChannels Channels
+        {
+            get => _Channels;
+            set
+            {
+                _Channels = value;
+                OnPropertyChanged("Channels");
+            }
+        }
+
+        private bool _SplitChannels;
+        public bool SplitChannels
+        {
+            get => _SplitChannels;
+            set
+            {
+                _SplitChannels = value;
+                OnPropertyChanged("SplitChannels");
             }
         }
 

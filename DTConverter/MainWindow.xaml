@@ -51,6 +51,11 @@
                 <x:Type TypeName="local:AudioEncoders"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider x:Key="AudioChannelsValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:AudioChannels"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
 
         <ObjectDataProvider x:Key="TimeDurationValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -475,17 +480,23 @@
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                                 <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
                                     <StackPanel.Resources>
+                                        <Style TargetType="StackPanel" BasedOn="{StaticResource StyleStackPanelBase}">
+                                            <Setter Property="Width" Value="384"/>
+                                        </Style>
                                         <Style TargetType="Label" BasedOn="{StaticResource StyleLabelBase}">
                                             <Setter Property="Width" Value="128px"/>
                                         </Style>
+                                        <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
+                                            <Setter Property="Width" Value="128px"/>
+                                        </Style>
                                     </StackPanel.Resources>
-                                    <StackPanel Width="320px">
+                                    <StackPanel>
                                         <Label Content="Encoder"/>
-                                        <ComboBox Name="CbxAudioEncoders" Width="128px" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
+                                        <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
                                     </StackPanel>
-                                    <StackPanel Width="320px">
+                                    <StackPanel>
                                         <Label Content="Sampling rate"/>
-                                        <ComboBox Name="CbxSamplingRate" Width="128px" SelectedIndex="0" Text="{Binding AudioRate}">
+                                        <ComboBox Name="CbxSamplingRate" SelectedIndex="0" Text="{Binding AudioRate}">
                                             <ComboBoxItem Content="8000"/>
                                             <ComboBoxItem Content="11025"/>
                                             <ComboBoxItem Content="22050"/>
@@ -496,6 +507,11 @@
                                             <ComboBoxItem Content="192000"/>
                                         </ComboBox>
                                         <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <Label Content="Channels"/>
+                                        <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
+                                        <CheckBox Content="Split" Width="64px" Margin="8px,0,0,0" IsEnabled="False" IsChecked="{Binding SplitChannels}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </ScrollViewer>
