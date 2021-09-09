@@ -50,8 +50,9 @@ namespace DTConverter
             InitializeComponent();
             Width = 1024;
             Height = 600;
+            // First message needs TaskWriteStatus already run
+            TaskWriteStatus = Task.CompletedTask;
 
-            System.Drawing.SystemIcons s;
             TvwVideos.Items.Clear();
             TvwVideos.IsEnabled = false;
 
@@ -91,7 +92,7 @@ namespace DTConverter
 
             App.Current.Exit += Current_Exit;
 
-            ConversionList = new List<ConversionParameters>();
+            ListConversion = new List<ConversionParameters>();
         }
 
         private void Current_Exit(object sender, ExitEventArgs e)
@@ -124,48 +125,64 @@ namespace DTConverter
         }
 
         #region Write Status
-        private void WriteStatus(string message, bool isError)
+        private Task TaskWriteStatus;
+        private async void WriteStatus(string message, bool isError)
         {
             if (message != null)
             {
-                if (message.StartsWith("[hap") && message.Contains("is not multiple"))
+                await TaskWriteStatus.ConfigureAwait(true);
+                TaskWriteStatus = new Task(() =>
                 {
-                    isError = true;
-                    message = message.Substring(message.IndexOf(']') + 1);
-                }
-
-                if (isError)
-                {
-                    Dispatcher.Invoke(() =>
+                    string messageLow;
+                    messageLow = message.ToLower();
+                    if (messageLow.Contains("error") ||
+                    messageLow.Contains("fail") ||
+                    messageLow.Contains("invalid") ||
+                    messageLow.Contains("cannot") ||
+                    messageLow.Contains("is not multiple"))
                     {
-                        SttMessages.Content = "⚠ " + message;
-                        SttMessages.Foreground = Brushes.DarkRed;
-                        SttMessages.FontWeight = FontWeights.Bold;
-                    });
-                }
-                else
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        SttMessages.Content = message;
-                        SttMessages.Foreground = Brushes.Black;
-                        SttMessages.FontWeight = FontWeights.Normal;
-                    });
-                }
+                        isError = true;
+                    }
 
-                if (isError)
+                    Dispatcher.Invoke(new WriteDelegate((string m, bool b) =>
+                        {
+                            if (isError)
+                            {
+                                SttMessages.Content = "⚠ " + m;
+                                SttMessages.Foreground = Brushes.DarkRed;
+                                SttMessages.FontWeight = FontWeights.Bold;
+                            }
+                            else
+                            {
+                                SttMessages.Content = message;
+                                SttMessages.Foreground = Brushes.Black;
+                                SttMessages.FontWeight = FontWeights.Normal;
+                            }
+                        }), new object[2] { message, isError });
+
+                    if (isError)
+                    {
+                        Thread.Sleep(3000);
+                    }
+                });
+                try
                 {
-                    Thread.Sleep(5000);
+                    TaskWriteStatus.RunSynchronously();
                 }
+                catch (Exception E)
+                { }
+
             }
         }
+
+        public delegate void WriteDelegate(string a, bool b);
         #endregion
 
         #region Conversion Start Stop
         /// <summary>
         /// Contains all ConversionParameters objects corresponding to files in TvwVideos, either checked or not.
         /// </summary>
-        private List<ConversionParameters> ConversionList;
+        private List<ConversionParameters> ListConversion;
 
         /// <summary>
         /// ConversionParameters currently displayed, used for binding visual elements with it
@@ -201,7 +218,7 @@ namespace DTConverter
             ConversionStarted();
             await Task.Run(() =>
             {
-                foreach (ConversionParameters cp in ConversionList)
+                foreach (ConversionParameters cp in ListConversion)
                 {
                     try
                     {
@@ -216,7 +233,7 @@ namespace DTConverter
                     }
                     catch (Exception E)
                     {
-                        WriteStatus(E.Message, true);
+                        //WriteStatus(E.Message, true);
                     }
                     if (stopConversion)
                     {
@@ -356,7 +373,7 @@ namespace DTConverter
                 cBox.DataContext = cp;
                 sPanel.DataContext = cp;
 
-                ConversionList.Add(cp);
+                ListConversion.Add(cp);
 
                 PreviewTasks.Add(TF.StartNew(() => ProbeSourceInfoAndPreviewImage(cp)));
             }
@@ -381,17 +398,11 @@ namespace DTConverter
                     };
                     cp.PreviewTimeSeconds = cp.SourceInfo.Duration.Seconds / 2;
                     cp.PreviewResolution = vr;
-                    try
-                    {
-                        cp.CreateImagePreviewIn(
-                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); }, 
-                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                        WriteStatus("", false);
-                    }
-                    catch (Exception E)
-                    {
-                        WriteStatus(E.Message, true);
-                    }
+
+                    cp.CreateImagePreviewIn(
+                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                    WriteStatus("", false);
                 }
                 UpdateImgPreviewIn();
             }
@@ -513,7 +524,7 @@ namespace DTConverter
                 }
 
                 // When removing Directories, this will just not find ConversionParameters to remove
-                ConversionList.RemoveAll((ConversionParameters C) => C.SourcePath.Contains(sourcePath));
+                ListConversion.RemoveAll((ConversionParameters C) => C.SourcePath.Contains(sourcePath));
 
                 ParentItems.Remove(obRemove);
                 return true;
@@ -550,7 +561,7 @@ namespace DTConverter
                 if (spSender.Tag != null)
                 {
                     ChangingDisplayedConversionParameters = true;
-                    DisplayedConversionParameters = ConversionList.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
+                    DisplayedConversionParameters = ListConversion.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
                     DTWindow.DataContext = DisplayedConversionParameters;
 
                     ChangingDisplayedConversionParameters = false;
@@ -885,7 +896,7 @@ namespace DTConverter
                         }
                         catch (Exception E)
                         {
-                            WriteStatus(E.Message, true);
+                            //WriteStatus(E.Message, true);
                         }
                     });
                 }
@@ -930,7 +941,7 @@ namespace DTConverter
                             }
                             catch (Exception E)
                             {
-                                WriteStatus(E.Message, true);
+                                //WriteStatus(E.Message, true);
                             }
                         });
                     }
@@ -994,7 +1005,7 @@ namespace DTConverter
         private void MnClearAll_Click(object sender, RoutedEventArgs e)
         {
             TvwVideos.Items.Clear();
-            ConversionList = new List<ConversionParameters>();
+            ListConversion = new List<ConversionParameters>();
         }
 
         private void MnRemoveItem_Click(object sender, RoutedEventArgs e)
@@ -1087,7 +1098,7 @@ namespace DTConverter
                     if (obEach is StackPanel spEach)
                     {
                         ConversionParameters pasteTo;
-                        pasteTo = ConversionList.Find((ConversionParameters C) => C.SourcePath == spEach.Tag.ToString());
+                        pasteTo = ListConversion.Find((ConversionParameters C) => C.SourcePath == spEach.Tag.ToString());
                         if (pasteTo != null)
                         {
                             pasteTo.PasteParameters(copyingParameters);
@@ -1108,7 +1119,7 @@ namespace DTConverter
 
             if (pTarget is StackPanel spSender)
             {
-                copyingParameters = ConversionList.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
+                copyingParameters = ListConversion.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
             }
         }
 
@@ -1121,7 +1132,7 @@ namespace DTConverter
             {
                 if (copyingParameters != null)
                 {
-                    ConversionParameters cp = ConversionList.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
+                    ConversionParameters cp = ListConversion.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
                     cp.PasteParameters(copyingParameters);
                 }
             }
@@ -1134,7 +1145,7 @@ namespace DTConverter
 
             if (pTarget is StackPanel spSender)
             {
-                ConversionParameters cp = ConversionList.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
+                ConversionParameters cp = ListConversion.Find((ConversionParameters C) => C.SourcePath == spSender.Tag.ToString());
                 cp.ResetDefaultValues();
                 Task.Run(() =>
                 {
