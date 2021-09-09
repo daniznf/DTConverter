@@ -83,6 +83,8 @@ namespace DTConverter
             ChkEnableOutFramerate.SetBinding(CheckBox.IsCheckedProperty, "IsOutFramerateEnabled");
             ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
             ChkOriginal.SetBinding(CheckBox.IsCheckedProperty, "IsChkOriginalChecked");
+            ChkEnableAudioRate.SetBinding(CheckBox.IsCheckedProperty, "IsAudioRateEnabled");
+            ChkEnableChannels.SetBinding(CheckBox.IsCheckedProperty, "IsChannelsEnabled");
 
             UpdateImgPreviewIn();
 

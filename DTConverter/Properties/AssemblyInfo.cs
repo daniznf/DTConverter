@@ -54,5 +54,5 @@ using System.Windows;
 [assembly: NeutralResourcesLanguage("en")]
 
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.30.7.0")]
-[assembly: AssemblyFileVersion("0.30.7.0")]
+[assembly: AssemblyVersion("0.30.11.0")]
+[assembly: AssemblyFileVersion("0.30.11.0")]

@@ -80,9 +80,12 @@ namespace DTConverter
             IsAudioEnabled = true;
             VideoEncoder = VideoEncoders.HAP;
             AudioEncoder = AudioEncoders.WAV_16bit;
+            IsAudioRateEnabled = false;
             AudioRate = 44100;
+            IsChannelsEnabled = false;
             Channels = AudioChannels.Stereo;
-
+            SplitChannels = false;
+            
             IsVideoBitrateEnabled = false;
             VideoBitrate = 0;
             IsOutFramerateEnabled = false;
@@ -137,10 +140,12 @@ namespace DTConverter
             IsAudioEnabled = copyFrom.IsAudioEnabled;
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
+            IsAudioRateEnabled = copyFrom.IsAudioRateEnabled;
             AudioRate = copyFrom.AudioRate;
+            IsChannelsEnabled = copyFrom.IsChannelsEnabled;
             Channels = copyFrom.Channels;
             SplitChannels = copyFrom.SplitChannels;
-
+            
             VideoResolutionParams = copyFrom.VideoResolutionParams;
 
             IsVideoBitrateEnabled = copyFrom.IsVideoBitrateEnabled;
@@ -709,6 +714,19 @@ namespace DTConverter
             }
         }
 
+
+
+        private bool _IsAudioRateEnabled;
+        public bool IsAudioRateEnabled
+        {
+            get => _IsAudioRateEnabled;
+            set
+            {
+                _IsAudioRateEnabled = value;
+                OnPropertyChanged("IsAudioRateEnabled");
+            }
+        }
+
         private int _AudioRate;
         public int AudioRate
         {
@@ -716,7 +734,18 @@ namespace DTConverter
             set
             {
                 _AudioRate = value;
-                OnPropertyChanged("_AudioRate");
+                OnPropertyChanged("AudioRate");
+            }
+        }
+
+        private bool _IsChannelsEnabled;
+        public bool IsChannelsEnabled
+        {
+            get => _IsChannelsEnabled;
+            set
+            {
+                _IsChannelsEnabled = value;
+                OnPropertyChanged("IsChannelsEnabled");
             }
         }
 
