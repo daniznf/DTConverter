@@ -46,6 +46,12 @@
                 <x:Type TypeName="local:VideoEncoders"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider x:Key="AudioEncodersValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:AudioEncoders"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
         <ObjectDataProvider x:Key="TimeDurationValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="local:DurationTypes"/>
@@ -452,7 +458,48 @@
                                 <TextBlock Text="Audio" HorizontalAlignment="Center" Margin="10,0,0,0" />
                             </StackPanel>
                         </TabItem.Header>
-                        <Label Content="This section will be available soon..." HorizontalContentAlignment="Center" Width="300px"></Label>
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+                                <DockPanel.Resources>
+                                    <Style TargetType="Label"/>
+                                </DockPanel.Resources>
+                                <Label Content="Output destination" DockPanel.Dock="Left" />
+                                <Label Name="LblDestinationAudioPath" Content="{Binding DestinationAudioPath}" HorizontalContentAlignment="Center">
+                                    <Label.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Open containing folder" Click="MnOpenContainingFolder_Click"/>
+                                        </ContextMenu>
+                                    </Label.ContextMenu>
+                                </Label>
+                            </DockPanel>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="Label" BasedOn="{StaticResource StyleLabelBase}">
+                                            <Setter Property="Width" Value="128px"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <StackPanel Width="320px">
+                                        <Label Content="Encoder"/>
+                                        <ComboBox Name="CbxAudioEncoders" Width="128px" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
+                                    </StackPanel>
+                                    <StackPanel Width="320px">
+                                        <Label Content="Sampling rate"/>
+                                        <ComboBox Name="CbxSamplingRate" Width="128px" SelectedIndex="0" Text="{Binding AudioRate}">
+                                            <ComboBoxItem Content="8000"/>
+                                            <ComboBoxItem Content="11025"/>
+                                            <ComboBoxItem Content="22050"/>
+                                            <ComboBoxItem Content="32000"/>
+                                            <ComboBoxItem Content="44100"/>
+                                            <ComboBoxItem Content="48000"/>
+                                            <ComboBoxItem Content="96000"/>
+                                            <ComboBoxItem Content="192000"/>
+                                        </ComboBox>
+                                        <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
                     </TabItem>
 
                     <!--

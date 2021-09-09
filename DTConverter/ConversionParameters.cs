@@ -30,7 +30,8 @@ using System.Windows.Controls;
 namespace DTConverter
 {
     public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy }
-    public enum AudioEncoders { pcm_s16le }
+    public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit }
+    //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
 
     /// <summary>
@@ -77,7 +78,8 @@ namespace DTConverter
             IsVideoEnabled = true;
             IsAudioEnabled = true;
             VideoEncoder = VideoEncoders.HAP;
-            AudioEncoder = AudioEncoders.pcm_s16le;
+            AudioEncoder = AudioEncoders.WAV_16bit;
+            AudioRate = 44100;
 
             IsVideoBitrateEnabled = false;
             VideoBitrate = 0;
@@ -133,6 +135,7 @@ namespace DTConverter
             IsAudioEnabled = copyFrom.IsAudioEnabled;
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
+            AudioRate = copyFrom.AudioRate;
 
             VideoResolutionParams = copyFrom.VideoResolutionParams;
 
@@ -494,17 +497,6 @@ namespace DTConverter
         public bool IsVideoEncoderNotHAP => !VideoEncoder.ToString().ToLower().Contains("hap");
         public bool IsVideoEncoderNotStillImage => !VideoEncoder.ToString().ToLower().Contains("still");
 
-        private AudioEncoders _AudioEncoder;
-        public AudioEncoders AudioEncoder
-        {
-            get => _AudioEncoder;
-            set
-            {
-                _AudioEncoder = value;
-                OnPropertyChanged("AudioEncoder");
-            }
-        }
-
         public VideoResolution VideoResolutionParams { get; set; }
 
         public int VideoFinalResolutionHorizontal
@@ -690,7 +682,18 @@ namespace DTConverter
                 OnPropertyChanged("VideoConversionStatus");
             }
         }
-        
+
+        private AudioEncoders _AudioEncoder;
+        public AudioEncoders AudioEncoder
+        {
+            get => _AudioEncoder;
+            set
+            {
+                _AudioEncoder = value;
+                OnPropertyChanged("AudioEncoder");
+            }
+        }
+
         private ConversionStatus _AudioConversionStatus;
         public ConversionStatus AudioConversionStatus
         {
@@ -699,6 +702,17 @@ namespace DTConverter
             {
                 _AudioConversionStatus = value;
                 OnPropertyChanged("AudioConversionStatus");
+            }
+        }
+
+        private int _AudioRate;
+        public int AudioRate
+        {
+            get => _AudioRate;
+            set
+            {
+                _AudioRate = value;
+                OnPropertyChanged("_AudioRate");
             }
         }
 
