@@ -30,8 +30,8 @@ using System.Windows.Controls;
 namespace DTConverter
 {
     public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy }
-    public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit, Copy }
-    public enum AudioChannels { Mono, Stereo, Dual_Mono, s5_1 }
+    public enum AudioEncoders { WAV_16, WAV_24, WAV_32, Copy }
+    public enum AudioChannels { Mono, Stereo, ch_5_1 }
     //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
 
@@ -79,7 +79,7 @@ namespace DTConverter
             IsVideoEnabled = true;
             IsAudioEnabled = true;
             VideoEncoder = VideoEncoders.HAP;
-            AudioEncoder = AudioEncoders.WAV_16bit;
+            AudioEncoder = AudioEncoders.WAV_16;
             IsAudioRateEnabled = false;
             AudioRate = 44100;
             IsChannelsEnabled = false;
@@ -256,7 +256,39 @@ namespace DTConverter
         {
             get
             {
-                // TODO: implement DestinationAudioPath
+                if (SourcePath != null)
+                {
+                    string outPath = Path.GetDirectoryName(SourcePath);
+                    outPath = Path.Combine(outPath, AudioEncoder.ToString());
+                    outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
+                    if (IsAudioRateEnabled)
+                    {
+                        outPath += $"_{AudioRate}";
+                    }
+                    if (IsChannelsEnabled)
+                    {
+                        outPath += $"_{Channels}";
+                    }
+                    
+                    string extension;
+                    if ((AudioEncoder == AudioEncoders.WAV_16) || (AudioEncoder == AudioEncoders.WAV_24) || (AudioEncoder == AudioEncoders.WAV_32))
+                    {
+                        extension = ".wav";
+                    }
+                    else // AudioEncoder == AudioEncoders.Copy
+                    {
+                        extension = Path.GetExtension(SourcePath);
+                    }
+
+                    // ChangeExtension even if there is not actually any extension works as espected
+                    if (File.Exists(Path.ChangeExtension(outPath, extension)))
+                    {
+                        outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
+                    }
+                    outPath += extension;
+
+                    return outPath;
+                }
                 return "noname.wav";
             }
         }
@@ -700,6 +732,7 @@ namespace DTConverter
             {
                 _AudioEncoder = value;
                 OnPropertyChanged("AudioEncoder");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -951,7 +984,7 @@ namespace DTConverter
         /// <summary>
         /// Istantly kill this conversion
         /// </summary>
-        public void KillConversion()
+        public void KillVideoConversion()
         {
             try
             {
@@ -964,6 +997,68 @@ namespace DTConverter
             catch (Exception E) { }
         }
         
+        
+
+        private Process AudioConversionProcess;
+        /// <summary>
+        /// Converts audio stream, but not the video.
+        /// This method takes several seconds to execute so it should be run it in a separate thread or Task
+        /// </summary>
+        public void ConvertAudio(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
+        {
+            if (VideoConversionStatus != ConversionStatus.Converting)
+            {
+                VideoConversionStatus = ConversionStatus.Converting;
+                try
+                {
+                    if (IsValid && IsConversionEnabled && IsAudioEnabled)
+                    {
+                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, _StartTime, _DurationTime, AudioEncoder,
+                            IsAudioRateEnabled ? AudioRate : 0,
+                            IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels,
+                            OutFrameRate);
+                        AudioConversionProcess.OutputDataReceived += outputReceived;
+                        AudioConversionProcess.ErrorDataReceived += errorReceived;
+                        if (AudioConversionProcess.Start())
+                        {
+                            AudioConversionProcess.BeginOutputReadLine();
+                            AudioConversionProcess.BeginErrorReadLine();
+                            if (!AudioConversionProcess.HasExited)
+                            {
+                                AudioConversionProcess.WaitForExit();
+                            }
+                            if (AudioConversionProcess.ExitCode != 0)
+                            {
+                                throw new Exception($"Conversion failed with error {AudioConversionProcess.ExitCode}");
+                            }
+                        }
+                    }
+                    VideoConversionStatus = ConversionStatus.Success;
+                }
+                catch (Exception E)
+                {
+                    VideoConversionStatus = ConversionStatus.Failed;
+                    throw E;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Istantly kill this conversion
+        /// </summary>
+        public void KillAudioConversion()
+        {
+            try
+            {
+                if (AudioConversionProcess != null && !AudioConversionProcess.HasExited)
+                {
+                    AudioConversionProcess.Kill();
+                    VideoConversionStatus = ConversionStatus.None;
+                }
+            }
+            catch (Exception E) { }
+        }
+
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string info)

@@ -233,11 +233,14 @@ namespace DTConverter
                             cp.ConvertVideo(
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
+                            cp.ConvertAudio(
+                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
+                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
                         }
                     }
                     catch (Exception E)
                     {
-                        //WriteStatus(E.Message, true);
+                        WriteStatus(E.Message, true);
                     }
                     if (stopConversion)
                     {
@@ -255,7 +258,7 @@ namespace DTConverter
             stopConversion = true;
             if (convertingCP != null)
             {
-                convertingCP.KillConversion();
+                convertingCP.KillVideoConversion();
             }
         }
         #endregion

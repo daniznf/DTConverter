@@ -515,7 +515,7 @@
                                         <CheckBox Name="ChkEnableChannels" Content="Channels" IsChecked="True"/>
                                         <StackPanel Visibility="{Binding ElementName=ChkEnableChannels, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                             <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
-                                            <CheckBox Name="ChkSplitChannels" Content="Split" Width="64px" Margin="8px,0,0,0" IsEnabled="False" IsChecked="{Binding SplitChannels}"/>
+                                            <CheckBox Name="ChkSplitChannels" Content="Split" Width="64px" Margin="8px,0,0,0" IsChecked="{Binding SplitChannels}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
