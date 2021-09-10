@@ -322,7 +322,7 @@ namespace DTConverter
             string[] splitted;
             string duration;
             string videoCodec, chromaSubsampling, resolution, videoBitrate, framerate;
-            string audioCodec, samplingRate, audioChannels, audioBitrate;
+            string audioCodec, samplingRate, audioBitrate;
 
             while (!FFprobeProcess.StandardError.EndOfStream)
             {
@@ -379,7 +379,15 @@ namespace DTConverter
                         videoInfo.HasAudio = true;
                         foreach (string sPiece in splitted)
                         {
-                            audioCodec = sPiece.Split(':').Last().Split('(')[0].Trim();
+                            if (sPiece.Contains(':'))
+                            {
+                                audioCodec = sPiece.Split(':').Last().Split('(')[0].Trim();
+                                if (FFmpegWrapper.AudioEncoderDictionary.ContainsKey(audioCodec))
+                                {
+                                    videoInfo.AudioCodec = audioCodec;
+                                }
+                            }
+                            
                             if (sPiece.Contains("hz"))
                             {
                                 samplingRate = splitted[1].Trim().Split(' ')[0].Trim();
@@ -392,7 +400,6 @@ namespace DTConverter
                             if (sPiece.Contains("2 channel") || sPiece.Contains("stereo"))
                             {
                                 videoInfo.AudioChannels = AudioChannels.Stereo;
-                                videoInfo.AudioCodec = audioCodec;
                             }
                             if (sPiece.Contains('.'))
                             {
