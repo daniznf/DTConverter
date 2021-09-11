@@ -167,7 +167,7 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="0">
                 <Label Content="Drop files here!" AllowDrop="True" Drop="TvwVideos_Drop" DockPanel.Dock="Top" Width="256px" Margin="0,9px,0,9px" />
-                <Button Name="BtnConvert" Content="Start Conversions" DockPanel.Dock="Bottom" Margin="0,4px,0,0" Background="{StaticResource Sky4}" Height="64px" FontSize="14px" Click="BtnStartConvert_Click"/>
+                <Button Name="BtnConvert" Content="Start Conversions" DockPanel.Dock="Bottom" Margin="0,4px,0,0" Background="{StaticResource Sky8}" Height="64px" FontSize="14px" Click="BtnStartConvert_Click"/>
                 <TreeView Name="TvwVideos" Grid.Column="0" Margin="0" AllowDrop="True" Drop="TvwVideos_Drop" SelectedItemChanged="TvwVideos_SelectedItemChanged">
                     <TreeView.Resources>
                         <ContextMenu x:Key="MnDirectory">

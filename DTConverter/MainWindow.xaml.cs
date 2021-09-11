@@ -196,6 +196,7 @@ namespace DTConverter
         public void ConversionStarted()
         {
             PnlVideoSettings.IsEnabled = false;
+            BtnConvert.Background = (SolidColorBrush)Resources["Sky4"];
             BtnConvert.Content = "Stop Conversions";
             BtnConvert.Click -= BtnStartConvert_Click;
             BtnConvert.Click += BtnStopConvert_Click;
@@ -205,6 +206,7 @@ namespace DTConverter
         public void ConversionFinished()
         {
             PnlVideoSettings.IsEnabled = true;
+            BtnConvert.Background = (SolidColorBrush)Resources["Sky8"];
             BtnConvert.Content = "Start Conversions";
             BtnConvert.Click -= BtnStopConvert_Click;
             BtnConvert.Click += BtnStartConvert_Click;
