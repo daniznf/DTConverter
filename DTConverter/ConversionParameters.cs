@@ -486,7 +486,8 @@ namespace DTConverter
         private bool _IsVideoEnabled;
         public bool IsVideoEnabled
         {
-            get => _IsVideoEnabled;
+            get => _SourceInfo != null ? _IsVideoEnabled && _SourceInfo.HasVideo : false;
+            
             set
             {
                 _IsVideoEnabled = value;
@@ -497,7 +498,7 @@ namespace DTConverter
         private bool _IsAudioEnabled;
         public bool IsAudioEnabled
         {
-            get => _IsAudioEnabled;
+            get => _SourceInfo != null ? _IsAudioEnabled && _SourceInfo.HasAudio : false;
             set
             {
                 _IsAudioEnabled = value;

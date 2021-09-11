@@ -312,10 +312,10 @@
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
                                 <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}">
                                     <StackPanel.Resources>
-                                            <Style TargetType="StackPanel" BasedOn="{StaticResource StyleStackPanelBase}">
-                                                <Setter Property="Margin" Value="8px,4px,8px,4px"/>
-                                            </Style>
-                                        </StackPanel.Resources>
+                                        <Style TargetType="StackPanel" BasedOn="{StaticResource StyleStackPanelBase}">
+                                            <Setter Property="Margin" Value="8px,4px,8px,4px"/>
+                                        </Style>
+                                    </StackPanel.Resources>
                                     <StackPanel>
                                         <StackPanel>
                                             <Label Content="Encoder"/>
