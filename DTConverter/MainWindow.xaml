@@ -344,7 +344,7 @@
                                             </StackPanel>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderH264}" >
-                                            <CheckBox Name="ChkEnableVideoBitrate" Content="Bitrate" IsChecked="True"/>
+                                            <CheckBox Name="ChkEnableVideoBitrate" Content="Bitrate (CBR)" IsChecked="True"/>
                                             <StackPanel Name="PnlVideoBitrate" Visibility="{Binding ElementName=ChkEnableVideoBitrate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                                 <TextBox Name="TxtVideoBitrate" Text="{Binding VideoBitrate}" Width="64"/>
                                                 <Label Content="Kbps" HorizontalContentAlignment="Left" />
@@ -420,7 +420,7 @@
                                             </StackPanel>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox Name="ChkEnableRotation" Content="Rotation" IsChecked="True"/>
+                                            <CheckBox Name="ChkEnableRotation" Content="Rotation (CW)" IsChecked="True"/>
                                             <StackPanel Visibility="{Binding ElementName=ChkEnableRotation, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                                 <ComboBox Name="CbxRotation"  SelectedIndex="0" Text="{Binding Rotation}" SelectionChanged="CbxRotation_SelectionChanged">
                                                     <ComboBoxItem Content="0" />
