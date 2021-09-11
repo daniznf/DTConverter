@@ -138,6 +138,8 @@
                         <TextBlock Text="|" Margin="2px,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.AudioCodec}" Margin="2px,0,0,0"/>
                         <TextBlock Text="{Binding SourceInfo.AudioBitrate}" Margin="2px,0,0px,0"/>
+                        <TextBlock Text="Kb/s" Margin="0px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.AudioSamplingRate}" Margin="2px,0,0px,0"/>
                         <TextBlock Text="Hz" Margin="0px,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.AudioChannels}" Margin="2px,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.Duration.HMS}" Margin="2px,0,2px,0"/>
