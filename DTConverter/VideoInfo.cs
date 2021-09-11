@@ -168,8 +168,8 @@ namespace DTConverter
             }
         }
 
-        private string _AudioChannels;
-        public string AudioChannels
+        private AudioChannels _AudioChannels;
+        public AudioChannels AudioChannels
         {
             get => _AudioChannels;
             set

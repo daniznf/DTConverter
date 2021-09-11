@@ -40,12 +40,24 @@
 
         <local:ConversionParameters x:Key="CP" />
         <local:BackgroundConverter x:Key="BkgConverter"/>
+        <local:VisibilityConverter x:Key="VisibConverter"/>
 
         <ObjectDataProvider x:Key="VideoEncodersValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="local:VideoEncoders"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider x:Key="AudioEncodersValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:AudioEncoders"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="AudioChannelsValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:AudioChannels"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
         <ObjectDataProvider x:Key="TimeDurationValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="local:DurationTypes"/>
@@ -115,23 +127,22 @@
             <StatusBarItem Name="SttMessages" Content="A lot of messages here" HorizontalAlignment="Left"  />
             <StatusBarItem HorizontalAlignment="Right">
                 <StackPanel HorizontalAlignment="Right">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Margin" Value="2px,0,2px,0"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="20px,0,2px,0">
-                        <TextBlock Text="Input:"/>
-                        <TextBlock Text="{Binding SourceInfo.VideoResolution}"/>
-                        <TextBlock Text="{Binding SourceInfo.FrameRate}" Margin="2,0,0,0"/>
-                        <TextBlock Text="FPS" Margin="0,0,2,0"/>
-                        <TextBlock Text="{Binding SourceInfo.VideoBitrate}" Margin="2,0,0,0"/>
-                        <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
-                        <TextBlock Text="{Binding SourceInfo.VideoCodec}" />
-                        <TextBlock Text="{Binding SourceInfo.Duration.HMS}"/>
+                    <StackPanel Name="PnlInputVideoProperties" HorizontalAlignment="Right" Margin="0">
+                        <TextBlock Text="Input:" Margin="20px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoCodec}" Margin="2px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoResolution}" Margin="2px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.FrameRate}" Margin="2px,0,0px,0"/>
+                        <TextBlock Text="FPS" Margin="0,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.VideoBitrate}" Margin="2px,0,0,0"/>
+                        <TextBlock Text="Kb/s" Margin="0,0,2px,0"/>
+                        <TextBlock Text="|" Margin="2px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.AudioCodec}" Margin="2px,0,0,0"/>
+                        <TextBlock Text="{Binding SourceInfo.AudioBitrate}" Margin="2px,0,0px,0"/>
+                        <TextBlock Text="Hz" Margin="0px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.AudioChannels}" Margin="2px,0,2px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.Duration.HMS}" Margin="2px,0,2px,0"/>
                     </StackPanel>
-
-                    <StackPanel Name="PnlOutputVideoProperties" Margin="2,0,0,0">
+                    <!--<StackPanel Name="PnlOutputVideoProperties" Margin="2,0,0,0">
                         <TextBlock Text="Output:"/>
                         <TextBlock Text="{Binding VideoFinalResolutionHorizontal}" Margin="2,0,0,0"/>
                         <TextBlock Text="x" Margin="0"/>
@@ -142,7 +153,8 @@
                         <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding VideoEncoder}"/>
                         <TextBlock Text="{Binding DurationTimeHMS}"/>
-                    </StackPanel>
+                    </StackPanel>-->
+                    
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
@@ -272,7 +284,24 @@
                         <DockPanel Name="PnlVideoSettings">
                             
                             <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
-                                <Label Content="Output destination" DockPanel.Dock="Left" />
+                                <DockPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </DockPanel.Resources>
+                                <Label Content="Output:" DockPanel.Dock="Left" />
+                                <StackPanel Name="PnlOutputVideoProperties" DockPanel.Dock="Right">
+                                    <Label Content="{Binding VideoFinalResolutionHorizontal}" Margin="2px,0,0,0"/>
+                                    <Label Content="x"/>
+                                    <Label Content="{Binding VideoFinalResolutionVertical}" Margin="0,0,2px,0"/>
+                                    <Label Content="{Binding OutFrameRate}" Margin="2px,0,0,0"/>
+                                    <Label Content="FPS" Margin="0,0,2px,0"/>
+                                    <Label Content="{Binding VideoBitrate}" Margin="2px,0,0,0"/>
+                                    <Label Content="Kb/s" Margin="0,0,2px,0"/>
+                                    <Label Content="{Binding VideoEncoder}" Margin="2px,0,2px,0"/>
+                                    <Label Content="{Binding DurationTimeHMS}" Margin="2px,0,0px,0"/>
+                                </StackPanel>
                                 <Label Name="LblDestinationVideoPath" Content="{Binding DestinationVideoPath}">
                                     <Label.ContextMenu>
                                         <ContextMenu>
@@ -456,7 +485,74 @@
                                 <TextBlock Text="Audio" HorizontalAlignment="Center" Margin="10,0,0,0" />
                             </StackPanel>
                         </TabItem.Header>
-                        <Label Content="This section will be available soon..." Width="300px"></Label>
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+                                <DockPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </DockPanel.Resources>
+                                <Label Content="Output:" DockPanel.Dock="Left" />
+                                <StackPanel Name="PnlOutputAudioProperties" DockPanel.Dock="Right">
+                                    <Label Content="{Binding AudioEncoder}" Margin="2px,0,0,0"/>
+                                    <Label Content="bit" Margin="0px,0,2px,0"/>
+                                    <Label Content="{Binding AudioRate}" Margin="2px,0,0px,0"/>
+                                    <Label Content="Hz" Margin="0px,0,2px,0"/>
+                                    <Label Content="{Binding Channels}" Margin="2px,0,2px,0"/>
+                                    <Label Content="{Binding DurationTimeHMS}" Margin="2px,0,2px,0"/>
+                                </StackPanel>
+                                <Label Name="LblDestinationAudioPath" Content="{Binding DestinationAudioPath}" HorizontalContentAlignment="Center">
+                                    <Label.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Open containing folder" Click="MnOpenContainingFolder_Click"/>
+                                        </ContextMenu>
+                                    </Label.ContextMenu>
+                                </Label>
+                            </DockPanel>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="StackPanel" BasedOn="{StaticResource StyleStackPanelBase}">
+                                            
+                                        </Style>
+                                        <Style TargetType="Label" BasedOn="{StaticResource StyleLabelBase}">
+                                            <Setter Property="Width" Value="128px"/>
+                                        </Style>
+                                        <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
+                                            <Setter Property="Width" Value="128px"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <StackPanel>
+                                        <Label Content="Encoder"/>
+                                        <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox Name="ChkEnableAudioRate" Content="Sampling rate" IsChecked="True"/>
+                                        <StackPanel Name="PnlSamplingRate" HorizontalAlignment="Center" Visibility="{Binding ElementName=ChkEnableAudioRate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
+                                            <ComboBox Name="CbxSamplingRate" SelectedIndex="0" Text="{Binding AudioRate}">
+                                                <ComboBoxItem Content="8000"/>
+                                                <ComboBoxItem Content="11025"/>
+                                                <ComboBoxItem Content="22050"/>
+                                                <ComboBoxItem Content="32000"/>
+                                                <ComboBoxItem Content="44100"/>
+                                                <ComboBoxItem Content="48000"/>
+                                                <ComboBoxItem Content="96000"/>
+                                                <ComboBoxItem Content="192000"/>
+                                            </ComboBox>
+                                            <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox Name="ChkEnableChannels" Content="Channels" IsChecked="True"/>
+                                        <StackPanel Visibility="{Binding ElementName=ChkEnableChannels, Path=IsChecked, Converter={StaticResource VisibConverter}}">
+                                            <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
+                                            <CheckBox Name="ChkSplitChannels" Content="Split" Width="64px" Margin="8px,0,0,0" IsChecked="{Binding SplitChannels}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
                     </TabItem>
 
                     <!--
