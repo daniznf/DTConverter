@@ -827,6 +827,8 @@ namespace DTConverter
             {
                 SourceInfo = FFmpegWrapper.ProbeVideoInfo(SourcePath, 1000);
                 OnPropertyChanged("IsValid");
+                OnPropertyChanged("IsAudioEnabled");
+                OnPropertyChanged("IsVideoEnabled");
             }
 
             if (SourceInfo != null && SourceInfo.Duration != null)
