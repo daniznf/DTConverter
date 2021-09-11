@@ -293,6 +293,7 @@
                                 </DockPanel.Resources>
                                 <Label Content="Output:" DockPanel.Dock="Left" />
                                 <StackPanel Name="PnlOutputVideoProperties" DockPanel.Dock="Right">
+                                    <Label Content="{Binding VideoEncoder}" Margin="2px,0,2px,0"/>
                                     <Label Content="{Binding VideoFinalResolutionHorizontal}" Margin="2px,0,0,0"/>
                                     <Label Content="x"/>
                                     <Label Content="{Binding VideoFinalResolutionVertical}" Margin="0,0,2px,0"/>
@@ -300,7 +301,6 @@
                                     <Label Content="FPS" Margin="0,0,2px,0"/>
                                     <Label Content="{Binding VideoBitrate}" Margin="2px,0,0,0"/>
                                     <Label Content="Kb/s" Margin="0,0,2px,0"/>
-                                    <Label Content="{Binding VideoEncoder}" Margin="2px,0,2px,0"/>
                                     <Label Content="{Binding DurationTimeHMS}" Margin="2px,0,0px,0"/>
                                 </StackPanel>
                                 <Label Name="LblDestinationVideoPath" Content="{Binding DestinationVideoPath}">
