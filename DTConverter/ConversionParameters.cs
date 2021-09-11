@@ -90,6 +90,7 @@ namespace DTConverter
             VideoBitrate = 0;
             IsOutFramerateEnabled = false;
             OutFrameRate = 0;
+            IsRotationEnabled = false;
             Rotation = 0;
             RotateMetadataOnly = false;
 
@@ -152,6 +153,7 @@ namespace DTConverter
             VideoBitrate = copyFrom.VideoBitrate;
             IsOutFramerateEnabled = copyFrom.IsOutFramerateEnabled;
             OutFrameRate = copyFrom.OutFrameRate;
+            IsRotationEnabled = copyFrom.IsRotationEnabled;
             Rotation = copyFrom.Rotation;
             RotateMetadataOnly = copyFrom.RotateMetadataOnly;
             CropParams = copyFrom.CropParams;
@@ -686,6 +688,16 @@ namespace DTConverter
             }
         }
 
+        private bool _IsRotationEnabled;
+        public bool IsRotationEnabled
+        {
+            get => _IsRotationEnabled;
+            set
+            {
+                _IsRotationEnabled = value;
+                OnPropertyChanged("IsRotationEnabled");
+            }
+        }
         private int _Rotation;
         public int Rotation
         {
@@ -896,7 +908,7 @@ namespace DTConverter
                 try
                 {
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        VideoResolutionParams, 0, 0, Rotation, false, CropParams, PaddingParams, SliceParams);
+                        VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
                     ProcessPreviewOut.StartInfo.Arguments += " -y";
@@ -954,7 +966,7 @@ namespace DTConverter
                             VideoResolutionParams, 
                             IsVideoBitrateEnabled? VideoBitrate : 0, 
                             IsOutFramerateEnabled? OutFrameRate : 0, 
-                            Rotation, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
+                            IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())

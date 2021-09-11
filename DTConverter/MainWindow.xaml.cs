@@ -85,6 +85,7 @@ namespace DTConverter
             ChkOriginal.SetBinding(CheckBox.IsCheckedProperty, "IsChkOriginalChecked");
             ChkEnableAudioRate.SetBinding(CheckBox.IsCheckedProperty, "IsAudioRateEnabled");
             ChkEnableChannels.SetBinding(CheckBox.IsCheckedProperty, "IsChannelsEnabled");
+            ChkEnableRotation.SetBinding(CheckBox.IsCheckedProperty, "IsRotationEnabled");
 
             UpdateImgPreviewIn();
 
@@ -607,49 +608,10 @@ namespace DTConverter
         #endregion
 
         #region Bitrate Framerate Crop Padding Slices
-        private void ChkEnableOutFramerate_CheckedUnchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                if (ChkEnableOutFramerate.IsChecked.Value)
-                {
-                    PnlOutFrameRate.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlOutFrameRate.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        private void ChkEnableVideoBitrate_CheckedUnchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                if (ChkEnableVideoBitrate.IsChecked.Value)
-                {
-                    PnlVideoBitrate.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlVideoBitrate.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
         private async void ChkEnableCrop_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
-                if (ChkEnableCrop.IsChecked.Value)
-                {
-                    PnlCrop.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlCrop.Visibility = Visibility.Collapsed;
-                }
-
                 await RegenerateUpdatePreviews();
             }
         }
@@ -658,15 +620,6 @@ namespace DTConverter
         {
             if (IsInitialized)
             {
-                if (ChkEnablePadding.IsChecked.Value)
-                {
-                    PnlPadding.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlPadding.Visibility = Visibility.Collapsed;
-                }
-
                 await RegenerateUpdatePreviews();
             }
         }
@@ -677,12 +630,10 @@ namespace DTConverter
             {
                 if (ChkEnableSlices.IsChecked.Value)
                 {
-                    PnlSlices.Visibility = Visibility.Visible;
                     SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
                 }
                 else
                 {
-                    PnlSlices.Visibility = Visibility.Collapsed;
                     SliceGrdPreviewOut(1, 1);
                 }
 
@@ -769,15 +720,6 @@ namespace DTConverter
         {
             if (IsInitialized)
             {
-                if (ChkEnableResolution.IsChecked.Value)
-                {
-                    PnlResolution.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlResolution.Visibility = Visibility.Collapsed;
-                }
-
                 await RegenerateUpdatePreviews();
             }
         }
