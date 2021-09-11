@@ -408,10 +408,13 @@ namespace DTConverter
                     cp.PreviewTimeSeconds = cp.SourceInfo.Duration.Seconds / 2;
                     cp.PreviewResolution = vr;
 
-                    cp.CreateImagePreviewIn(
-                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                    WriteStatus("", false);
+                    if (cp.SourceInfo != null && cp.SourceInfo.HasVideo)
+                    {
+                        cp.CreateImagePreviewIn(
+                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                        WriteStatus("", false);
+                    }
                 }
                 UpdateImgPreviewIn();
             }
@@ -834,20 +837,23 @@ namespace DTConverter
                         img.Source = null;
                     }
 
-                    return Task.Run(() =>
+                    if (DisplayedConversionParameters.SourceInfo != null && DisplayedConversionParameters.SourceInfo.HasVideo)
                     {
-                        try
+                        return Task.Run(() =>
                         {
-                            DisplayedConversionParameters.CreateImagePreviewIn(
-                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                            WriteStatus("", false);
-                        }
-                        catch (Exception E)
-                        {
+                            try
+                            {
+                                DisplayedConversionParameters.CreateImagePreviewIn(
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                                WriteStatus("", false);
+                            }
+                            catch (Exception E)
+                            {
                             //WriteStatus(E.Message, true);
                         }
-                    });
+                        });
+                    }
                 }
             }
             return  Task.Run(() => { return; });
@@ -875,24 +881,27 @@ namespace DTConverter
                             imgOut.Source = null;
                         }
                     }
-                    if (ChkEnableCrop.IsChecked.Value || ChkEnablePadding.IsChecked.Value || ChkEnableSlices.IsChecked.Value ||
+                    if (DisplayedConversionParameters.SourceInfo != null && DisplayedConversionParameters.SourceInfo.HasVideo)
+                    {
+                        if (ChkEnableCrop.IsChecked.Value || ChkEnablePadding.IsChecked.Value || ChkEnableSlices.IsChecked.Value ||
                         (CbxRotation.SelectedItem as ComboBoxItem).Content.ToString() != "0" ||
                         ChkEnableResolution.IsChecked.Value)
-                    {
-                        return Task.Run(() =>
                         {
-                            try
+                            return Task.Run(() =>
                             {
-                                DisplayedConversionParameters.CreateImagePreviewOut(
-                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                                WriteStatus("", false);
-                            }
-                            catch (Exception E)
-                            {
+                                try
+                                {
+                                    DisplayedConversionParameters.CreateImagePreviewOut(
+                                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                                    WriteStatus("", false);
+                                }
+                                catch (Exception E)
+                                {
                                 //WriteStatus(E.Message, true);
                             }
-                        });
+                            });
+                        }
                     }
                 }
             }
