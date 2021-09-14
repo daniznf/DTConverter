@@ -46,7 +46,8 @@ namespace DTConverter
         /// Sets the number of frames.
         /// Gets the number of frames if DurationType is Frames, otherwise gets 0
         /// </summary>
-        public int Frames {
+        public int Frames
+        {
             get
             {
                 if (DurationType == DurationTypes.Frames)
@@ -106,11 +107,11 @@ namespace DTConverter
         /// Sets the total number of seconds.
         /// Gets the number of seconds if DurationType is not Frames, otherwise gets 0.
         /// </summary>
-        public double Seconds 
+        public double Seconds
         {
             get
             {
-                if (!(DurationType == DurationTypes.Frames))
+                if (DurationType != DurationTypes.Frames)
                 {
                     return S + (M * 60) + (H * 3600) + ( ms / 1000.0) + ( us / 1000.0 / 1000);
                 }
@@ -199,22 +200,29 @@ namespace DTConverter
             {
                 string outTime = "";
 
-                if (H > 0)
+                if (DurationType == DurationTypes.Frames)
                 {
-                    outTime = H.ToString("00") + ":";
+                    outTime = Frames.ToString() + "f";
                 }
-                outTime += M.ToString("00") + ":";
-                
-                outTime += S.ToString("00");
-                
-                if (ms > 0)
+                else
                 {
-                    outTime += "." + ms.ToString("000");
-                }
+                    if (H > 0)
+                    {
+                        outTime = H.ToString("00") + ":";
+                    }
+                    outTime += M.ToString("00") + ":";
 
-                if (us > 0)
-                {
-                    outTime += us.ToString("000");
+                    outTime += S.ToString("00");
+
+                    if (ms > 0)
+                    {
+                        outTime += "." + ms.ToString("000");
+                    }
+
+                    if (us > 0)
+                    {
+                        outTime += us.ToString("000");
+                    }
                 }
                 return outTime;
             }
@@ -222,67 +230,78 @@ namespace DTConverter
             {
                 try
                 {
-                    //10:50:36.123
-                    string[] splitted;
-                    splitted = value.Split('.');
-                    if (splitted.Length > 1)
+                    if (value.Contains("f"))
                     {
-                        string strms = splitted[1];
-                        switch (strms.Length)
+                        int tryFrames;
+                        if (int.TryParse(value.Remove(value.IndexOf("f")), out tryFrames))
                         {
-                            case 1:
-                                strms += "00000";
-                                break;
-                            case 2:
-                                strms += "0000";
-                                break;
-                            case 3:
-                                strms += "000";
-                                break;
-                            case 4:
-                                strms += "00";
-                                break;
-                            case 5:
-                                strms += "0";
-                                break;
-                            case 6:
-                                break;
+                            Frames = tryFrames;
                         }
-                        ms = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) / 1000.0));
-                        us = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) % 1000.0));
                     }
                     else
                     {
-                        ms = 0;
-                        us = 0;
-                    }
+                        //10:50:36.123
+                        string[] splitted;
+                        splitted = value.Split('.');
+                        if (splitted.Length > 1)
+                        {
+                            string strms = splitted[1];
+                            switch (strms.Length)
+                            {
+                                case 1:
+                                    strms += "00000";
+                                    break;
+                                case 2:
+                                    strms += "0000";
+                                    break;
+                                case 3:
+                                    strms += "000";
+                                    break;
+                                case 4:
+                                    strms += "00";
+                                    break;
+                                case 5:
+                                    strms += "0";
+                                    break;
+                                case 6:
+                                    break;
+                            }
+                            ms = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) / 1000.0));
+                            us = Convert.ToInt32(Math.Truncate(Convert.ToInt32(strms) % 1000.0));
+                        }
+                        else
+                        {
+                            ms = 0;
+                            us = 0;
+                        }
 
-                    splitted = splitted[0].Split(':');
-                    if (splitted.Length == 3)
-                    {
-                        H = int.Parse(splitted[0]);
-                        M = int.Parse(splitted[1]);
-                        S = int.Parse(splitted[2]);
-                    }
-                    else if (splitted.Length == 2)
-                    {
-                        H = 0;
-                        M = int.Parse(splitted[0]);
-                        S = int.Parse(splitted[1]);
-                    }
-                    else if (splitted.Length == 1)
-                    {
-                        H = 0;
-                        M = 0;
-                        S = int.Parse(splitted[0]);
-                    }
+                        splitted = splitted[0].Split(':');
+                        if (splitted.Length == 3)
+                        {
+                            H = int.Parse(splitted[0]);
+                            M = int.Parse(splitted[1]);
+                            S = int.Parse(splitted[2]);
+                        }
+                        else if (splitted.Length == 2)
+                        {
+                            H = 0;
+                            M = int.Parse(splitted[0]);
+                            S = int.Parse(splitted[1]);
+                        }
+                        else if (splitted.Length == 1)
+                        {
+                            H = 0;
+                            M = 0;
+                            S = int.Parse(splitted[0]);
+                        }
 
-                    DurationType = DurationTypes.HMS;
+                        DurationType = DurationTypes.HMS;
 
-                    OnPropertyChanged("Seconds");
-                    OnPropertyChanged("MilliSeconds");
-                    OnPropertyChanged("MicroSeconds");
-                    OnPropertyChanged("HMS");
+                        OnPropertyChanged("Seconds");
+                        OnPropertyChanged("MilliSeconds");
+                        OnPropertyChanged("MicroSeconds");
+                        OnPropertyChanged("HMS");
+                    }
                 }
                 catch (Exception E)
                 {
