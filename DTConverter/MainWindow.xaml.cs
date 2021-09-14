@@ -1158,14 +1158,20 @@ namespace DTConverter
 
         private void TxtStartTime_LostFocus(object sender, RoutedEventArgs e)
         {
-            TxtStartTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-            SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTimeSeconds);
+            if (DisplayedConversionParameters != null)
+            {
+                TxtStartTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTimeSeconds);
+            }
         }
 
         private void TxtEndTime_LostFocus(object sender, RoutedEventArgs e)
         {
-            TxtEndTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-            SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTimeSeconds);
+            if (DisplayedConversionParameters != null)
+            {
+                TxtEndTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTimeSeconds);
+            }
         }
         #endregion
 
