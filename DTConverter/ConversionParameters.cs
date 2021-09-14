@@ -1146,7 +1146,7 @@ namespace DTConverter
                         VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, _StartTime, _DurationTime, VideoEncoder,
                             VideoResolutionParams,
                             IsVideoBitrateEnabled? VideoBitrate : 0,
-                            _SourceInfo!= null? _SourceInfo.FrameRate : 0,
+                            _SourceInfo != null? _SourceInfo.FrameRate : 0,
                             IsOutFramerateEnabled? OutFrameRate : 0,
                             IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
@@ -1210,7 +1210,7 @@ namespace DTConverter
                         AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, _StartTime, _DurationTime, AudioEncoder,
                             IsAudioRateEnabled ? AudioRate : 0,
                             IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels,
-                            OutFrameRate);
+                            _SourceInfo != null ? _SourceInfo.FrameRate : 0);
                         AudioConversionProcess.OutputDataReceived += outputReceived;
                         AudioConversionProcess.ErrorDataReceived += errorReceived;
                         if (AudioConversionProcess.Start())

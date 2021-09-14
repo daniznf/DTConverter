@@ -799,7 +799,7 @@ namespace DTConverter
             AudioEncoders audioEncoder,
             int audioRate,
             bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels,
-            double videoOutFramerate)
+            double videoInputFramerate)
         {
             if (FFmpegPath == null)
             {
@@ -825,11 +825,11 @@ namespace DTConverter
             // FFmpeg does not accept frames as input start
             if (start.DurationType == DurationTypes.Frames)
             {
-                start.Seconds =  TimeDuration.GetSeconds(start.Frames, videoOutFramerate);
+                start.Seconds =  TimeDuration.GetSeconds(start.Frames, videoInputFramerate);
             }
             if (start.Seconds > 0)
             {
-                aArgsIn.Add($"-ss {start.Seconds.ToString(CultureInfo.InvariantCulture)}s");
+                aArgsIn.Add($"-ss {Math.Round(start.Seconds, 2).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Video, Subtitles, Data streams
@@ -838,12 +838,15 @@ namespace DTConverter
             // Input file
             aArgsIn.Add($"-i \"{sourcePath}\"");
 
+
+            if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
+            {
+                duration.Seconds = TimeDuration.GetSeconds(duration.Frames, videoInputFramerate);
+                //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
+            }
             if (duration.Seconds > 0)
             {
-                if (duration.DurationType != DurationTypes.Frames)
-                {
-                    aArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
-                }
+                aArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
             }
 
             strArgsIn = aArgsIn.Aggregate("", AggregateWithSpace);
