@@ -570,14 +570,13 @@ namespace DTConverter
                 duration = new TimeDuration() { Frames = 1 };
             }
 
-            if (duration.DurationType != DurationTypes.Frames && duration.Seconds > 0)
-            {
-                vArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
-            }
-
-            if (duration.DurationType == DurationTypes.Frames)
+            if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
             {
                 vArgsOut.Add($"-frames:v {duration.Frames}");
+            }
+            else if (duration.Seconds > 0)
+            {
+                vArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // Filters
