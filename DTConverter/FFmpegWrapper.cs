@@ -469,9 +469,9 @@ namespace DTConverter
             List<string> vArgsOut = new List<string>();
             List<string> metadatas = new List<string>();
 
-            string strArgsIn = "";
-            string strvFilters = "";
-            string strSlices = "";
+            string strArgsIn;
+            string strvFilters;
+            string strSlices;
 
             // Input
             vArgsIn.Add("-hide_banner");
