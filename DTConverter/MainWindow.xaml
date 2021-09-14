@@ -596,7 +596,23 @@
                         <TextBox Name="TxtEndTime" Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right" LostFocus="TxtEndTime_LostFocus"/>
                         <Button Name="BtnMarkOut" Content="Out" DockPanel.Dock="Right" Click="BtnMarkOut_Click"/>
                         <Button Name="BtnGotoOut" FontFamily="Segoe MDL2 Assets"  Content="&#xf745;" DockPanel.Dock="Right" Click="BtnGotoOut_Click"/>
-                        <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" ToolTip="{Binding PreviewTimeHMS}" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp" />
+                        <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp">
+                            <Slider.Resources>
+                                <Style TargetType="StackPanel" />
+                            </Slider.Resources>
+                            <Slider.ToolTip>
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding PreviewTimeHMS}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding PreviewTimeFrames}"/>
+                                        <TextBlock Text=" f"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Slider.ToolTip>
+                            
+                        </Slider>
                     </DockPanel>
 
                     <DockPanel>

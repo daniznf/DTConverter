@@ -437,7 +437,8 @@ namespace DTConverter
             TimeDuration start, TimeDuration duration,
             VideoEncoders videoEncoder,
             VideoResolution videoResolution,
-            int videoBitrate, 
+            int videoBitrate,
+            double inFramerate,
             double outFramerate,
             int rotation, bool rotateMetadataOnly,
             Crop crop,
@@ -478,7 +479,7 @@ namespace DTConverter
             // FFmpeg does not accept frames as input start
             if (start.DurationType == DurationTypes.Frames)
             {
-                start.Seconds = start.GetSeconds(outFramerate);
+                start.Seconds = TimeDuration.GetSeconds(start.Frames, inFramerate);
             }
             if (start.Seconds > 0)
             {
@@ -819,7 +820,7 @@ namespace DTConverter
             // FFmpeg does not accept frames as input start
             if (start.DurationType == DurationTypes.Frames)
             {
-                start.Seconds = start.GetSeconds(videoOutFramerate);
+                start.Seconds =  TimeDuration.GetSeconds(start.Frames, videoOutFramerate);
             }
             if (start.Seconds > 0)
             {

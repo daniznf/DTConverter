@@ -72,11 +72,11 @@ namespace DTConverter
         /// </summary>
         /// <param name="fps"></param>
         /// <returns></returns>
-        public double GetSeconds(double fps)
+        public static double GetSeconds(int frames, double fps)
         {
             if (fps > 0)
             {
-                return _Frames / fps;
+                return frames / fps;
             }
             else
             {
@@ -89,11 +89,11 @@ namespace DTConverter
         /// </summary>
         /// <param name="fps"></param>
         /// <returns></returns>
-        public int GetFrames(double fps)
+        public static int GetFrames(double seconds, double fps)
         {
             if (fps > 0)
             {
-                return Convert.ToInt32(Seconds * fps);
+                return Convert.ToInt32(seconds * fps);
             }
             else
             {
