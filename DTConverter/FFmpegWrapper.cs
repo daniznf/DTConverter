@@ -483,7 +483,7 @@ namespace DTConverter
             }
             if (start.Seconds > 0)
             {
-                vArgsIn.Add($"-ss {start.Seconds.ToString().Replace(',', '.')}s");
+                vArgsIn.Add($"-ss {start.Seconds.ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Audio, Subtitles, Data streams
@@ -560,7 +560,7 @@ namespace DTConverter
 
             if (duration.DurationType != DurationTypes.Frames && duration.Seconds > 0)
             {
-                vArgsOut.Add($"-t {duration.Seconds.ToString().Replace(',', '.')}s");
+                vArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
             }            
 
             if (duration.DurationType == DurationTypes.Frames)
