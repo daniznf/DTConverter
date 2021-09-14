@@ -468,9 +468,12 @@ namespace DTConverter
             List<string> vFilters = new List<string>();
             List<string> vArgsOut = new List<string>();
             List<string> metadatas = new List<string>();
+            List<string> vOptions = new List<string>();
 
             string strArgsIn;
             string strvFilters;
+            string strArgsOut;
+
             string strSlices;
 
             // Input
@@ -511,7 +514,9 @@ namespace DTConverter
                     break;
                 case VideoEncoders.H264:
                     vEncoder = "libx264";
-                    // TODO: elaborate h264 conversion
+                    vOptions.Add("-preset medium");
+                    vOptions.Add("-tune fastdecode");
+                    //vOptions.Add("-profile baseline";
                     break;
                 case VideoEncoders.Still_JPG:
                     vFormat = "image2";
@@ -534,7 +539,14 @@ namespace DTConverter
 
             if (vEncoder != null)
             {
+                vOptions.Add("-bf 0");
+                if (outFramerate > 0)
+                {
+                    vOptions.Add($"-g {Math.Round(outFramerate, 2)}");
+                }
+
                 vArgsOut.Add($"-c:v {vEncoder}");
+                vArgsOut.Add(vOptions.Aggregate("", AggregateWithSpace));
             }
 
             if (vFormat != null)
@@ -631,7 +643,7 @@ namespace DTConverter
                 vFilters.Add($"split={slices.HorizontalNumber * slices.VerticalNumber}");
             }
 
-            string strArgsOut;
+            
             strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
 
             string ffArguments;
