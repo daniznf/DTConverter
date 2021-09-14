@@ -573,7 +573,7 @@ namespace DTConverter
             if (duration.DurationType != DurationTypes.Frames && duration.Seconds > 0)
             {
                 vArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
-            }            
+            }
 
             if (duration.DurationType == DurationTypes.Frames)
             {
@@ -635,7 +635,7 @@ namespace DTConverter
 
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
             vArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
-            
+
             if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
             {
                 // Add a split filter without the out connection, there will be many connectors!
@@ -643,83 +643,76 @@ namespace DTConverter
                 vFilters.Add($"split={slices.HorizontalNumber * slices.VerticalNumber}");
             }
 
-            
+
             strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
 
             string ffArguments;
 
-            if (vFilters.Count > 0)
+            // vSlices will contain each crop for each slice, like
+            // [split_ric1] crop=w:h:x:y: [out_r1c1]; [split_r1c2] crop=w:h:x:y: [out_r1c2]; [split_r2c1] crop=w:h:x:y: [out_r2c1]; [split_r2c2] crop=w:h:x:y: [out_r2c2]
+            if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
             {
-                // vSlices will contain each crop for each slice, like
-                // [split_ric1] crop=w:h:x:y: [out_r1c1]; [split_r1c2] crop=w:h:x:y: [out_r1c2]; [split_r2c1] crop=w:h:x:y: [out_r2c1]; [split_r2c2] crop=w:h:x:y: [out_r2c2]
-                if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
+                List<string> vSlices = new List<string>();
+
+                string strSplitConnectors = "";
+                string sliceConnector;
+                string w, h, x, y;
+
+                w = $"(iw+{slices.HorizontalOverlap}*{slices.HorizontalNumber - 1})/{slices.HorizontalNumber}";
+                h = $"(ih+{slices.VerticalOverlap}*{slices.VerticalNumber - 1})/{slices.VerticalNumber}";
+
+                // for r,c add slices in vfilters
+                for (int r = 1; r <= slices.VerticalNumber; r++)
                 {
-                    List<string> vSlices = new List<string>();
-
-                    string strSplitConnectors = "";
-                    string sliceConnector;
-                    string w, h, x, y;
-                    
-                    w = $"(iw+{slices.HorizontalOverlap}*{slices.HorizontalNumber - 1})/{slices.HorizontalNumber}";
-                    h = $"(ih+{slices.VerticalOverlap}*{slices.VerticalNumber - 1})/{slices.VerticalNumber}";
-                    
-                    // for r,c add slices in vfilters
-                    for (int r = 1; r <= slices.VerticalNumber; r++)
+                    y = $"{h}*{r - 1}-({ slices.VerticalOverlap}*{r - 1})";
+                    for (int c = 1; c <= slices.HorizontalNumber; c++)
                     {
-                        y = $"{h}*{r - 1}-({ slices.VerticalOverlap}*{r - 1})";
-                        for (int c = 1; c <= slices.HorizontalNumber; c++)
-                        {
-                            sliceConnector = $"r{r}c{c}";
-                            strSplitConnectors += $"[split_{sliceConnector}]";
+                        sliceConnector = $"r{r}c{c}";
+                        strSplitConnectors += $"[split_{sliceConnector}]";
 
-                            x = $"{w}*{c-1}-({ slices.HorizontalOverlap}*{c-1})";
+                        x = $"{w}*{c - 1}-({ slices.HorizontalOverlap}*{c - 1})";
 
-                            vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [cropped_{sliceConnector}]");
-                            
-                            // Round final slice resolution to Multiple
-                            vSlices.Add($"[cropped_{sliceConnector}] scale=0:-{videoResolution.Multiple} [scaledh_{sliceConnector}]");
-                            vSlices.Add($"[scaledh_{sliceConnector}] scale=-{videoResolution.Multiple}:0 [out_{sliceConnector}]");
-                        }
+                        vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [cropped_{sliceConnector}]");
+
+                        // Round final slice resolution to Multiple
+                        vSlices.Add($"[cropped_{sliceConnector}] scale=0:-{videoResolution.Multiple} [scaledh_{sliceConnector}]");
+                        vSlices.Add($"[scaledh_{sliceConnector}] scale=-{videoResolution.Multiple}:0 [out_{sliceConnector}]");
                     }
-
-                    // last filter should be the split filter
-                    strvFilters = vFilters.Aggregate("", AggregateFilters);
-                    // complete strvFilters with many outputs of the split filter
-                    strvFilters += " " + strSplitConnectors + ";";
-                    strSlices = vSlices.Aggregate("", AggregateWithSemicolon);
-
-                    strvFilters += " " + strSlices;
-
-                    List<string> vMaps = new List<string>();
-                    string destinationPathMapped;
-
-                    for (int r = 1; r <= slices.VerticalNumber; r++)
-                    {
-                        for (int c = 1; c <= slices.HorizontalNumber; c++)
-                        {
-                            destinationPathMapped = Slicer.GetSliceName(destinationPath, r, c);
-                            vMaps.Add($"-map \"[out_r{r}c{c}]\" {strArgsOut} \"{destinationPathMapped}\" -y");
-                        }
-                    }
-
-                    string strvMaps;
-                    strvMaps = vMaps.Aggregate("", AggregateWithSpace);
-
-                    ffArguments = $"{strArgsIn} -filter_complex \"{strvFilters}\" {strvMaps}";
                 }
-                else
+
+                // last filter should be the split filter
+                strvFilters = vFilters.Aggregate("", AggregateFilters);
+                // complete strvFilters with many outputs of the split filter
+                strvFilters += " " + strSplitConnectors + ";";
+                strSlices = vSlices.Aggregate("", AggregateWithSemicolon);
+
+                strvFilters += " " + strSlices;
+
+                List<string> vMaps = new List<string>();
+                string destinationPathMapped;
+
+                for (int r = 1; r <= slices.VerticalNumber; r++)
                 {
-                    // Round final resolution to Multiple
-                    vFilters.Add($"scale=0:-{videoResolution.Multiple} [scaledh]");
-                    vFilters.Add($"scale=-{videoResolution.Multiple}:0");
-                    
-                    strvFilters = vFilters.Aggregate("", AggregateFilters);
-                    ffArguments = $"{strArgsIn} -filter:v \"{strvFilters}\" {strArgsOut} \"{destinationPath}\"";
+                    for (int c = 1; c <= slices.HorizontalNumber; c++)
+                    {
+                        destinationPathMapped = Slicer.GetSliceName(destinationPath, r, c);
+                        vMaps.Add($"-map \"[out_r{r}c{c}]\" {strArgsOut} \"{destinationPathMapped}\" -y");
+                    }
                 }
+
+                string strvMaps;
+                strvMaps = vMaps.Aggregate("", AggregateWithSpace);
+
+                ffArguments = $"{strArgsIn} -filter_complex \"{strvFilters}\" {strvMaps}";
             }
             else
             {
-                ffArguments = $"{strArgsIn} {strArgsOut} \"{destinationPath}\"";
+                // Round final resolution to Multiple
+                vFilters.Add($"scale=0:-{videoResolution.Multiple} [scaledh]");
+                vFilters.Add($"scale=-{videoResolution.Multiple}:0");
+
+                strvFilters = vFilters.Aggregate("", AggregateFilters);
+                ffArguments = $"{strArgsIn} -filter:v \"{strvFilters}\" {strArgsOut} \"{destinationPath}\"";
             }
 
             // Process
