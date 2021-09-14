@@ -490,14 +490,6 @@ namespace DTConverter
 
             // Input file
             vArgsIn.Add($"-i \"{sourcePath}\"");
-            
-            if (duration.Seconds > 0)
-            {
-                if (duration.DurationType != DurationTypes.Frames)
-                {
-                    vArgsOut.Add($"-t {duration.Seconds.ToString().Replace(',', '.')}s");
-                }
-            }
 
             strArgsIn = vArgsIn.Aggregate("", AggregateWithSpace);
 
@@ -559,6 +551,16 @@ namespace DTConverter
             {
                 vArgsOut.Add($"-r {outFramerate.ToString(CultureInfo.InvariantCulture)}");
             }
+
+            if (videoEncoder == VideoEncoders.Still_JPG || videoEncoder == VideoEncoders.Still_PNG)
+            {
+                duration = new TimeDuration() { Frames = 1 };
+            }
+
+            if (duration.DurationType != DurationTypes.Frames && duration.Seconds > 0)
+            {
+                vArgsOut.Add($"-t {duration.Seconds.ToString().Replace(',', '.')}s");
+            }            
 
             if (duration.DurationType == DurationTypes.Frames)
             {
