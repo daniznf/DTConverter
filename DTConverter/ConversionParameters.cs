@@ -368,7 +368,17 @@ namespace DTConverter
         }
         public string EndTimeHMS
         {
-            get => new TimeDuration() { Seconds = _StartTime.Seconds + _DurationTime.Seconds }.HMS;
+            get
+            {
+                if (_VideoEncoder == VideoEncoders.Still_JPG || _VideoEncoder == VideoEncoders.Still_PNG)
+                {
+                    return StartTimeHMS;
+                }
+                else
+                {
+                    return new TimeDuration() { Seconds = _StartTime.Seconds + _DurationTime.Seconds }.HMS;
+                }
+            }
             set => EndTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
         }
 
@@ -399,7 +409,17 @@ namespace DTConverter
         }
         public string DurationTimeHMS
         {
-            get => _DurationTime.HMS;
+            get
+            {
+                if (_VideoEncoder == VideoEncoders.Still_JPG || _VideoEncoder == VideoEncoders.Still_PNG)
+                {
+                    return "1 frame";
+                }
+                else
+                {
+                    return _DurationTime.HMS;
+                }
+            }
             set => DurationTimeSeconds = new TimeDuration() { HMS = value }.Seconds;
         }
 
@@ -527,6 +547,8 @@ namespace DTConverter
                 }
 
                 OnPropertyChanged("VideoEncoder");
+                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("IsVideoEncoderCopy");
                 OnPropertyChanged("IsVideoEncoderNotCopy");
