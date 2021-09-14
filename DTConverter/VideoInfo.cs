@@ -118,11 +118,11 @@ namespace DTConverter
             }
         }
 
-        private float _FrameRate;
+        private double _FrameRate;
         /// <summary>
         /// Framerate in fps
         /// </summary>
-        public float FrameRate
+        public double FrameRate
         { 
             get => _FrameRate;
             set

@@ -365,7 +365,7 @@ namespace DTConverter
                             if (sPiece.Contains("fps"))
                             {
                                 framerate = sPiece.Trim().Split(' ')[0].Trim();
-                                videoInfo.FrameRate = float.Parse(framerate.Replace('.', ','));
+                                videoInfo.FrameRate = double.Parse(framerate, CultureInfo.InvariantCulture);
                             }
                             if (sPiece.Contains("kb/s"))
                             {
