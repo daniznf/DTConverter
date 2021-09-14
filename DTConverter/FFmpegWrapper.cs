@@ -486,7 +486,7 @@ namespace DTConverter
             }
             if (start.Seconds > 0)
             {
-                vArgsIn.Add($"-ss {start.Seconds.ToString(CultureInfo.InvariantCulture)}s");
+                vArgsIn.Add($"-ss {Math.Round(start.Seconds, 2).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Audio, Subtitles, Data streams
