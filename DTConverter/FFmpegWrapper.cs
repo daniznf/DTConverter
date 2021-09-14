@@ -498,34 +498,34 @@ namespace DTConverter
             string vEncoder = null;
             string vFormat = null;
 
-            switch (videoEncoder.ToString().ToLower())
+            switch (videoEncoder)
             {
-                case "hap":
+                case VideoEncoders.HAP:
                     vEncoder = "hap";
                     break;
-                case "hap_alpha":
+                case VideoEncoders.HAP_Alpha:
                     vEncoder = "hap -format hap_alpha";
                     break;
-                case "hap_q":
+                case VideoEncoders.HAP_Q:
                     vEncoder = "hap -format hap_q";
                     break;
-                case "h264":
+                case VideoEncoders.H264:
                     vEncoder = "libx264";
                     // TODO: elaborate h264 conversion
                     break;
-                case "still_jpg":
+                case VideoEncoders.Still_JPG:
                     vFormat = "image2";
                     break;
-                case "still_ong":
+                case VideoEncoders.Still_PNG:
                     vFormat = "image2";
                     break;
-                case "jpg_sequence":
+                case VideoEncoders.JPG_Sequence:
                     vFormat = "image2";
                     break;
-                case "png_sequence":
+                case VideoEncoders.PNG_Sequence:
                     vFormat = "image2";
                     break;
-                case "copy":
+                case VideoEncoders.Copy:
                     vEncoder = "copy";
                     break;
                 default:
