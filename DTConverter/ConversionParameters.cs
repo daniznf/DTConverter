@@ -241,8 +241,7 @@ namespace DTConverter
                         extension = Path.GetExtension(SourcePath);
                     }
 
-                    // ChangeExtension even if there is not actually any extension works as espected
-                    if (File.Exists(Path.ChangeExtension(outPath, extension)))
+                    if (File.Exists(outPath + extension))
                     {
                         outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
                     }
@@ -282,8 +281,7 @@ namespace DTConverter
                         extension = Path.GetExtension(SourcePath);
                     }
 
-                    // ChangeExtension even if there is not actually any extension works as espected
-                    if (File.Exists(Path.ChangeExtension(outPath, extension)))
+                    if (File.Exists(outPath + extension))
                     {
                         outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
                     }
