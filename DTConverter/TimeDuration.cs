@@ -104,8 +104,6 @@ namespace DTConverter
             }
         }
 
-
-
         /// <summary>
         /// Gets / sets the total number of seconds if DurationType is not Frames.
         /// Otherwise, if FPS is set, converts frames to seconds.
@@ -315,6 +313,71 @@ namespace DTConverter
                 }
             }
         }
+
+        #region Operator overloads
+        public static TimeDuration operator +(TimeDuration A, TimeDuration B)
+        {
+            return A.DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = A.Frames + B.Frames } :
+                new TimeDuration() { Seconds = A.Seconds + B.Seconds };
+        }
+
+        public static TimeDuration operator -(TimeDuration A, TimeDuration B)
+        {
+            return A.DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = A.Frames - B.Frames } :
+                new TimeDuration() { Seconds = A.Seconds - B.Seconds };
+        }
+
+        public static bool operator >(TimeDuration A, TimeDuration B)
+        {
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames > B.Frames :
+                A.Seconds > B.Seconds;
+        }
+
+        public static bool operator <(TimeDuration A, TimeDuration B)
+        {
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames < B.Frames :
+                A.Seconds < B.Seconds;
+        }
+
+        public static bool operator ==(TimeDuration A, TimeDuration B)
+        {
+            if (A is null || B is null)
+            {
+                return A is null && B is null;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames == B.Frames :
+                A.Seconds == B.Seconds;
+        }
+
+        public static bool operator !=(TimeDuration A, TimeDuration B)
+        {
+            if (A is null || B is null)
+            {
+                return (A is null && !(B is null)) ||
+                    (!(A is null) && (B is null));
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames != B.Frames :
+                A.Seconds != B.Seconds;
+        }
+
+        public static bool operator >=(TimeDuration A, TimeDuration B)
+        {
+            return A > B || A == B;
+        }
+
+        public static bool operator <=(TimeDuration A, TimeDuration B)
+        {
+            return A < B || A == B;
+        }
+        #endregion
 
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
