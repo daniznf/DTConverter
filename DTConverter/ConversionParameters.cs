@@ -393,7 +393,7 @@ namespace DTConverter
                 if (_EndTime != null && SourceInfo != null && SourceInfo.Duration != null)
                 {
                     TimeDuration newEnd = new TimeDuration() { Seconds = value, Framerate = _EndTime.Framerate };
-                    if (value >= 0 && newEnd < SourceInfo.Duration)
+                    if (value >= 0 && newEnd > _StartTime && newEnd < SourceInfo.Duration)
                     {
                         _EndTime = newEnd;
                         _DurationTime = _EndTime - _StartTime;
@@ -415,10 +415,10 @@ namespace DTConverter
             }
             set
             {
-                if (_EndTime != null)
+                if (_EndTime != null && SourceInfo != null && SourceInfo.Duration != null)
                 {
                     TimeDuration newEnd = new TimeDuration() { HMS = value, Framerate = _EndTime.Framerate };
-                    if (newEnd.Seconds > 0 && newEnd > _StartTime)
+                    if (newEnd.Seconds > 0 && newEnd > _StartTime && newEnd < SourceInfo.Duration)
                     {
                         _EndTime = newEnd;
                         _DurationTime = _EndTime - _StartTime;
@@ -446,7 +446,7 @@ namespace DTConverter
                 if (_DurationTime != null)
                 {
                     TimeDuration newDuration = new TimeDuration() { Seconds = value, Framerate = _DurationTime.Framerate };
-                    if (value > 0 && newDuration <= _DurationTime + _StartTime)
+                    if (value > 0 && newDuration + _StartTime <= _EndTime)
                     {
                         _DurationTime = newDuration;
                         _EndTime = _DurationTime + _StartTime;
@@ -470,7 +470,7 @@ namespace DTConverter
                 if (_DurationTime != null)
                 {
                     TimeDuration newDuration = new TimeDuration() { HMS = value, Framerate = _DurationTime.Framerate };
-                    if (newDuration.Seconds > 0 && newDuration + _StartTime < _EndTime)
+                    if (newDuration.Seconds > 0 && newDuration + _StartTime <= _EndTime)
                     {
                         _DurationTime = newDuration;
                         _EndTime = _DurationTime + _StartTime;
