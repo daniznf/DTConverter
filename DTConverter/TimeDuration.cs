@@ -24,41 +24,44 @@ using System.ComponentModel;
 namespace DTConverter
 {
     public enum DurationTypes { Seconds, MilliSeconds, MicroSeconds, Frames, HMS }
-    public class TimeDuration: INotifyPropertyChanged
+    public class TimeDuration : INotifyPropertyChanged
     {
         public TimeDuration()
         {
-            Seconds = 0;
         }
 
         // HMS:      [-][HH:]MM:SS[.m...]
         // s,ms,us:  [-]S+[.m...][s|ms|us]
         private int H, M, S, ms, us;
-        
+
         /// <summary>
         /// Specifies if the duration is in frames or in a time format.
         /// This value is automatically set when setting time or frames number.
         /// </summary>
         public DurationTypes DurationType { get; private set; }
 
+        private double _FPS;
+        /// <summary>
+        /// This is used when converting Seconds to Frames and viceversa
+        /// </summary>
+        public double FPS 
+        {
+            get =>  _FPS;
+            set
+            {
+                _FPS = value;
+                OnPropertyChanged("FPS");
+            }
+        }
+
         private int _Frames;
         /// <summary>
-        /// Sets the number of frames.
-        /// Gets the number of frames if DurationType is Frames, otherwise gets 0
+        /// Gets / sets the number of frames if DurationType.
+        /// Otherwise, if  FPS is set, converts seconds to frames.
         /// </summary>
         public int Frames
         {
-            get
-            {
-                if (DurationType == DurationTypes.Frames)
-                {
-                    return _Frames;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
+            get => DurationType == DurationTypes.Frames ? _Frames : GetFrames(Seconds, FPS) ;
             set
             {
                 _Frames = value;
@@ -101,24 +104,19 @@ namespace DTConverter
             }
         }
 
-        
+
 
         /// <summary>
-        /// Sets the total number of seconds.
-        /// Gets the number of seconds if DurationType is not Frames, otherwise gets 0.
+        /// Gets / sets the total number of seconds if DurationType is not Frames.
+        /// Otherwise, if FPS is set, converts frames to seconds.
         /// </summary>
         public double Seconds
         {
             get
             {
-                if (DurationType != DurationTypes.Frames)
-                {
-                    return S + (M * 60) + (H * 3600) + ( ms / 1000.0) + ( us / 1000.0 / 1000);
-                }
-                else
-                {
-                    return 0;
-                }
+                return DurationType != DurationTypes.Frames ?
+                    S + (M * 60) + (H * 3600) + (ms / 1000.0) + (us / 1000.0 / 1000) :
+                    GetSeconds(Frames, FPS);
             }
             set
             {
@@ -191,8 +189,8 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Gets a string of current Hours, Minutes, Seconds and decimals 
-        /// Sets time from given string
+        /// Gets a string of current Hours, Minutes, Seconds and decimals, or frames.
+        /// Sets time from given HMSstring ending in s, f, or null
         /// </summary>
         public string HMS
         {
@@ -236,6 +234,14 @@ namespace DTConverter
                         if (int.TryParse(value.Remove(value.IndexOf("f")), out tryFrames))
                         {
                             Frames = tryFrames;
+                        }
+                    }
+                    else if (value.Contains("s"))
+                    {
+                        int tryFrames;
+                        if (int.TryParse(value.Remove(value.IndexOf("s")), out tryFrames))
+                        {
+                            Seconds = tryFrames;
                         }
                     }
                     else
@@ -309,7 +315,6 @@ namespace DTConverter
                 }
             }
         }
-
 
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
