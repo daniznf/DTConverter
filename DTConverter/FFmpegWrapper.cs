@@ -571,6 +571,7 @@ namespace DTConverter
 
             if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
             {
+                // duration in frames will change if output framerate changes
                 vArgsOut.Add($"-frames:v {duration.Frames}");
             }
             else if (duration.Seconds > 0)
@@ -726,7 +727,7 @@ namespace DTConverter
     AudioEncoders audioEncoder,
     int audioRate,
     bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels,
-    double videoInputFramerate)
+    double videoInputFramerate, double videoOutputFramerate)
         {
             if (FFmpegPath == null)
             {
@@ -766,9 +767,22 @@ namespace DTConverter
             // Input file
             aArgsIn.Add($"-i \"{sourcePath}\"");
 
-            double dSeconds;
-            dSeconds = duration.DurationType == DurationTypes.Frames && duration.Frames > 0 ?
-                duration.Seconds = TimeDuration.GetSeconds(duration.Frames, videoInputFramerate) : duration.Seconds;
+            double dSeconds = 0;
+            if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
+            {
+                if (videoOutputFramerate > 0)
+                {
+                    dSeconds = TimeDuration.GetSeconds(duration.Frames, videoOutputFramerate);
+                }
+                else if (videoInputFramerate > 0)
+                {
+                    dSeconds = TimeDuration.GetSeconds(duration.Frames, videoInputFramerate);
+                }
+            }
+            else
+            {
+                dSeconds = duration.Seconds;
+            }
             
             //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
             if (dSeconds > 0)

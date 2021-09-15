@@ -399,7 +399,7 @@ namespace DTConverter
             {
                 if (value <= EndTimeFrames)
                 {
-                    DurationTimeFrames = EndTimeFrames - value;
+                    DurationTimeFramesAdjusted = EndTimeFrames - value;
                     _StartTime.Frames = value;
                 }
             }
@@ -458,7 +458,7 @@ namespace DTConverter
                     int tryFrames;
                     if (int.TryParse(value.Remove(value.IndexOf("f")), out tryFrames))
                     {
-                        DurationTimeFrames = tryFrames;
+                        DurationTimeFramesAdjusted = tryFrames;
                     }
                 }
                 else
@@ -468,7 +468,7 @@ namespace DTConverter
                 }
             }
         }
-        public int DurationTimeFrames
+        public int DurationTimeFramesAdjusted
         {
             get
             {
@@ -489,7 +489,14 @@ namespace DTConverter
                     framesLeft = TimeDuration.GetFrames(_SourceInfo.Duration.Seconds, _SourceInfo.FrameRate) - StartTimeFrames;
                     if (value < framesLeft)
                     {
-                        _DurationTime.Frames = value;
+                        if (_IsOutFramerateEnabled && OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
+                        {
+                            _DurationTime.Frames = Convert.ToInt32(value * OutFrameRate / _SourceInfo.FrameRate);
+                        }
+                        else
+                        {
+                            _DurationTime.Frames = value;
+                        }
                     }
                     else
                     {
@@ -532,7 +539,14 @@ namespace DTConverter
                 {
                     if (_DurationTime.DurationType == DurationTypes.Frames)
                     {
-                        return new TimeDuration() { Frames = StartTimeFrames + DurationTimeFrames }.HMS;
+                        if (_IsOutFramerateEnabled && OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
+                        {
+                            return new TimeDuration() { Frames = StartTimeFrames + Convert.ToInt32(DurationTimeFramesAdjusted * _SourceInfo.FrameRate / OutFrameRate) }.HMS;
+                        }
+                        else
+                        {
+                            return new TimeDuration() { Frames = StartTimeFrames + DurationTimeFramesAdjusted }.HMS;
+                        }
                     }
                     else
                     {
@@ -547,7 +561,7 @@ namespace DTConverter
                     int tryFrames;
                     if (int.TryParse(value.Remove(value.IndexOf("f")), out tryFrames))
                     {
-                        EndTimeFrames = tryFrames;       
+                        EndTimeFrames = tryFrames;
                     }
                 }
                 else if (!value.Contains("f"))
@@ -561,7 +575,7 @@ namespace DTConverter
         {
             get 
             {
-                return StartTimeFrames + DurationTimeFrames;
+                return StartTimeFrames + DurationTimeFramesAdjusted;
             }
             set
             {
@@ -569,7 +583,7 @@ namespace DTConverter
                 {
                     if (value >= StartTimeFrames && value <= (StartTimeFrames + TimeDuration.GetFrames(_SourceInfo.Duration.Seconds, _SourceInfo.FrameRate)))
                     {
-                        DurationTimeFrames = value - StartTimeFrames;
+                        DurationTimeFramesAdjusted = value - StartTimeFrames;
                         OnPropertyChanged("EndTimeSeconds");
                         OnPropertyChanged("EndTimeHMS");
                     }
@@ -833,10 +847,30 @@ namespace DTConverter
             get => _IsOutFramerateEnabled;
             set
             {
+                int orFrames = 0;
+                if (_DurationTime.DurationType == DurationTypes.Frames)
+                {
+                    if (_IsOutFramerateEnabled && OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
+                    {
+                        orFrames = Convert.ToInt32(DurationTimeFramesAdjusted / OutFrameRate * _SourceInfo.FrameRate);
+                    }
+                    else
+                    {
+                        orFrames = DurationTimeFramesAdjusted;
+                    }
+                }
+
                 _IsOutFramerateEnabled = value;
+                
+                if (orFrames > 0)
+                {
+                    DurationTimeFramesAdjusted = orFrames;
+                }
+
                 OnPropertyChanged("IsOutFramerateEnabled");
                 OnPropertyChanged("OutFrameRate");
                 OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("DurationTimeHMS");
             }
         }
         private double _OutFrameRate;
@@ -859,9 +893,23 @@ namespace DTConverter
             }
             set
             {
+                int orFrames = 0;
+                if (_DurationTime.DurationType == DurationTypes.Frames)
+                {
+                    if (_IsOutFramerateEnabled && _OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
+                    {
+                        orFrames = Convert.ToInt32(DurationTimeFramesAdjusted / _OutFrameRate * _SourceInfo.FrameRate);
+                    }
+                }
                 _OutFrameRate = value;
+                if (orFrames > 0)
+                {
+                    DurationTimeFramesAdjusted = orFrames;
+                }
+                
                 OnPropertyChanged("OutFrameRate");
                 OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("DurationTimeHMS");
             }
         }
 
@@ -1204,7 +1252,8 @@ namespace DTConverter
                         AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, _StartTime, _DurationTime, AudioEncoder,
                             IsAudioRateEnabled ? AudioRate : 0,
                             IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels,
-                            _SourceInfo != null ? _SourceInfo.FrameRate : 0);
+                            _SourceInfo != null ? _SourceInfo.FrameRate : 0,
+                            OutFrameRate);
                         AudioConversionProcess.OutputDataReceived += outputReceived;
                         AudioConversionProcess.ErrorDataReceived += errorReceived;
                         if (AudioConversionProcess.Start())
