@@ -312,7 +312,7 @@
                                                     <TextBlock Text="s"/>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding DurationTimeFramesAdjusted}"/>
+                                                    <TextBlock Text="{Binding DurationTimeFramesActual}"/>
                                                     <TextBlock Text="f"/>
                                                 </StackPanel>
                                             </StackPanel>

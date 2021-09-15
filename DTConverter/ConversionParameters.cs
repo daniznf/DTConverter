@@ -405,7 +405,6 @@ namespace DTConverter
             }
         }
 
-
         private TimeDuration _DurationTime;
         public double DurationTimeSeconds
         {
@@ -413,7 +412,7 @@ namespace DTConverter
             {
                 if (_DurationTime.DurationType == DurationTypes.Frames)
                 {
-                    return _SourceInfo != null ? TimeDuration.GetSeconds(_DurationTime.Frames, _SourceInfo.FrameRate) : 0;
+                    return _SourceInfo != null ? TimeDuration.GetSeconds(DurationTimeFramesAdjusted, _SourceInfo.FrameRate) : 0;
                 }
                 else
                 {
@@ -468,13 +467,50 @@ namespace DTConverter
                 }
             }
         }
-        public int DurationTimeFramesAdjusted
+        public int DurationTimeFramesActual
         {
             get
             {
                 if (_DurationTime.DurationType == DurationTypes.Frames)
                 {
                     return _DurationTime.Frames;
+                }
+                else
+                {
+                    return _SourceInfo != null ? TimeDuration.GetFrames(_DurationTime.Seconds, _SourceInfo.FrameRate) : 0;
+                }
+            }
+            set
+            {
+                int framesLeft;
+                if (_SourceInfo != null)
+                {
+                    framesLeft = TimeDuration.GetFrames(_SourceInfo.Duration.Seconds, _SourceInfo.FrameRate) - StartTimeFrames;
+                    if (value < framesLeft)
+                    {
+                        _DurationTime.Frames = value;
+                    }
+                    else
+                    {
+                        _DurationTime.Frames = framesLeft;
+                    }
+                }
+            }
+        }
+        public int DurationTimeFramesAdjusted
+        {
+            get
+            {
+                if (_DurationTime.DurationType == DurationTypes.Frames)
+                {
+                    if (_IsOutFramerateEnabled && OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
+                    {
+                        return Convert.ToInt32(_DurationTime.Frames * _SourceInfo.FrameRate / OutFrameRate);
+                    }
+                    else
+                    {
+                        return _DurationTime.Frames;
+                    }
                 }
                 else
                 {
@@ -541,7 +577,7 @@ namespace DTConverter
                     {
                         if (_IsOutFramerateEnabled && OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
                         {
-                            return new TimeDuration() { Frames = StartTimeFrames + Convert.ToInt32(DurationTimeFramesAdjusted * _SourceInfo.FrameRate / OutFrameRate) }.HMS;
+                            return new TimeDuration() { Frames = StartTimeFrames + DurationTimeFramesAdjusted }.HMS;
                         }
                         else
                         {
@@ -852,7 +888,7 @@ namespace DTConverter
                 {
                     if (_IsOutFramerateEnabled && OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
                     {
-                        orFrames = Convert.ToInt32(DurationTimeFramesAdjusted / OutFrameRate * _SourceInfo.FrameRate);
+                        orFrames = DurationTimeFramesAdjusted;
                     }
                     else
                     {
@@ -896,10 +932,7 @@ namespace DTConverter
                 int orFrames = 0;
                 if (_DurationTime.DurationType == DurationTypes.Frames)
                 {
-                    if (_IsOutFramerateEnabled && _OutFrameRate > 0 && _SourceInfo != null && _SourceInfo.FrameRate != 0)
-                    {
-                        orFrames = Convert.ToInt32(DurationTimeFramesAdjusted / _OutFrameRate * _SourceInfo.FrameRate);
-                    }
+                    orFrames = DurationTimeFramesAdjusted;
                 }
                 _OutFrameRate = value;
                 if (orFrames > 0)
