@@ -487,7 +487,7 @@ namespace DTConverter
         {
             get
             {
-                if ( _DurationTime != null && _StartTime != null && _DurationTime.Framerate != 0)
+                if ( _DurationTime != null && _StartTime != null && _StartTime.Framerate != 0)
                 {
                     return Convert.ToInt32(_DurationTime.Frames * _DurationTime.Framerate / _StartTime.Framerate);
                 }
