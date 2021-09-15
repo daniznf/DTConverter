@@ -40,28 +40,28 @@ namespace DTConverter
         /// </summary>
         public DurationTypes DurationType { get; private set; }
 
-        private double _FPS;
+        private double _Framerate;
         /// <summary>
         /// This is used when converting Seconds to Frames and viceversa
         /// </summary>
-        public double FPS 
+        public double Framerate
         {
-            get =>  _FPS;
+            get =>  _Framerate;
             set
             {
-                _FPS = value;
-                OnPropertyChanged("FPS");
+                _Framerate = value;
+                OnPropertyChanged("Framerate");
             }
         }
 
         private int _Frames;
         /// <summary>
         /// Gets / sets the number of frames if DurationType.
-        /// Otherwise, if  FPS is set, converts seconds to frames.
+        /// Otherwise, if  Framerate is set, it converts seconds to frames.
         /// </summary>
         public int Frames
         {
-            get => DurationType == DurationTypes.Frames ? _Frames : GetFrames(Seconds, FPS) ;
+            get => DurationType == DurationTypes.Frames ? _Frames : GetFrames(Seconds, Framerate) ;
             set
             {
                 _Frames = value;
@@ -106,7 +106,7 @@ namespace DTConverter
 
         /// <summary>
         /// Gets / sets the total number of seconds if DurationType is not Frames.
-        /// Otherwise, if FPS is set, converts frames to seconds.
+        /// Otherwise, if Framerate is set, it converts frames to seconds.
         /// </summary>
         public double Seconds
         {
@@ -114,7 +114,7 @@ namespace DTConverter
             {
                 return DurationType != DurationTypes.Frames ?
                     S + (M * 60) + (H * 3600) + (ms / 1000.0) + (us / 1000.0 / 1000) :
-                    GetSeconds(Frames, FPS);
+                    GetSeconds(Frames, Framerate);
             }
             set
             {
