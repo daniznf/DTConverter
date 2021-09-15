@@ -351,7 +351,7 @@ namespace DTConverter
                 OnPropertyChanged("StartTimeHMS");
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
             }
         }
         public string StartTimeHMS
@@ -376,7 +376,7 @@ namespace DTConverter
                 OnPropertyChanged("StartTimeHMS");
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
             }
         }
 
@@ -404,7 +404,7 @@ namespace DTConverter
                 OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
             }
         }
         public string EndTimeHMS
@@ -429,7 +429,7 @@ namespace DTConverter
                 OnPropertyChanged("EndTimeSeconds");
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
             }
         }
 
@@ -454,7 +454,7 @@ namespace DTConverter
                 }
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
                 OnPropertyChanged("EndTimeSeconds");
                 OnPropertyChanged("EndTimeHMS");
             }
@@ -478,18 +478,28 @@ namespace DTConverter
                 }
                 OnPropertyChanged("DurationTimeHMS");
                 OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
                 OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("EndTimeSeconds");
             }
         }
-        public int DurationTimeFramesEquivalent
+        public int DurationTimeEquivalent
         {
             get
             {
-                if ( _DurationTime != null && _StartTime != null && _StartTime.Framerate != 0)
+                if ( _DurationTime != null)
                 {
-                    return Convert.ToInt32(_DurationTime.Frames * _DurationTime.Framerate / _StartTime.Framerate);
+                    if (_DurationTime.DurationType == DurationTypes.Frames)
+                    {
+                        if (_StartTime != null && _StartTime.Framerate != 0)
+                        {
+                            return Convert.ToInt32(_DurationTime.Frames * _DurationTime.Framerate / _StartTime.Framerate);
+                        }
+                    }
+                    else
+                    {
+                        return Convert.ToInt32(_DurationTime.Seconds);
+                    }
                 }
                 return 0;
             }
@@ -775,7 +785,7 @@ namespace DTConverter
                 OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
             }
         }
         private double _OutFramerate;
@@ -805,7 +815,7 @@ namespace DTConverter
                 OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("DurationTimeSeconds");
                 OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeFramesEquivalent");
+                OnPropertyChanged("DurationTimeEquivalent");
             }
         }
 

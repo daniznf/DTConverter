@@ -301,7 +301,7 @@
                                     <Label Content="FPS" Margin="0,0,2px,0"/>
                                     <Label Content="{Binding VideoBitrate}" Margin="2px,0,0,0"/>
                                     <Label Content="Kb/s" Margin="0,0,2px,0"/>
-                                    <Label Content="{Binding DurationTimeFramesEquivalent}" Margin="2px,0,0px,0">
+                                    <Label Content="{Binding DurationTimeEquivalent}" Margin="2px,0,0px,0">
                                         <Label.Resources>
                                             <Style TargetType="StackPanel" />
                                         </Label.Resources>
