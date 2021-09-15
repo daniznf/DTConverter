@@ -557,7 +557,6 @@ namespace DTConverter
                 }
             }
         }
-
         public int EndTimeFrames
         {
             get 
@@ -642,7 +641,6 @@ namespace DTConverter
         }
         
         public VideoResolution PreviewResolution { get; set; }
-        
         
         public string ThumbnailPathIn { get; set; }
         
@@ -938,8 +936,6 @@ namespace DTConverter
             }
         }
 
-
-
         private bool _IsAudioRateEnabled;
         public bool IsAudioRateEnabled
         {
@@ -1190,8 +1186,6 @@ namespace DTConverter
             }
             catch (Exception E) { }
         }
-        
-        
 
         private Process AudioConversionProcess;
         /// <summary>

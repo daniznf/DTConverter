@@ -290,7 +290,6 @@ namespace DTConverter
                 catch { }
             }
         }
-            
 
         /// <summary>
         /// Probes all possible informations from SourcePath. 
@@ -423,7 +422,6 @@ namespace DTConverter
                 catch (Exception E)
                 { }
             }
-
             FFprobeProcess.WaitForExit(timeout);
             return videoInfo;
         }
@@ -480,13 +478,14 @@ namespace DTConverter
             vArgsIn.Add("-hide_banner");
 
             // FFmpeg does not accept frames as input start
-            if (start.DurationType == DurationTypes.Frames)
+            double sSeconds;
+            sSeconds = start.DurationType == DurationTypes.Frames ?
+                TimeDuration.GetSeconds(start.Frames, inFramerate) :
+                start.Seconds;
+
+            if (sSeconds > 0)
             {
-                start.Seconds = TimeDuration.GetSeconds(start.Frames, inFramerate);
-            }
-            if (start.Seconds > 0)
-            {
-                vArgsIn.Add($"-ss {Math.Round(start.Seconds, 2).ToString(CultureInfo.InvariantCulture)}s");
+                vArgsIn.Add($"-ss {Math.Round(sSeconds, 2).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Audio, Subtitles, Data streams
@@ -722,83 +721,12 @@ namespace DTConverter
             return FFmpegProcess;
         }
 
-        /// <summary>
-        /// Aggregates elements separating them with a space
-        /// </summary>
-        /// <param name="Prev"></param>
-        /// <param name="Next"></param>
-        /// <returns></returns>
-        private static string AggregateWithSpace(string Prev, string Next)
-        {
-            if (Prev.Trim() != "")
-            {
-                return Prev + " " + Next;
-            }
-            else
-            {
-                return Next;
-            }
-        }
-
-        /// <summary>
-        /// Aggregates elements separating them with a semicolon
-        /// </summary>
-        /// <param name="Prev"></param>
-        /// <param name="Next"></param>
-        /// <returns></returns>
-        private static string AggregateWithSemicolon(string Prev, string Next)
-        {
-            if (Prev.Trim() != "")
-            {
-                return Prev + "; " + Next;
-            }
-            else
-            {
-                return Next;
-            }
-        }
-
-        /// <summary>
-        /// Aggregates elements enclosing them in [square][brackets]
-        /// </summary>
-        private static string AggregateWithSquareBrackets(string Prev, string Next)
-        {
-            if (Prev.Trim() != "")
-            {
-                return $"{Prev}[{Next}]";
-            }
-            else
-            {
-                return $"[{Next}]";
-            }
-        }
-
-        /// <summary>
-        /// Aggregates filters using [out connector] of Prev filter as [input connector] of Next filter
-        /// </summary>
-        /// <param name="prev"></param>
-        /// <param name="next"></param>
-        /// <returns></returns>
-        private static string AggregateFilters(string prev, string next)
-        {
-            // -filter [ina] aaa [outa];[outa] bbb [outb]; [outb] ccc [outc]
-            // -filter_complex [ia1][ia2][ia3] aaa [oa1][oa2][oa3]; [oa1][oa2][oa3] bbb [ob1][ob2][ob3]; [ob1][ob2][ob3] ccc [oc1][oc2][oc3]
-            if (prev.Contains('[') && prev.Contains(']'))
-            {
-                return prev + "; " + prev.Substring(prev.LastIndexOf(' ')) + " " + next;
-            }
-            else
-            {
-                return next;
-            }
-        }
-
         public static Process ConvertAudio(string sourcePath, string destinationPath,
-            TimeDuration start, TimeDuration duration,
-            AudioEncoders audioEncoder,
-            int audioRate,
-            bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels,
-            double videoInputFramerate)
+    TimeDuration start, TimeDuration duration,
+    AudioEncoders audioEncoder,
+    int audioRate,
+    bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels,
+    double videoInputFramerate)
         {
             if (FFmpegPath == null)
             {
@@ -822,13 +750,14 @@ namespace DTConverter
             aArgsIn.Add("-hide_banner");
 
             // FFmpeg does not accept frames as input start
-            if (start.DurationType == DurationTypes.Frames)
+            double sSeconds;
+            sSeconds = start.DurationType == DurationTypes.Frames ?
+                sSeconds = TimeDuration.GetSeconds(start.Frames, videoInputFramerate) :
+                sSeconds = start.Seconds;
+
+            if (sSeconds > 0)
             {
-                start.Seconds =  TimeDuration.GetSeconds(start.Frames, videoInputFramerate);
-            }
-            if (start.Seconds > 0)
-            {
-                aArgsIn.Add($"-ss {Math.Round(start.Seconds, 2).ToString(CultureInfo.InvariantCulture)}s");
+                aArgsIn.Add($"-ss {Math.Round(sSeconds, 2).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Video, Subtitles, Data streams
@@ -837,15 +766,14 @@ namespace DTConverter
             // Input file
             aArgsIn.Add($"-i \"{sourcePath}\"");
 
-
-            if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
+            double dSeconds;
+            dSeconds = duration.DurationType == DurationTypes.Frames && duration.Frames > 0 ?
+                duration.Seconds = TimeDuration.GetSeconds(duration.Frames, videoInputFramerate) : duration.Seconds;
+            
+            //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
+            if (dSeconds > 0)
             {
-                duration.Seconds = TimeDuration.GetSeconds(duration.Frames, videoInputFramerate);
-                //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
-            }
-            if (duration.Seconds > 0)
-            {
-                aArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
+                aArgsOut.Add($"-t {dSeconds.ToString(CultureInfo.InvariantCulture)}s");
             }
 
             strArgsIn = aArgsIn.Aggregate("", AggregateWithSpace);
@@ -855,7 +783,7 @@ namespace DTConverter
             aArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
 
             string aEncoder = null;
-            
+
             // WAV_16bit, WAV_24bit, WAV_32bit
             switch (audioEncoder)
             {
@@ -888,9 +816,9 @@ namespace DTConverter
             }
 
             string strArgsOut;
-                        
+
             List<string> aMaps = new List<string>();
-            
+
             if (isAudioChannelsEnabled)
             {
                 strArgsOut = aArgsOut.Aggregate("", AggregateWithSpace);
@@ -964,7 +892,7 @@ namespace DTConverter
             }
 
             string straFilters;
-            
+
 
             string straMaps;
             string ffArguments;
@@ -989,13 +917,84 @@ namespace DTConverter
             {
                 ffArguments = $"{strArgsIn} {strArgsOut} \"{destinationPath}\"";
             }
-        
+
             // Process
             Process FFmpegProcess = new Process();
             FFmpegProcess.StartInfo = new ProcessStartInfo() { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
             FFmpegProcess.StartInfo.FileName = FFmpegPath;
             FFmpegProcess.StartInfo.Arguments = ffArguments;
             return FFmpegProcess;
+        }
+
+        /// <summary>
+        /// Aggregates elements separating them with a space
+        /// </summary>
+        /// <param name="Prev"></param>
+        /// <param name="Next"></param>
+        /// <returns></returns>
+        private static string AggregateWithSpace(string Prev, string Next)
+        {
+            if (Prev.Trim() != "")
+            {
+                return Prev + " " + Next;
+            }
+            else
+            {
+                return Next;
+            }
+        }
+
+        /// <summary>
+        /// Aggregates elements separating them with a semicolon
+        /// </summary>
+        /// <param name="Prev"></param>
+        /// <param name="Next"></param>
+        /// <returns></returns>
+        private static string AggregateWithSemicolon(string Prev, string Next)
+        {
+            if (Prev.Trim() != "")
+            {
+                return Prev + "; " + Next;
+            }
+            else
+            {
+                return Next;
+            }
+        }
+
+        /// <summary>
+        /// Aggregates elements enclosing them in [square][brackets]
+        /// </summary>
+        private static string AggregateWithSquareBrackets(string Prev, string Next)
+        {
+            if (Prev.Trim() != "")
+            {
+                return $"{Prev}[{Next}]";
+            }
+            else
+            {
+                return $"[{Next}]";
+            }
+        }
+
+        /// <summary>
+        /// Aggregates filters using [out connector] of Prev filter as [input connector] of Next filter
+        /// </summary>
+        /// <param name="prev"></param>
+        /// <param name="next"></param>
+        /// <returns></returns>
+        private static string AggregateFilters(string prev, string next)
+        {
+            // -filter [ina] aaa [outa];[outa] bbb [outb]; [outb] ccc [outc]
+            // -filter_complex [ia1][ia2][ia3] aaa [oa1][oa2][oa3]; [oa1][oa2][oa3] bbb [ob1][ob2][ob3]; [ob1][ob2][ob3] ccc [oc1][oc2][oc3]
+            if (prev.Contains('[') && prev.Contains(']'))
+            {
+                return prev + "; " + prev.Substring(prev.LastIndexOf(' ')) + " " + next;
+            }
+            else
+            {
+                return next;
+            }
         }
 
         /// <summary>
