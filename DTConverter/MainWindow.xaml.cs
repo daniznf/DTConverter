@@ -1126,14 +1126,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                if (TxtStartTime.Text.Contains("f"))
-                {
-                    DisplayedConversionParameters.StartTimeFrames = DisplayedConversionParameters.PreviewTimeFrames;
-                }
-                else
-                {
-                    DisplayedConversionParameters.StartTimeSeconds = DisplayedConversionParameters.PreviewTimeSeconds;
-                }
+                DisplayedConversionParameters.StartTimeHMS = DisplayedConversionParameters.PreviewTimeHMS;
             }
         }
 
@@ -1141,14 +1134,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                if (TxtEndTime.Text.Contains("f"))
-                {
-                    DisplayedConversionParameters.EndTimeFrames = DisplayedConversionParameters.PreviewTimeFrames;
-                }
-                else
-                {
-                    DisplayedConversionParameters.EndTimeSeconds = DisplayedConversionParameters.PreviewTimeSeconds;
-                }
+                DisplayedConversionParameters.EndTimeHMS = DisplayedConversionParameters.PreviewTimeHMS;
             }
         }
 

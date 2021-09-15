@@ -131,7 +131,7 @@
                         <TextBlock Text="Input:" Margin="20px,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.VideoCodec}" Margin="2px,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.VideoResolution}" Margin="2px,0,2px,0"/>
-                        <TextBlock Text="{Binding SourceInfo.FrameRate}" Margin="2px,0,0px,0"/>
+                        <TextBlock Text="{Binding SourceInfo.Framerate}" Margin="2px,0,0px,0"/>
                         <TextBlock Text="FPS" Margin="0,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.VideoBitrate}" Margin="2px,0,0,0"/>
                         <TextBlock Text="Kb/s" Margin="0,0,2px,0"/>
@@ -149,7 +149,7 @@
                         <TextBlock Text="{Binding VideoFinalResolutionHorizontal}" Margin="2,0,0,0"/>
                         <TextBlock Text="x" Margin="0"/>
                         <TextBlock Text="{Binding VideoFinalResolutionVertical}" Margin="0,0,2,0"/>
-                        <TextBlock Text="{Binding OutFrameRate}" Margin="2,0,0,0"/>
+                        <TextBlock Text="{Binding OutFramerate}" Margin="2,0,0,0"/>
                         <TextBlock Text="FPS" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding VideoBitrate}" Margin="2,0,0,0"/>
                         <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
@@ -297,11 +297,11 @@
                                     <Label Content="{Binding VideoFinalResolutionHorizontal}" Margin="2px,0,0,0"/>
                                     <Label Content="x"/>
                                     <Label Content="{Binding VideoFinalResolutionVertical}" Margin="0,0,2px,0"/>
-                                    <Label Content="{Binding OutFrameRate}" Margin="2px,0,0,0"/>
+                                    <Label Content="{Binding OutFramerate}" Margin="2px,0,0,0"/>
                                     <Label Content="FPS" Margin="0,0,2px,0"/>
                                     <Label Content="{Binding VideoBitrate}" Margin="2px,0,0,0"/>
                                     <Label Content="Kb/s" Margin="0,0,2px,0"/>
-                                    <Label Content="{Binding DurationTimeHMS}" Margin="2px,0,0px,0">
+                                    <Label Content="{Binding DurationTimeFramesEquivalent}" Margin="2px,0,0px,0">
                                         <Label.Resources>
                                             <Style TargetType="StackPanel" />
                                         </Label.Resources>
@@ -312,7 +312,7 @@
                                                     <TextBlock Text="s"/>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding DurationTimeFramesActual}"/>
+                                                    <TextBlock Text="{Binding DurationTimeFrames}"/>
                                                     <TextBlock Text="f"/>
                                                 </StackPanel>
                                             </StackPanel>
@@ -354,8 +354,8 @@
                                     <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
                                         <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotStillImage}">
                                             <CheckBox Name="ChkEnableOutFramerate" Content="Framerate" IsChecked="True"/>
-                                            <StackPanel Name="PnlOutFrameRate" Visibility="{Binding ElementName=ChkEnableOutFramerate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
-                                                <TextBox Name="TxtFPS" Text="{Binding OutFrameRate}" Width="64"/>
+                                            <StackPanel Name="PnlOutFramerate" Visibility="{Binding ElementName=ChkEnableOutFramerate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
+                                                <TextBox Name="TxtFPS" Text="{Binding OutFramerate}" Width="64"/>
                                                 <Label Content="FPS" HorizontalContentAlignment="Left" />
                                             </StackPanel>
                                         </StackPanel>

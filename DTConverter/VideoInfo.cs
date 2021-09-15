@@ -36,8 +36,8 @@ namespace DTConverter
         }
 
         private TimeDuration _Duration;
-        public TimeDuration Duration 
-        { 
+        public TimeDuration Duration
+        {
             get => _Duration;
             set
             {
@@ -118,17 +118,16 @@ namespace DTConverter
             }
         }
 
-        private double _FrameRate;
         /// <summary>
         /// Framerate in fps
         /// </summary>
-        public double FrameRate
-        { 
-            get => _FrameRate;
+        public double Framerate
+        {
+            get => Duration.Framerate;
             set
             {
-                _FrameRate = value;
-                OnPropertyChanged("FrameRate");
+                Duration.Framerate = value;
+                OnPropertyChanged("Framerate");
             }
         }
         

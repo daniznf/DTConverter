@@ -318,15 +318,15 @@ namespace DTConverter
         public static TimeDuration operator +(TimeDuration A, TimeDuration B)
         {
             return A.DurationType == DurationTypes.Frames ?
-                new TimeDuration() { Frames = A.Frames + B.Frames } :
-                new TimeDuration() { Seconds = A.Seconds + B.Seconds };
+                new TimeDuration() { Frames = A.Frames + B.Frames, Framerate = A.Framerate } :
+                new TimeDuration() { Seconds = A.Seconds + B.Seconds, Framerate = A.Framerate };
         }
 
         public static TimeDuration operator -(TimeDuration A, TimeDuration B)
         {
             return A.DurationType == DurationTypes.Frames ?
-                new TimeDuration() { Frames = A.Frames - B.Frames } :
-                new TimeDuration() { Seconds = A.Seconds - B.Seconds };
+                new TimeDuration() { Frames = A.Frames - B.Frames, Framerate = A.Framerate } :
+                new TimeDuration() { Seconds = A.Seconds - B.Seconds, Framerate = A.Framerate };
         }
 
         public static bool operator >(TimeDuration A, TimeDuration B)
