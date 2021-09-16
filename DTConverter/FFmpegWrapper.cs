@@ -436,7 +436,6 @@ namespace DTConverter
             VideoEncoders videoEncoder,
             VideoResolution videoResolution,
             int videoBitrate,
-            double inFramerate,
             double outFramerate,
             int rotation, bool rotateMetadataOnly,
             Crop crop,
@@ -478,14 +477,9 @@ namespace DTConverter
             vArgsIn.Add("-hide_banner");
 
             // FFmpeg does not accept frames as input start
-            double sSeconds;
-            sSeconds = start.DurationType == DurationTypes.Frames ?
-                TimeDuration.GetSeconds(start.Frames, inFramerate) :
-                start.Seconds;
-
-            if (sSeconds > 0)
+            if (start > 0)
             {
-                vArgsIn.Add($"-ss {Math.Round(sSeconds, 2).ToString(CultureInfo.InvariantCulture)}s");
+                vArgsIn.Add($"-ss {Math.Round(start.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Audio, Subtitles, Data streams
@@ -569,14 +563,16 @@ namespace DTConverter
                 duration = new TimeDuration() { Frames = 1 };
             }
 
-            if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
+            if (duration > 0)
             {
-                // duration in frames will change if output framerate changes
-                vArgsOut.Add($"-frames:v {duration.Frames}");
-            }
-            else if (duration.Seconds > 0)
-            {
-                vArgsOut.Add($"-t {duration.Seconds.ToString(CultureInfo.InvariantCulture)}s");
+                if (duration.DurationType == DurationTypes.Frames)
+                {
+                    vArgsOut.Add($"-frames:v {duration.Frames}");
+                }
+                else
+                {
+                    vArgsOut.Add($"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
+                }
             }
 
             // Filters
@@ -726,8 +722,7 @@ namespace DTConverter
     TimeDuration start, TimeDuration duration,
     AudioEncoders audioEncoder,
     int audioRate,
-    bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels,
-    double videoInputFramerate, double videoOutputFramerate)
+    bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels)
         {
             if (FFmpegPath == null)
             {
@@ -751,14 +746,9 @@ namespace DTConverter
             aArgsIn.Add("-hide_banner");
 
             // FFmpeg does not accept frames as input start
-            double sSeconds;
-            sSeconds = start.DurationType == DurationTypes.Frames ?
-                sSeconds = TimeDuration.GetSeconds(start.Frames, videoInputFramerate) :
-                sSeconds = start.Seconds;
-
-            if (sSeconds > 0)
+            if (start > 0)
             {
-                aArgsIn.Add($"-ss {Math.Round(sSeconds, 2).ToString(CultureInfo.InvariantCulture)}s");
+                aArgsIn.Add($"-ss {Math.Round(start.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Video, Subtitles, Data streams
@@ -767,27 +757,10 @@ namespace DTConverter
             // Input file
             aArgsIn.Add($"-i \"{sourcePath}\"");
 
-            double dSeconds = 0;
-            if (duration.DurationType == DurationTypes.Frames && duration.Frames > 0)
-            {
-                if (videoOutputFramerate > 0)
-                {
-                    dSeconds = TimeDuration.GetSeconds(duration.Frames, videoOutputFramerate);
-                }
-                else if (videoInputFramerate > 0)
-                {
-                    dSeconds = TimeDuration.GetSeconds(duration.Frames, videoInputFramerate);
-                }
-            }
-            else
-            {
-                dSeconds = duration.Seconds;
-            }
-            
             //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
-            if (dSeconds > 0)
+            if (duration > 0)
             {
-                aArgsOut.Add($"-t {dSeconds.ToString(CultureInfo.InvariantCulture)}s");
+                aArgsOut.Add($"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             strArgsIn = aArgsIn.Aggregate("", AggregateWithSpace);

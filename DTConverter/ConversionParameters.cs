@@ -909,7 +909,7 @@ namespace DTConverter
                 try
                 {
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        PreviewResolution, 0, 0, 0, 0, false, null, null, null);
+                        PreviewResolution, 0, 0, 0, false, null, null, null);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
@@ -962,7 +962,7 @@ namespace DTConverter
                 try
                 {
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        VideoResolutionParams, 0, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams);
+                        VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
                     ProcessPreviewOut.StartInfo.Arguments += " -y";
@@ -1016,10 +1016,9 @@ namespace DTConverter
                 {
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
                     {
-                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, StartTime, DurationTime, VideoEncoder,
+                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, StartTime, DurationTimeEquivalent, VideoEncoder,
                             VideoResolutionParams,
                             IsVideoBitrateEnabled? VideoBitrate : 0,
-                            _SourceInfo != null? _SourceInfo.Framerate : 0,
                             IsOutFramerateEnabled? OutFramerate : 0,
                             IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
@@ -1078,11 +1077,9 @@ namespace DTConverter
                 {
                     if (IsValid && IsConversionEnabled && IsAudioEnabled)
                     {
-                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, StartTime, DurationTime, AudioEncoder,
+                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, StartTime, DurationTimeEquivalent, AudioEncoder,
                             IsAudioRateEnabled ? AudioRate : 0,
-                            IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels,
-                            _SourceInfo != null ? _SourceInfo.Framerate : 0,
-                            OutFramerate);
+                            IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels);
                         AudioConversionProcess.OutputDataReceived += outputReceived;
                         AudioConversionProcess.ErrorDataReceived += errorReceived;
                         if (AudioConversionProcess.Start())
