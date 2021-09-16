@@ -127,6 +127,20 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Returns a new clone of this object
+        /// </summary>
+        public VideoResolution Clone()
+        {
+            return new VideoResolution()
+            {
+                IsEnabled = this.IsEnabled,
+                Horizontal = this.Horizontal,
+                Vertical = this.Vertical,
+                Multiple = this.Multiple
+            };
+        }
+
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string info)

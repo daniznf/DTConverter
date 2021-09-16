@@ -664,6 +664,16 @@ namespace DTConverter
         }
         #endregion
 
+        /// <summary>
+        /// Returns a new clone of this object
+        /// </summary>
+        public TimeDuration Clone()
+        {
+            return DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = this.Frames, Framerate = this.Framerate } :
+                new TimeDuration() { Seconds = this.Seconds, Framerate = this.Framerate };
+        }
+
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string info)

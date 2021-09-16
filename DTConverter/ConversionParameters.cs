@@ -126,22 +126,20 @@ namespace DTConverter
         /// <param name="copyFrom"></param>
         public void PasteParameters(ConversionParameters copyFrom)
         {
-            // Every new addition or change MUST be reported here ! ! !
+            // Every new addition or change MUST be reported here !
+            // Reference (non-value) types must be copied with Clone()
 
-            // SourcePath needs to remain original path
-            // SourceInfo should not be copied
-            // FFWrapper should not be copied
+            // SourcePath should not be copied, it needs to remain original path
+            // SourceInfo should not be copied, source never changes
             // Isvalid should not be copied, user must not copy a valid item into a non-valid item
             // ThumbnailPathIn should not be copied
+            // PreviewResolution should not be copied
 
-            StartTime.Seconds = copyFrom.StartTime.Seconds;
-            DurationTime.Seconds = copyFrom.DurationTime.Seconds;
-            EndTime.Seconds = copyFrom.DurationTime.Seconds;
-            PreviewTime.Seconds = copyFrom.PreviewTime.Seconds;
+            StartTime = copyFrom.StartTime.Clone();
+            EndTime = copyFrom.EndTime.Clone();
+            PreviewTime = copyFrom.PreviewTime.Clone();
 
-            PreviewResolution = copyFrom.PreviewResolution;
-
-            IsConversionEnabled = copyFrom.IsConversionEnabled;
+            IsConversionEnabled = IsValid && copyFrom.IsConversionEnabled;
             IsVideoEnabled = copyFrom.IsVideoEnabled;
             IsAudioEnabled = copyFrom.IsAudioEnabled;
             VideoEncoder = copyFrom.VideoEncoder;
@@ -152,7 +150,7 @@ namespace DTConverter
             Channels = copyFrom.Channels;
             SplitChannels = copyFrom.SplitChannels;
 
-            VideoResolutionParams = copyFrom.VideoResolutionParams;
+            VideoResolutionParams = copyFrom.VideoResolutionParams.Clone();
 
             IsVideoBitrateEnabled = copyFrom.IsVideoBitrateEnabled;
             VideoBitrate = copyFrom.VideoBitrate;
@@ -161,9 +159,9 @@ namespace DTConverter
             IsRotationEnabled = copyFrom.IsRotationEnabled;
             Rotation = copyFrom.Rotation;
             RotateMetadataOnly = copyFrom.RotateMetadataOnly;
-            CropParams = copyFrom.CropParams;
-            PaddingParams = copyFrom.PaddingParams;
-            SliceParams = copyFrom.SliceParams;
+            CropParams = copyFrom.CropParams.Clone();
+            PaddingParams = copyFrom.PaddingParams.Clone();
+            SliceParams = copyFrom.SliceParams.Clone();
 
             IsChkOriginalChecked = copyFrom.IsChkOriginalChecked;
 
