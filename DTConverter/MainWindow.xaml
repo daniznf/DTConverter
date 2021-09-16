@@ -154,7 +154,7 @@
                         <TextBlock Text="{Binding VideoBitrate}" Margin="2,0,0,0"/>
                         <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
                         <TextBlock Text="{Binding VideoEncoder}"/>
-                        <TextBlock Text="{Binding DurationTimeHMS}"/>
+                        <TextBlock Text="{Binding DurationTime.HMS}"/>
                     </StackPanel>-->
                     
                 </StackPanel>
@@ -301,18 +301,18 @@
                                     <Label Content="FPS" Margin="0,0,2px,0"/>
                                     <Label Content="{Binding VideoBitrate}" Margin="2px,0,0,0"/>
                                     <Label Content="Kb/s" Margin="0,0,2px,0"/>
-                                    <Label Content="{Binding DurationTimeEquivalent}" Margin="2px,0,0px,0">
+                                    <Label Content="{Binding DurationTimeEquivalent.HMS}" Margin="2px,0,0px,0">
                                         <Label.Resources>
                                             <Style TargetType="StackPanel" />
                                         </Label.Resources>
                                         <Label.ToolTip>
                                             <StackPanel>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding DurationTimeSeconds}"/>
+                                                    <TextBlock Text="{Binding DurationTimeEquivalent.Seconds}"/>
                                                     <TextBlock Text="s"/>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding DurationTimeFrames}"/>
+                                                    <TextBlock Text="{Binding DurationTimeEquivalent.Frames}"/>
                                                     <TextBlock Text="f"/>
                                                 </StackPanel>
                                             </StackPanel>
@@ -522,7 +522,7 @@
                                     <Label Content="{Binding AudioRate}" Margin="2px,0,0px,0"/>
                                     <Label Content="Hz" Margin="0px,0,2px,0"/>
                                     <Label Content="{Binding Channels}" Margin="2px,0,2px,0"/>
-                                    <Label Content="{Binding DurationTimeHMS}" Margin="2px,0,2px,0"/>
+                                    <Label Content="{Binding DurationTimeEquivalent.HMS}" Margin="2px,0,2px,0"/>
                                 </StackPanel>
                                 <Label Name="LblDestinationAudioPath" Content="{Binding DestinationAudioPath}">
                                     <Label.ContextMenu>
@@ -612,18 +612,18 @@
                         <TextBox Name="TxtEndTime" Text="{Binding EndTimeHMS}" DockPanel.Dock="Right" Width="96px" HorizontalAlignment="Right" LostFocus="TxtEndTime_LostFocus"/>
                         <Button Name="BtnMarkOut" Content="Out" DockPanel.Dock="Right" Click="BtnMarkOut_Click"/>
                         <Button Name="BtnGotoOut" FontFamily="Segoe MDL2 Assets"  Content="&#xf745;" DockPanel.Dock="Right" Click="BtnGotoOut_Click"/>
-                        <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTimeSeconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp">
+                        <Slider Name="SldPreviewTime" Maximum="{Binding SourceInfo.Duration.Seconds}" Margin="4px,0,4px,0" VerticalAlignment="Center" LargeChange="10" SmallChange="1" TickFrequency="10" Value="{Binding PreviewTime.Seconds}" PreviewMouseUp="AnyonePreviewRegeneration_PreviewMouseUp">
                             <Slider.Resources>
                                 <Style TargetType="StackPanel" />
                             </Slider.Resources>
                             <Slider.ToolTip>
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PreviewTimeSeconds}"/>
+                                        <TextBlock Text="{Binding PreviewTime.Seconds}"/>
                                         <TextBlock Text="s"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PreviewTimeFrames}"/>
+                                        <TextBlock Text="{Binding PreviewTime.Frames}"/>
                                         <TextBlock Text="f"/>
                                     </StackPanel>
                                 </StackPanel>

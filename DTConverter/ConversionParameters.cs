@@ -86,7 +86,7 @@ namespace DTConverter
             IsChannelsEnabled = false;
             Channels = AudioChannels.Stereo;
             SplitChannels = false;
-            
+
             IsVideoBitrateEnabled = false;
             VideoBitrate = 0;
             IsOutFramerateEnabled = false;
@@ -131,10 +131,10 @@ namespace DTConverter
             // Isvalid should not be copied, user must not copy a valid item into a non-valid item
             // ThumbnailPathIn should not be copied
 
-            StartTimeSeconds = copyFrom.StartTimeSeconds;
-            DurationTimeSeconds = copyFrom.DurationTimeSeconds;
-            EndTimeSeconds = copyFrom.DurationTimeSeconds;
-            PreviewTimeSeconds = copyFrom.PreviewTimeSeconds;
+            StartTime.Seconds = copyFrom.StartTime.Seconds;
+            DurationTime.Seconds = copyFrom.DurationTime.Seconds;
+            EndTime.Seconds = copyFrom.DurationTime.Seconds;
+            PreviewTime.Seconds = copyFrom.PreviewTime.Seconds;
 
             PreviewResolution = copyFrom.PreviewResolution;
 
@@ -148,7 +148,7 @@ namespace DTConverter
             IsChannelsEnabled = copyFrom.IsChannelsEnabled;
             Channels = copyFrom.Channels;
             SplitChannels = copyFrom.SplitChannels;
-            
+
             VideoResolutionParams = copyFrom.VideoResolutionParams;
 
             IsVideoBitrateEnabled = copyFrom.IsVideoBitrateEnabled;
@@ -217,7 +217,7 @@ namespace DTConverter
                     if ((VideoEncoder == VideoEncoders.JPG_Sequence) || (VideoEncoder == VideoEncoders.PNG_Sequence))
                     {
                         outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                        int nDigits = TimeDuration.GetFrames(_DurationTime.Seconds, OutFramerate).ToString().Length;
+                        int nDigits = TimeDuration.GetFrames(DurationTime.Seconds, OutFramerate).ToString().Length;
                         outPath += $"-%0{nDigits}d";
                     }
 
@@ -272,7 +272,7 @@ namespace DTConverter
                     {
                         outPath += $"_{Channels}";
                     }
-                    
+
                     string extension;
                     if ((AudioEncoder == AudioEncoders.WAV_16) || (AudioEncoder == AudioEncoders.WAV_24) || (AudioEncoder == AudioEncoders.WAV_32))
                     {
@@ -308,7 +308,7 @@ namespace DTConverter
                 OnPropertyChanged("SourceInfo");
             }
         }
-        
+
         /// <summary>
         /// Determines if it is a valid video or audio file by checking if duration is null
         /// </summary>
@@ -331,206 +331,125 @@ namespace DTConverter
         /// StartTime's Framerate is related to source framerate
         /// </summary>
         private TimeDuration _StartTime;
-        public int StartTimeFrames => _StartTime != null ? _StartTime.Frames : 0;
-        public double StartTimeSeconds
+        public TimeDuration StartTime
         {
-            get => Math.Round(_StartTime != null? _StartTime.Seconds : 0, 6);
+            get => _StartTime;
             set
             {
-                if (_StartTime != null)
+                if (value >= 0 && SourceInfo != null && value < SourceInfo.Duration)
                 {
-                    TimeDuration newStart = new TimeDuration() { Seconds = value, Framerate = _StartTime.Framerate };
-                    if (value >= 0 && newStart < _EndTime)
-                    {
-                        _StartTime = newStart;
-                        _DurationTime = _EndTime - _StartTime;
-                        _DurationTime.Framerate = OutFramerate;
-                    }
+                    _StartTime = value;
+                    _StartTime.Framerate = SourceInfo.Framerate;
+                    DurationTime = EndTime - StartTime;
+                    _StartTime.PropertyChanged += StartTime_PropertyChanged;
                 }
-                OnPropertyChanged("StartTimeSeconds");
-                OnPropertyChanged("StartTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeEquivalent");
+                OnPropertyChanged("StartTime");
             }
+
         }
+        
         public string StartTimeHMS
         {
-            get
-            {
-                return _StartTime != null ? _StartTime.HMS : "";
-            }
+            get => _StartTime.HMS;
             set
             {
-                if (_StartTime != null)
+                TimeDuration newStart = new TimeDuration() { HMS = value, Framerate = _StartTime.Framerate };
+                if (newStart < EndTime)
                 {
-                    TimeDuration newStart = new TimeDuration() { HMS = value, Framerate = _StartTime.Framerate };
-                    if (newStart.Seconds >= 0 && newStart < _EndTime)
-                    {
-                        _StartTime.HMS = value;
-                        _DurationTime = _EndTime - _StartTime;
-                        _DurationTime.Framerate = OutFramerate;
-                    }
+                    StartTime = newStart;
                 }
-                OnPropertyChanged("StartTimeSeconds");
-                OnPropertyChanged("StartTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeEquivalent");
             }
+        }
+
+        private void StartTime_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            DurationTime = EndTime - StartTime;
         }
 
         /// <summary>
         /// EndTime's Framerate is related to source framerate
         /// </summary>
         private TimeDuration _EndTime;
-        public int EndTimeFrames => _EndTime != null ? _EndTime.Frames : 0;
-        public double EndTimeSeconds
+        public TimeDuration EndTime
         {
-            get => Math.Round(_EndTime != null ? _EndTime.Seconds : 0, 6);
+            get => _EndTime;
             set
             {
-                if (_EndTime != null && SourceInfo != null && SourceInfo.Duration != null)
+                if (value > 0 && SourceInfo != null && value <= SourceInfo.Duration)
                 {
-                    TimeDuration newEnd = new TimeDuration() { Seconds = value, Framerate = _EndTime.Framerate };
-                    if (value >= 0 && newEnd > _StartTime && newEnd < SourceInfo.Duration)
-                    {
-                        _EndTime = newEnd;
-                        _DurationTime = _EndTime - _StartTime;
-                        _DurationTime.Framerate = OutFramerate;
-                    }
+                    _EndTime = value;
+                    _EndTime.Framerate = SourceInfo.Framerate;
+                    DurationTime = EndTime - StartTime;
+                    _EndTime.PropertyChanged += EndTime_PropertyChanged;
                 }
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("EndTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeEquivalent");
+                OnPropertyChanged("EndTime");
             }
         }
+        
         public string EndTimeHMS
         {
-            get
-            {
-                return _EndTime != null ? _EndTime.HMS : "";
-            }
+            get => _EndTime.HMS;
             set
             {
-                if (_EndTime != null && SourceInfo != null && SourceInfo.Duration != null)
+                TimeDuration newEnd = new TimeDuration() { HMS = value, Framerate = _EndTime.Framerate };
+                if (newEnd > StartTime)
                 {
-                    TimeDuration newEnd = new TimeDuration() { HMS = value, Framerate = _EndTime.Framerate };
-                    if (newEnd.Seconds > 0 && newEnd > _StartTime && newEnd < SourceInfo.Duration)
-                    {
-                        _EndTime = newEnd;
-                        _DurationTime = _EndTime - _StartTime;
-                        _DurationTime.Framerate = OutFramerate;
-                    }
+                    EndTime = newEnd;
                 }
-                OnPropertyChanged("EndTimeHMS");
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeEquivalent");
             }
+        }
+        
+        private void EndTime_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            DurationTime = EndTime - StartTime;
         }
 
         /// <summary>
         /// DurationTime's Framerate is related to output framerate
         /// </summary>
         private TimeDuration _DurationTime;
-        public int DurationTimeFrames => _DurationTime != null ? _DurationTime.Frames: 0;
-        public double DurationTimeSeconds
+        public TimeDuration DurationTime
         {
-            get => Math.Round(_DurationTime != null ? _DurationTime.Seconds : 0, 6);
+            get => _DurationTime;
             set
             {
-                if (_DurationTime != null)
+                if (value > 0 && StartTime + value <= EndTime)
                 {
-                    TimeDuration newDuration = new TimeDuration() { Seconds = value, Framerate = _DurationTime.Framerate };
-                    if (value > 0 && newDuration + _StartTime <= _EndTime)
-                    {
-                        _DurationTime = newDuration;
-                        _EndTime = _DurationTime + _StartTime;
-                    }
+                    _DurationTime = value;
+                    _DurationTime.Framerate = OutFramerate;
                 }
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("DurationTime");
                 OnPropertyChanged("DurationTimeEquivalent");
-                OnPropertyChanged("EndTimeSeconds");
-                OnPropertyChanged("EndTimeHMS");
+                
             }
         }
-        public string DurationTimeHMS
+
+        public TimeDuration DurationTimeEquivalent
         {
             get
             {
-                return _DurationTime != null ? _DurationTime.HMS : "";
-            }
-            set
-            {
                 if (_DurationTime != null)
                 {
-                    TimeDuration newDuration = new TimeDuration() { HMS = value, Framerate = _DurationTime.Framerate };
-                    if (newDuration.Seconds > 0 && newDuration + _StartTime <= _EndTime)
-                    {
-                        _DurationTime = newDuration;
-                        _EndTime = _DurationTime + _StartTime;
-                    }
+                    return _DurationTime.DurationType == DurationTypes.Frames ?
+                        _DurationTime * (_DurationTime.Framerate / StartTime.Framerate) :
+                        _DurationTime;
                 }
-                OnPropertyChanged("DurationTimeHMS");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeEquivalent");
-                OnPropertyChanged("EndTimeHMS");
-                OnPropertyChanged("EndTimeSeconds");
-            }
-        }
-        public int DurationTimeEquivalent
-        {
-            get
-            {
-                if ( _DurationTime != null)
-                {
-                    if (_DurationTime.DurationType == DurationTypes.Frames)
-                    {
-                        if (_StartTime != null && _StartTime.Framerate != 0)
-                        {
-                            return Convert.ToInt32(_DurationTime.Frames * _DurationTime.Framerate / _StartTime.Framerate);
-                        }
-                    }
-                    else
-                    {
-                        return Convert.ToInt32(_DurationTime.Seconds);
-                    }
-                }
-                return 0;
+                return null;
             }
         }
 
         private TimeDuration _PreviewTime;
-        public int PreviewTimeFrames => _PreviewTime != null ? _PreviewTime.Frames : 0;
-        public double PreviewTimeSeconds
+        public TimeDuration PreviewTime
         {
-            get => Math.Round(_PreviewTime != null ? _PreviewTime.Seconds : 0, 6);
+            get => _PreviewTime;
             set
             {
-                if (_PreviewTime != null)
+                if (value < EndTime)
                 {
-                    _PreviewTime.Seconds = value;
+                    _PreviewTime = value;
+                    _PreviewTime.Framerate = SourceInfo != null ? SourceInfo.Framerate : 0;
                 }
-                OnPropertyChanged("PreviewTimeSeconds");
-                OnPropertyChanged("PreviewTimeHMS");
-            }
-        }
-        public string PreviewTimeHMS
-        {
-            get => _PreviewTime != null ? _PreviewTime.HMS : "";
-            set
-            {
-                if (_PreviewTime != null)
-                {
-                    _PreviewTime.HMS = value;
-                }
-                OnPropertyChanged("PreviewTimeHMS");
-                OnPropertyChanged("PreviewTimeSeconds");
+                OnPropertyChanged("PreviewTime");
             }
         }
 
@@ -777,7 +696,7 @@ namespace DTConverter
             set
             {
                 _IsOutFramerateEnabled = value;
-                _DurationTime.Framerate = value ? OutFramerate :
+                DurationTime.Framerate = value ? OutFramerate :
                     SourceInfo != null ? SourceInfo.Framerate : 0;
 
                 OnPropertyChanged("IsOutFramerateEnabled");
@@ -809,7 +728,7 @@ namespace DTConverter
             set
             {
                 _OutFramerate = value;
-                _DurationTime.Framerate = value;
+                DurationTime.Framerate = value;
                 
                 OnPropertyChanged("OutFrameRate");
                 OnPropertyChanged("DestinationVideoPath");
@@ -962,13 +881,13 @@ namespace DTConverter
                 {
                     VideoResolutionParams.Horizontal = SourceInfo.HorizontalResolution;
                     VideoResolutionParams.Vertical = SourceInfo.VerticalResolution;
-                    DurationTimeSeconds = SourceInfo.Duration.Seconds;
                     OutFramerate = SourceInfo.Framerate;
                     VideoBitrate = SourceInfo.VideoBitrate;
-                    _StartTime.Framerate = SourceInfo.Framerate;
-                    _PreviewTime.Framerate = SourceInfo.Framerate;
-                    _EndTime = SourceInfo.Duration;
-                    //_EndTime.Framerate = SourceInfo.FrameRate;
+                    
+                    StartTime = new TimeDuration() { Seconds = 0 };
+                    EndTime = new TimeDuration() { Seconds = SourceInfo.Duration.Seconds };
+                    DurationTime = new TimeDuration() { Seconds = SourceInfo.Duration.Seconds };
+                    PreviewTime = new TimeDuration { Seconds = SourceInfo.Duration.Seconds / 2 };
                 }
                 else
                 {
@@ -989,7 +908,7 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
-                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         PreviewResolution, 0, 0, 0, 0, false, null, null, null);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
@@ -1042,7 +961,7 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewOut;
                 try
                 {
-                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, _PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         VideoResolutionParams, 0, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
@@ -1097,7 +1016,7 @@ namespace DTConverter
                 {
                     if (IsValid && IsConversionEnabled && IsVideoEnabled)
                     {
-                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, _StartTime, _DurationTime, VideoEncoder,
+                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, StartTime, DurationTime, VideoEncoder,
                             VideoResolutionParams,
                             IsVideoBitrateEnabled? VideoBitrate : 0,
                             _SourceInfo != null? _SourceInfo.Framerate : 0,
@@ -1159,7 +1078,7 @@ namespace DTConverter
                 {
                     if (IsValid && IsConversionEnabled && IsAudioEnabled)
                     {
-                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, _StartTime, _DurationTime, AudioEncoder,
+                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, StartTime, DurationTime, AudioEncoder,
                             IsAudioRateEnabled ? AudioRate : 0,
                             IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels,
                             _SourceInfo != null ? _SourceInfo.Framerate : 0,

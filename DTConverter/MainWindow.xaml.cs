@@ -405,7 +405,6 @@ namespace DTConverter
                         Horizontal = 640,
                         Vertical = Convert.ToInt32(640 / cp.SourceInfo.AspectRatio)
                     };
-                    cp.PreviewTimeSeconds = cp.SourceInfo.Duration.Seconds / 2;
                     cp.PreviewResolution = vr;
 
                     if (cp.SourceInfo != null && cp.SourceInfo.HasVideo)
@@ -1126,7 +1125,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.StartTimeHMS = DisplayedConversionParameters.PreviewTimeHMS;
+                DisplayedConversionParameters.StartTime.HMS = DisplayedConversionParameters.PreviewTime.HMS;
             }
         }
 
@@ -1134,7 +1133,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.EndTimeHMS = DisplayedConversionParameters.PreviewTimeHMS;
+                DisplayedConversionParameters.EndTime.HMS = DisplayedConversionParameters.PreviewTime.HMS;
             }
         }
 
@@ -1142,7 +1141,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.StartTimeSeconds;
+                DisplayedConversionParameters.PreviewTime.Seconds = DisplayedConversionParameters.StartTime.Seconds;
                 AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
             }
         }
@@ -1151,7 +1150,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.EndTimeSeconds;
+                DisplayedConversionParameters.PreviewTime.Seconds = DisplayedConversionParameters.EndTime.Seconds;
                 AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
             }
         }
@@ -1161,7 +1160,7 @@ namespace DTConverter
             if (DisplayedConversionParameters != null)
             {
                 TxtStartTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTimeSeconds);
+                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTime.Seconds);
             }
         }
 
@@ -1170,7 +1169,7 @@ namespace DTConverter
             if (DisplayedConversionParameters != null)
             {
                 TxtEndTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTimeSeconds);
+                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTime.Seconds);
             }
         }
         #endregion
