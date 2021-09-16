@@ -100,6 +100,9 @@ namespace DTConverter
             RefreshProperties();
         }
 
+        /// <summary>
+        /// Call OnPropertyChanged of all properties contained in this
+        /// </summary>
         public void RefreshProperties()
         {
             PropertyInfo[] innerPInfos;
@@ -188,10 +191,13 @@ namespace DTConverter
             OnPropertyChanged("ShowColPreviewOut");
         }
 
+        /// <summary>
+        /// SourcePath is set once in the constructor, no edits are allowed
+        /// </summary>
         public string SourcePath { get; }
 
         /// <summary>
-        /// Destination Path will be generated on property read, it will be based on values of this ConversionParameters
+        /// Destination Path will be generated on property get, it will be based on values of this ConversionParameters
         /// </summary>
         public string DestinationVideoPath
         {
@@ -316,14 +322,9 @@ namespace DTConverter
         {
             get
             {
-                if (SourceInfo != null)
-                {
-                    if (SourceInfo.Duration != null)
-                    {
-                        return SourceInfo.Duration.Seconds > 0;
-                    }
-                }
-                return false;
+                return SourceInfo != null ?
+                    SourceInfo.Duration > 0 ? true : false :
+                false;
             }
         }
 
@@ -347,7 +348,10 @@ namespace DTConverter
             }
 
         }
-        
+
+        /// <summary>
+        /// This is used only for bindings
+        /// </summary>
         public string StartTimeHMS
         {
             get => _StartTime.HMS;
@@ -385,7 +389,10 @@ namespace DTConverter
                 OnPropertyChanged("EndTime");
             }
         }
-        
+
+        /// <summary>
+        /// This is used only for bindings
+        /// </summary>
         public string EndTimeHMS
         {
             get => _EndTime.HMS;
@@ -424,6 +431,9 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Returns a TimeDuration with Frames multipliead by the ratio between output and input framerate
+        /// </summary>
         public TimeDuration DurationTimeEquivalent
         {
             get
@@ -439,6 +449,9 @@ namespace DTConverter
         }
 
         private TimeDuration _PreviewTime;
+        /// <summary>
+        /// This is used only for bindings
+        /// </summary>
         public TimeDuration PreviewTime
         {
             get => _PreviewTime;
@@ -453,6 +466,9 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Gets a GridLenght of 1* if conditions for opening ColPreviewOut are met, otherwise 0*
+        /// </summary>
         public GridLength ShowColPreviewOut
         {
             get
@@ -474,6 +490,9 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Gets a Visibility of Visible if conditions for showing IsChkOriginalVisible are met, otherwise Collapsed
+        /// </summary>
         public Visibility IsChkOriginalVisible
         {
             get
@@ -563,7 +582,7 @@ namespace DTConverter
                 }
 
                 OnPropertyChanged("VideoEncoder");
-                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("DurationTimeEquivalent");
                 OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("IsVideoEncoderCopy");
@@ -581,6 +600,9 @@ namespace DTConverter
 
         public VideoResolution VideoResolutionParams { get; set; }
 
+        /// <summary>
+        /// Gets horizontal video resolution considering Croppings and Paddings
+        /// </summary>
         public int VideoFinalResolutionHorizontal
         {
             get
@@ -610,12 +632,13 @@ namespace DTConverter
                         hRes += PaddingParams.Left + PaddingParams.Right;
                     }
                 }
-
-                
-
                 return hRes;
             }
         }
+
+        /// <summary>
+        /// Gets vertical video resolution considering Croppings and Paddings
+        /// </summary>
         public int VideoFinalResolutionVertical
         {
             get
@@ -663,7 +686,9 @@ namespace DTConverter
             }
         }
         private int _VideoBitrate;
-        /// Video Bitrate in Kb/s
+        /// <summary>
+        ///  Video Bitrate in Kb/s
+        /// </summary>
         public int VideoBitrate
         {
             get
@@ -702,8 +727,7 @@ namespace DTConverter
                 OnPropertyChanged("IsOutFramerateEnabled");
                 OnPropertyChanged("OutFrameRate");
                 OnPropertyChanged("DestinationVideoPath");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("DurationTime");
                 OnPropertyChanged("DurationTimeEquivalent");
             }
         }
@@ -732,8 +756,7 @@ namespace DTConverter
                 
                 OnPropertyChanged("OutFrameRate");
                 OnPropertyChanged("DestinationVideoPath");
-                OnPropertyChanged("DurationTimeSeconds");
-                OnPropertyChanged("DurationTimeHMS");
+                OnPropertyChanged("DurationTime");
                 OnPropertyChanged("DurationTimeEquivalent");
             }
         }
@@ -866,7 +889,7 @@ namespace DTConverter
 
         /// <summary>
         /// Probes all video informations.
-        /// This method takes some seconds to execute so it should be run in a separate thread or Task
+        /// This method takes some seconds to execute so it should be run in a separate Thread or Task
         /// </summary>
         public void ProbeVideoInfo()
         {
@@ -899,7 +922,7 @@ namespace DTConverter
         private Process ProcessPreviewIn;
         /// <summary>
         /// Creates a still image (JPG) in Thumbnail directory, usable as preview of source file (no Crop, no Padding, no filters, etc...)
-        /// This method takes few seconds to execute so it should be run in a separate thread or Task
+        /// This method takes few seconds to execute so it should be run in a separate Thread or Task
         /// </summary>
         public void CreateImagePreviewIn(DataReceivedEventHandler outputDataReceived, DataReceivedEventHandler errorDataReceived)
         {
@@ -923,7 +946,7 @@ namespace DTConverter
                         }
                         if (ProcessPreviewIn.ExitCode != 0)
                         {
-                            throw new Exception($"Creating input preview image failed with erro {ProcessPreviewIn.ExitCode}");
+                            throw new Exception($"Creating input preview image failed with error {ProcessPreviewIn.ExitCode}");
                         }
                     }
                     VideoConversionStatus = ConversionStatus.None;
@@ -936,6 +959,9 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Instantly kills PreviewIn creation
+        /// </summary>
         public void KillProcessPreviewIn()
         {
             try
@@ -952,7 +978,7 @@ namespace DTConverter
         Process ProcessPreviewOut;
         /// <summary>
         /// Creates one or more still images (JPG) in Thumbnail directory, usable as previews of output file (with Crop, Padding, etc...)
-        /// This method takes few seconds to execute so it should be run in a separate thread or Task
+        /// This method takes few seconds to execute so it should be run in a separate Thread or Task
         /// </summary>
         public void CreateImagePreviewOut(DataReceivedEventHandler outputDataReceived, DataReceivedEventHandler errorDataReceived)
         {
@@ -989,6 +1015,9 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Instantly kills PreviewOut creation
+        /// </summary>
         public void KillProcessPreviewOut()
         {
             try
@@ -1004,8 +1033,8 @@ namespace DTConverter
         
         private Process VideoConversionProcess;
         /// <summary>
-        /// Converts video stream, but not the audio.
-        /// This method takes several seconds to execute so it should be run it in a separate thread or Task
+        /// Converts video stream, but not audio.
+        /// This method takes several seconds to execute so it should be run it in a separate Thread or Task
         /// </summary>
         public void ConvertVideo(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
         {
@@ -1048,7 +1077,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Istantly kill this conversion
+        /// Instantly kills this video conversion
         /// </summary>
         public void KillVideoConversion()
         {
@@ -1065,8 +1094,8 @@ namespace DTConverter
 
         private Process AudioConversionProcess;
         /// <summary>
-        /// Converts audio stream, but not the video.
-        /// This method takes several seconds to execute so it should be run it in a separate thread or Task
+        /// Converts audio stream, but not video.
+        /// This method takes several seconds to execute so it should be run it in a separate Thread or Task
         /// </summary>
         public void ConvertAudio(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
         {
@@ -1107,7 +1136,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Istantly kill this conversion
+        /// Instantly kills this audio conversion
         /// </summary>
         public void KillAudioConversion()
         {

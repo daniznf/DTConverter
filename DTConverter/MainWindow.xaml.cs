@@ -74,7 +74,7 @@ namespace DTConverter
             Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             LblName.Content += " " + v.ToString(2);
 
-            // we do some bindings here, not in XAML, so we can use the XAML editor more confortably
+            // these bindings are done here, not in XAML, so it's possible to use XAML editor more confortably
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "CropParams.IsEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "PaddingParams.IsEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "SliceParams.IsEnabled");
@@ -131,6 +131,12 @@ namespace DTConverter
 
         #region Write Status
         private Task TaskWriteStatus;
+        /// <summary>
+        /// Writes message to the StatusBar, chaining all messages and waiting few seconds if isError is true.
+        /// If message contains some words like error or fail, it will be automatically be considered error.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="isError">True if it is error</param>
         private async void WriteStatus(string message, bool isError)
         {
             if (message != null)
@@ -190,7 +196,7 @@ namespace DTConverter
         private List<ConversionParameters> ListConversion;
 
         /// <summary>
-        /// ConversionParameters currently displayed, used for binding visual elements with it
+        /// ConversionParameters object currently displayed, used for binding visual elements
         /// </summary>
         public ConversionParameters DisplayedConversionParameters { get; set; }
 
@@ -215,7 +221,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// The file being converted
+        /// Represents the file being converted
         /// </summary>
         private ConversionParameters convertingCP;
         private async void BtnStartConvert_Click(object sender, RoutedEventArgs e)
@@ -223,6 +229,7 @@ namespace DTConverter
             stopConversion = false;
 
             ConversionStarted();
+            // await the foreach that will sequentially convert all videos and audios
             await Task.Run(() =>
             {
                 foreach (ConversionParameters cp in ListConversion)
@@ -267,8 +274,8 @@ namespace DTConverter
         #endregion
 
         #region TvwVideos
-        TaskFactory TF;
-        List<Task> PreviewTasks;
+        private TaskFactory TF;
+        private List<Task> PreviewTasks;
         /// <summary>
         /// Adds all files and folder in a semi recursive way: files will be added directly.
         /// If directories are dropped, only files inside those directories will be added, child directories will not be added.
@@ -344,7 +351,7 @@ namespace DTConverter
         /// Adds given file in TvwVideos nesting it inside its parent directory.
         /// If parent directory does not exist, it will be added.
         /// Binding with CheckBox will be created here.
-        /// Probing video info and creating preview image will be done in a new Task
+        /// Probing video info and creating preview image will be done here in a new Task
         /// </summary>
         /// <param name="file">Full name of file to add</param>
         private void AddTvwFile(string file)
@@ -390,7 +397,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Probes VideoInfo and creates a preview image file at 50% of video duration for the ConversionParameters passed as argument
+        /// Probes VideoInfo and creates a preview image for the ConversionParameters passed as argument
         /// </summary>
         /// <param name="cp"></param>
         private void ProbeSourceInfoAndPreviewImage(ConversionParameters cp)
@@ -489,10 +496,6 @@ namespace DTConverter
             {
                 foreach (object eachItem in tvParent.Items)
                 {
-                    /*if (eachItem is CheckBox cbItem)
-                    {
-                        cbItem.IsChecked = check;
-                    }*/
                     if (eachItem is StackPanel spItem)
                     {
                         CheckBox cb = spItem.Children.OfType<CheckBox>().First();
@@ -591,13 +594,13 @@ namespace DTConverter
             if (e.Key == Key.A)
             {
                 CheckChildren(sender as Control, !(Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)),
-                    (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)));
+                    Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl));
                 e.Handled = true;
             }
         }
 
         /// <summary>
-        /// Handles deletion selection of item in TvwVideos
+        /// Handles deletion of item in TvwVideos
         /// </summary>
         private void TreeViewItem_KeyUp(object sender, KeyEventArgs e)
         {
@@ -645,7 +648,7 @@ namespace DTConverter
 
         /// <summary>
         /// Populates the grid GrdPreviewOut with specified number of rows and columns. 
-        /// After calling this, it's necessary to call ReneratePreviewIn/Out or UpdateImgPreviewIn/Out
+        /// After calling this, it's necessary to call RegeneratePreviewIn/OutImages or UpdateImgPreviewIn/Out
         /// </summary>
         private void SliceGrdPreviewOut(int rows, int columns)
         {
@@ -727,7 +730,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Reloads image of ImgPvwIn
+        /// Reloads image of GrdPreviewIn if it exists
         /// </summary>
         private void UpdateImgPreviewIn()
         {
@@ -751,7 +754,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Reloads all images of ImgPvwOut, either if it's a single image, or if it is multiple images
+        /// Reloads all existing images of GrdPreviewOut, either if it's a single image, or if they are multiple images
         /// </summary>
         public void UpdateImgPreviewOut()
         {
@@ -806,6 +809,10 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Regenerate Preview In/Out images and updates them in their respective grids.
+        /// </summary>
+        /// <returns></returns>
         private async Task RegenerateUpdatePreviews()
         {
             Task pvwIn = RegeneratePreviewInImages();
@@ -817,8 +824,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Recreates images of ImgPreviewIn.
-        /// This should be run in a separate Task or Thread
+        /// Recreates images of GrdPreviewIn.
         /// </summary>
         private Task RegeneratePreviewInImages()
         {
@@ -848,19 +854,16 @@ namespace DTConverter
                                 WriteStatus("", false);
                             }
                             catch (Exception E)
-                            {
-                            //WriteStatus(E.Message, true);
-                        }
+                            { }
                         });
                     }
                 }
             }
-            return  Task.Run(() => { return; });
+            return  Task.CompletedTask;
         }
 
         /// <summary>
-        /// Recreates images of ImgPreviewOut
-        /// This should be run in a separate Task or Thread
+        /// Recreates images of GrdPreviewOut
         /// </summary>
         private Task RegeneratePreviewOutImages()
         {
@@ -896,15 +899,13 @@ namespace DTConverter
                                     WriteStatus("", false);
                                 }
                                 catch (Exception E)
-                                {
-                                //WriteStatus(E.Message, true);
-                            }
+                                { }
                             });
                         }
                     }
                 }
             }
-            return  Task.Run(() => { return; });
+            return Task.CompletedTask;
         }
         #endregion
 
@@ -1039,7 +1040,7 @@ namespace DTConverter
 
             if (path != null)
             {
-                System.Diagnostics.Process.Start("explorer.exe", Directory.GetParent(path).FullName);
+                Process.Start("explorer.exe", Directory.GetParent(path).FullName);
             }
         }
 
@@ -1174,7 +1175,7 @@ namespace DTConverter
         }
         #endregion
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MnAbout_Click(object sender, RoutedEventArgs e)
         {
             About a = new About();
             a.Owner = this;

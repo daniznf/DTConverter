@@ -156,7 +156,7 @@ namespace DTConverter
             return null;
         }
 
-        /// Tries to read version by launching a new process with FFmpegPath if not null, defaulting to ffmpeg.exe and FFprobePath and ffprobe.exe.
+        /// Tries to read version by launching a new process with FFmpegPath if not null, defaulting to ffmpeg.exe.
         /// Video and Audio encoders will be probed by this method.
         private static void CheckFFmpegVersion()
         {
@@ -238,7 +238,6 @@ namespace DTConverter
                 catch { }
             }
 
-
             // Version is printed in StandardError 
             while (!ffmpegProc.StandardError.EndOfStream)
             {
@@ -254,7 +253,10 @@ namespace DTConverter
             }
         }
 
+
+        /// <summary>
         /// Tries to read version by launching a new process with FFprobePath if not null, defaulting to ffprobe.exe.
+        /// </summary>
         private static void CheckFFprobeVersion()
         {
             string line;
@@ -293,9 +295,9 @@ namespace DTConverter
 
         /// <summary>
         /// Probes all possible informations from SourcePath. 
-        /// This method takes few seconds to execute so it should be run in a separate Process or Task
+        /// This method takes few seconds to execute so it should be run in a separate Thread or Task
         /// </summary>
-        /// <param name="SourcePath"></param>
+        /// <param name="SourcePath">Video or Audio file complete path</param>
         /// <param name="timeout">Time in ms to wait for the process to finish</param>
         /// <returns>VideoInfo with all informations read</returns>
         public static VideoInfo ProbeVideoInfo(string SourcePath, int timeout)
@@ -453,13 +455,13 @@ namespace DTConverter
                 Directory.CreateDirectory(destinationDir);
             }
 
-            // There are 3 lists: vArgsIn, vFilters, and ffArgsOut
+            // There are 3 main lists: vArgsIn, vFilters, and vArgsOut
             // vArgsIn contains arguments to be given prior to input file
             // vFilters contains filters, that will be aggregated using connectors like
             // [connectorA] filter [connectorB]; [connectorB] filter [connectorC]; [connectorC] filter [connectorD]; ...
             // if IsSlicesEnabled, last filter of vFilters will be a split like
             // [connectorN] split [split_r1c1][split_r1c2][split_r2c1][split_r2c2]...
-            // ffArgsOut wil be put at the end of ffArguments, or in each vMaps if IsSliceEnabled
+            // vArgsOut wil be put at the end of ffArguments, or in each vMaps if IsSliceEnabled
 
             List<string> vArgsIn = new List<string>();
             List<string> vFilters = new List<string>();
@@ -467,9 +469,9 @@ namespace DTConverter
             List<string> metadatas = new List<string>();
             List<string> vOptions = new List<string>();
 
-            string strArgsIn;
+            string strvArgsIn;
             string strvFilters;
-            string strArgsOut;
+            string strvArgsOut;
 
             string strSlices;
 
@@ -488,9 +490,8 @@ namespace DTConverter
             // Input file
             vArgsIn.Add($"-i \"{sourcePath}\"");
 
-            strArgsIn = vArgsIn.Aggregate("", AggregateWithSpace);
+            strvArgsIn = vArgsIn.Aggregate("", AggregateWithSpace);
 
-            // Output
             string vEncoder = null;
             string vFormat = null;
 
@@ -591,7 +592,7 @@ namespace DTConverter
             // Scale Resolution
             if (videoResolution != null && videoResolution.IsEnabled)
             {
-                // -s option uses scale and keep input aspect ratio
+                // -s option uses scale and keeps input aspect ratio, so it may happen to have a wrong display aspect ratio in output file
                 vFilters.Add($"scale={videoResolution.Horizontal}:{videoResolution.Vertical},setsar=1/1 [scaled]");
             }
 
@@ -629,6 +630,8 @@ namespace DTConverter
             }
 
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
+
+            // Output
             vArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
 
             if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
@@ -638,8 +641,7 @@ namespace DTConverter
                 vFilters.Add($"split={slices.HorizontalNumber * slices.VerticalNumber}");
             }
 
-
-            strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
+            strvArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
 
             string ffArguments;
 
@@ -691,14 +693,14 @@ namespace DTConverter
                     for (int c = 1; c <= slices.HorizontalNumber; c++)
                     {
                         destinationPathMapped = Slicer.GetSliceName(destinationPath, r, c);
-                        vMaps.Add($"-map \"[out_r{r}c{c}]\" {strArgsOut} \"{destinationPathMapped}\" -y");
+                        vMaps.Add($"-map \"[out_r{r}c{c}]\" {strvArgsOut} \"{destinationPathMapped}\" -y");
                     }
                 }
 
                 string strvMaps;
                 strvMaps = vMaps.Aggregate("", AggregateWithSpace);
 
-                ffArguments = $"{strArgsIn} -filter_complex \"{strvFilters}\" {strvMaps}";
+                ffArguments = $"{strvArgsIn} -filter_complex \"{strvFilters}\" {strvMaps}";
             }
             else
             {
@@ -707,7 +709,7 @@ namespace DTConverter
                 vFilters.Add($"scale=-{videoResolution.Multiple}:0");
 
                 strvFilters = vFilters.Aggregate("", AggregateFilters);
-                ffArguments = $"{strArgsIn} -filter:v \"{strvFilters}\" {strArgsOut} \"{destinationPath}\"";
+                ffArguments = $"{strvArgsIn} -filter:v \"{strvFilters}\" {strvArgsOut} \"{destinationPath}\"";
             }
 
             // Process
@@ -718,6 +720,11 @@ namespace DTConverter
             return FFmpegProcess;
         }
 
+        /// <summary>
+        /// Creates the Process for converting audio, not videos or images. The Process returned needs to be started
+        /// </summary>
+        /// <param name="sourcePath">Complete path of source file (C:\dir\file.ext)</param>
+        /// <param name="destinationPath">Complete path of destination file (C:\dir\file.ext")</param>
         public static Process ConvertAudio(string sourcePath, string destinationPath,
     TimeDuration start, TimeDuration duration,
     AudioEncoders audioEncoder,
@@ -757,6 +764,7 @@ namespace DTConverter
             // Input file
             aArgsIn.Add($"-i \"{sourcePath}\"");
 
+            // using frames as duration returns an audio file of different lenght than the video one with same frames
             //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
             if (duration > 0)
             {
@@ -765,8 +773,9 @@ namespace DTConverter
 
             strArgsIn = aArgsIn.Aggregate("", AggregateWithSpace);
 
-            // Output
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
+
+            // Output
             aArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
 
             string aEncoder = null;
@@ -791,10 +800,6 @@ namespace DTConverter
             if (aEncoder != null)
             {
                 aArgsOut.Add($"-c:a {aEncoder}");
-            }
-            else
-            {
-                throw new Exception("Audio Encoder cannot be null");
             }
 
             if (audioRate > 0)
@@ -879,8 +884,6 @@ namespace DTConverter
             }
 
             string straFilters;
-
-
             string straMaps;
             string ffArguments;
 
@@ -985,7 +988,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Generates the name for given path, adding channel standard way.
+        /// Generates the name for given path, adding channel in a standard way.
         /// </summary>
         public static string destinationPathCh(string originalName, string channel)
         {

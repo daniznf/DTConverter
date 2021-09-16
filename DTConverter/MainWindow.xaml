@@ -144,19 +144,6 @@
                         <TextBlock Text="{Binding SourceInfo.AudioChannels}" Margin="2px,0,2px,0"/>
                         <TextBlock Text="{Binding SourceInfo.Duration.HMS}" Margin="2px,0,2px,0"/>
                     </StackPanel>
-                    <!--<StackPanel Name="PnlOutputVideoProperties" Margin="2,0,0,0">
-                        <TextBlock Text="Output:"/>
-                        <TextBlock Text="{Binding VideoFinalResolutionHorizontal}" Margin="2,0,0,0"/>
-                        <TextBlock Text="x" Margin="0"/>
-                        <TextBlock Text="{Binding VideoFinalResolutionVertical}" Margin="0,0,2,0"/>
-                        <TextBlock Text="{Binding OutFramerate}" Margin="2,0,0,0"/>
-                        <TextBlock Text="FPS" Margin="0,0,2,0"/>
-                        <TextBlock Text="{Binding VideoBitrate}" Margin="2,0,0,0"/>
-                        <TextBlock Text="Kb/s" Margin="0,0,2,0"/>
-                        <TextBlock Text="{Binding VideoEncoder}"/>
-                        <TextBlock Text="{Binding DurationTime.HMS}"/>
-                    </StackPanel>-->
-                    
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
@@ -666,7 +653,7 @@
                         <MenuItem.Header>
                             <Label Content="⁝" FontWeight="Bold" />
                         </MenuItem.Header>
-                        <MenuItem Header="About" Click="MenuItem_Click"></MenuItem>
+                        <MenuItem Name="MnAbout" Header="About" Click="MnAbout_Click"></MenuItem>
                     </MenuItem>
                 </Menu>
             </StackPanel>

@@ -27,8 +27,7 @@ namespace DTConverter
     public class TimeDuration : INotifyPropertyChanged
     {
         public TimeDuration()
-        {
-        }
+        { }
 
         // HMS:      [-][HH:]MM:SS[.m...]
         // s,ms,us:  [-]S+[.m...][s|ms|us]
@@ -56,8 +55,8 @@ namespace DTConverter
 
         private int _Frames;
         /// <summary>
-        /// Gets / sets the number of frames if DurationType.
-        /// Otherwise, if  Framerate is set, it converts seconds to frames.
+        /// Gets / sets the number of frames if DurationType is Frames.
+        /// Otherwise, if Framerate is set, gets the converted seconds based on frames.
         /// </summary>
         public int Frames
         {
@@ -71,10 +70,11 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Calculates total number of seconds based on current Frames value and fps
+        /// Calculates total number of seconds based on passed parameters
         /// </summary>
-        /// <param name="fps"></param>
-        /// <returns></returns>
+        /// <param name="frames">Total number of frames</param>
+        /// <param name="fps">Framerate of passed frames</param>
+        /// <returns>Total number of seconds</returns>
         public static double GetSeconds(int frames, double fps)
         {
             if (fps > 0)
@@ -88,10 +88,11 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Calculates total number of frames based on current Seconds value and fps
+        /// Calculates total number of frames based on passed parameters
         /// </summary>
-        /// <param name="fps"></param>
-        /// <returns></returns>
+        /// <param name="seconds">Total number of seconds</param>
+        /// <param name="fps">Framerate of passed seconds</param>
+        /// <returns>Total number of frames</returns>
         public static int GetFrames(double seconds, double fps)
         {
             if (fps > 0)
@@ -105,8 +106,8 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Gets / sets the total number of seconds if DurationType is not Frames.
-        /// Otherwise, if Framerate is set, it converts frames to seconds.
+        /// Gets / sets the total number of seconds if DurationType is not Frames. It may be more than 60.
+        /// Otherwise, if Framerate is set, gets the converted seconds based on frames.
         /// </summary>
         public double Seconds
         {
@@ -154,18 +155,27 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Gets/sets total number of Hours, may be more than 24
+        /// </summary>
         public double Hours
         {
             get => Seconds / 60 / 60;
             set => Seconds = value * 60 * 60;
         }
 
+        /// <summary>
+        /// Gets/sets total number of Minutes, may be more than 60
+        /// </summary>
         public double Minutes
         {
             get => Seconds / 60;
             set => Seconds = value * 60;
         }
 
+        /// <summary>
+        /// Gets/sets total number of MilliSeconds, may be more than 1000
+        /// </summary>
         public double MilliSeconds
         {
             get => Seconds * 1000;
@@ -176,6 +186,9 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Gets/sets total number of MicroSeconds, may be more than 1000000
+        /// </summary>
         public double MicroSeconds
         {
             get => Seconds * 1000 * 1000;
@@ -187,8 +200,8 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Gets a string of current Hours, Minutes, Seconds and decimals, or frames.
-        /// Sets time from given HMSstring ending in s, f, or null
+        /// Gets a string of current Hours:Minutes:Seconds.MilliSecondsMicroSeconds, or frames.
+        /// Sets time from given H:M:S.dddddd string, or frames string ending in f, or seconds string ending in s
         /// </summary>
         public string HMS
         {
@@ -315,18 +328,26 @@ namespace DTConverter
         }
 
         #region Operator overloads
+        /// <summary>
+        /// Sums frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator +(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
             {
                 return A is null ? B : A;
             }
-
+            
             return A.DurationType == DurationTypes.Frames ?
                 new TimeDuration() { Frames = A.Frames + B.Frames, Framerate = A.Framerate } :
                 new TimeDuration() { Seconds = A.Seconds + B.Seconds, Framerate = A.Framerate };
         }
 
+        /// <summary>
+        /// Subtracts frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator -(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -339,6 +360,10 @@ namespace DTConverter
                 new TimeDuration() { Seconds = A.Seconds - B.Seconds, Framerate = A.Framerate };
         }
 
+        /// <summary>
+        /// Multiplies frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator *(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -351,6 +376,10 @@ namespace DTConverter
                 new TimeDuration() { Seconds = A.Seconds * B.Seconds, Framerate = A.Framerate };
         }
 
+        /// <summary>
+        /// Divides frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator /(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -372,6 +401,10 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is greater than B</returns>
         public static bool operator >(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -384,6 +417,10 @@ namespace DTConverter
                 A.Seconds > B.Seconds;
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is less than than B</returns>
         public static bool operator <(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -398,6 +435,10 @@ namespace DTConverter
                 A.Seconds < B.Seconds;
         }
 
+        /// <summary>
+        /// Detects equality between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is equal to B</returns>
         public static bool operator ==(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -410,6 +451,10 @@ namespace DTConverter
                 A.Seconds == B.Seconds;
         }
 
+        /// <summary>
+        /// Detects disequality between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is not equal to B</returns>
         public static bool operator !=(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -423,6 +468,10 @@ namespace DTConverter
                 A.Seconds != B.Seconds;
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is greater than or equal to B</returns>
         public static bool operator >=(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -435,6 +484,10 @@ namespace DTConverter
             return A > B || A == B;
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is less than or equal to B</returns>
         public static bool operator <=(TimeDuration A, TimeDuration B)
         {
             if (A is null || B is null)
@@ -445,6 +498,10 @@ namespace DTConverter
             return A < B || A == B;
         }
 
+        /// <summary>
+        /// Sums frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator +(TimeDuration A, double B)
         {
             if (A is null)
@@ -457,6 +514,10 @@ namespace DTConverter
                 new TimeDuration() { Seconds = A.Seconds + B, Framerate = A.Framerate };
         }
 
+        /// <summary>
+        /// Subtracts frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator -(TimeDuration A, double B)
         {
             if (A is null)
@@ -469,6 +530,10 @@ namespace DTConverter
                 new TimeDuration() { Seconds = A.Seconds - B, Framerate = A.Framerate };
         }
 
+        /// <summary>
+        /// Multiplies frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator *(TimeDuration A, double B)
         {
             if (A is null)
@@ -481,6 +546,10 @@ namespace DTConverter
                 new TimeDuration() { Seconds = A.Seconds * B, Framerate = A.Framerate };
         }
 
+        /// <summary>
+        /// Divides frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>TimeDuration with Framerate based on A's Framerate.</returns>
         public static TimeDuration operator /(TimeDuration A, double B)
         {
             if (A is null)
@@ -502,6 +571,10 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is greater than B</returns>
         public static bool operator >(TimeDuration A, double B)
         {
             if (A is null)
@@ -514,6 +587,10 @@ namespace DTConverter
                 A.Seconds > B;
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is less than than B</returns>
         public static bool operator <(TimeDuration A, double B)
         {
             if (A is null)
@@ -526,6 +603,10 @@ namespace DTConverter
                 A.Seconds < B;
         }
 
+        /// <summary>
+        /// Detects equality between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is equal to B</returns>
         public static bool operator ==(TimeDuration A, double B)
         {
             if (A is null)
@@ -538,6 +619,10 @@ namespace DTConverter
                 A.Seconds == B;
         }
 
+        /// <summary>
+        /// Detects disequality between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is not equal to B</returns>
         public static bool operator !=(TimeDuration A, double B)
         {
             if (A is null)
@@ -550,6 +635,10 @@ namespace DTConverter
                 A.Seconds != B;
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is greater than or equal to B</returns>
         public static bool operator >=(TimeDuration A, double B)
         {
             if (A is null)
@@ -560,6 +649,10 @@ namespace DTConverter
             return A > B || A == B;
         }
 
+        /// <summary>
+        /// Detects greater between A and B frames or seconds depending on A's DurationType.
+        /// </summary>
+        /// <returns>true if A is less than or equal to B</returns>
         public static bool operator <=(TimeDuration A, double B)
         {
             if (A is null)

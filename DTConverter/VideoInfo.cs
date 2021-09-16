@@ -106,7 +106,7 @@ namespace DTConverter
 
         private int _VideoBitrate;
         /// <summary>
-        /// Bitrate in kb/s
+        /// Bitrate in Kb/s
         /// </summary>
         public int VideoBitrate
         { 
@@ -180,7 +180,7 @@ namespace DTConverter
 
         private int _AudioBitrate;
         /// <summary>
-        /// Bitrate in kb/s
+        /// Bitrate in Kb/s
         /// </summary>
         public int AudioBitrate
         { 
