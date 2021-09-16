@@ -317,6 +317,11 @@ namespace DTConverter
         #region Operator overloads
         public static TimeDuration operator +(TimeDuration A, TimeDuration B)
         {
+            if (A is null || B is null)
+            {
+                return A is null ? B : A;
+            }
+
             return A.DurationType == DurationTypes.Frames ?
                 new TimeDuration() { Frames = A.Frames + B.Frames, Framerate = A.Framerate } :
                 new TimeDuration() { Seconds = A.Seconds + B.Seconds, Framerate = A.Framerate };
@@ -324,13 +329,56 @@ namespace DTConverter
 
         public static TimeDuration operator -(TimeDuration A, TimeDuration B)
         {
+            if (A is null || B is null)
+            {
+                return A is null ? B : A;
+            }
+
             return A.DurationType == DurationTypes.Frames ?
                 new TimeDuration() { Frames = A.Frames - B.Frames, Framerate = A.Framerate } :
                 new TimeDuration() { Seconds = A.Seconds - B.Seconds, Framerate = A.Framerate };
         }
 
+        public static TimeDuration operator *(TimeDuration A, TimeDuration B)
+        {
+            if (A is null || B is null)
+            {
+                return A is null ? B : A;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = A.Frames * B.Frames, Framerate = A.Framerate } :
+                new TimeDuration() { Seconds = A.Seconds * B.Seconds, Framerate = A.Framerate };
+        }
+
+        public static TimeDuration operator /(TimeDuration A, TimeDuration B)
+        {
+            if (A is null || B is null)
+            {
+                return A is null ? B : A;
+            }
+
+            if (A.DurationType == DurationTypes.Frames)
+            {
+                return B.Frames == 0 ?
+                    new TimeDuration() { Frames = 0 } :
+                    new TimeDuration() { Frames = A.Frames / B.Frames, Framerate = A.Framerate };
+            }
+            else
+            {
+                return B.Seconds == 0 ?
+                    new TimeDuration() { Seconds = 0 } :
+                    new TimeDuration() { Seconds = A.Seconds / B.Seconds, Framerate = A.Framerate };
+            }
+        }
+
         public static bool operator >(TimeDuration A, TimeDuration B)
         {
+            if (A is null || B is null)
+            {
+                return A is null ? false : true;
+            }
+
             return A.DurationType == DurationTypes.Frames ?
                 A.Frames > B.Frames :
                 A.Seconds > B.Seconds;
@@ -338,6 +386,13 @@ namespace DTConverter
 
         public static bool operator <(TimeDuration A, TimeDuration B)
         {
+            if (A is null || B is null)
+            {
+                return A is null ?
+                    B is null ? false : true :
+                    false;
+            }
+
             return A.DurationType == DurationTypes.Frames ?
                 A.Frames < B.Frames :
                 A.Seconds < B.Seconds;
@@ -370,11 +425,148 @@ namespace DTConverter
 
         public static bool operator >=(TimeDuration A, TimeDuration B)
         {
+            if (A is null || B is null)
+            {
+                return A is null ? 
+                    B is null? true : false :
+                    true;
+            }
+
             return A > B || A == B;
         }
 
         public static bool operator <=(TimeDuration A, TimeDuration B)
         {
+            if (A is null || B is null)
+            {
+                return A is null ? true : false;
+            }
+
+            return A < B || A == B;
+        }
+
+        public static TimeDuration operator +(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return null;
+            }
+            
+            return A.DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = A.Frames + Convert.ToInt32(B), Framerate = A.Framerate } :
+                new TimeDuration() { Seconds = A.Seconds + B, Framerate = A.Framerate };
+        }
+
+        public static TimeDuration operator -(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return null;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = A.Frames - Convert.ToInt32(B), Framerate = A.Framerate } :
+                new TimeDuration() { Seconds = A.Seconds - B, Framerate = A.Framerate };
+        }
+
+        public static TimeDuration operator *(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return null;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                new TimeDuration() { Frames = A.Frames * Convert.ToInt32(B), Framerate = A.Framerate } :
+                new TimeDuration() { Seconds = A.Seconds * B, Framerate = A.Framerate };
+        }
+
+        public static TimeDuration operator /(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return null;
+            }
+
+            if (A.DurationType == DurationTypes.Frames)
+            {
+                return B == 0 ?
+                    new TimeDuration() { Frames = 0 } :
+                    new TimeDuration() { Frames = Convert.ToInt32(A.Frames / B), Framerate = A.Framerate };
+            }
+            else
+            {
+                return B == 0 ?
+                    new TimeDuration() { Seconds = 0 } :
+                    new TimeDuration() { Seconds = A.Seconds / B, Framerate = A.Framerate };
+            }
+        }
+
+        public static bool operator >(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return false;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames > B :
+                A.Seconds > B;
+        }
+
+        public static bool operator <(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return true;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames < B:
+                A.Seconds < B;
+        }
+
+        public static bool operator ==(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return false;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames == B:
+                A.Seconds == B;
+        }
+
+        public static bool operator !=(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return true;
+            }
+
+            return A.DurationType == DurationTypes.Frames ?
+                A.Frames != B:
+                A.Seconds != B;
+        }
+
+        public static bool operator >=(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return false;
+            }
+
+            return A > B || A == B;
+        }
+
+        public static bool operator <=(TimeDuration A, double B)
+        {
+            if (A is null)
+            {
+                return true;
+            }
+
             return A < B || A == B;
         }
         #endregion
