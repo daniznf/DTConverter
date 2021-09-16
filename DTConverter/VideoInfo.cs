@@ -123,7 +123,7 @@ namespace DTConverter
         /// </summary>
         public double Framerate
         {
-            get => Duration.Framerate;
+            get => Duration != null ? Duration.Framerate : 0;
             set
             {
                 Duration.Framerate = value;
