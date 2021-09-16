@@ -366,6 +366,7 @@ namespace DTConverter
         private void StartTime_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             DurationTime = EndTime - StartTime;
+            OnPropertyChanged("StartTimeHMS");
         }
 
         /// <summary>
@@ -407,6 +408,7 @@ namespace DTConverter
         private void EndTime_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             DurationTime = EndTime - StartTime;
+            OnPropertyChanged("EndTimeHMS");
         }
 
         /// <summary>
