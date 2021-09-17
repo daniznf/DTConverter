@@ -31,8 +31,7 @@ using System.Windows.Media.Imaging;
 using Path = System.IO.Path;
 using System.Diagnostics;
 using System.Threading;
-using System.Windows.Data;
-using System.Globalization;
+using System.Configuration;
 
 namespace DTConverter
 {
@@ -44,6 +43,10 @@ namespace DTConverter
         public readonly string AppData;
         public readonly string WorkDir;
         public readonly string DTVersion;
+        private Configuration MainConfig;
+        private const string LastCheckUpdateKey = "LastCheckUpdate";
+        private const string CheckUpdateFrequencyKey = "CheckUpdateFrequency";
+        private enum CheckUpdateFrequencies { Daily, Weekly, Monthly };
 
         public MainWindow()
         {
@@ -53,6 +56,9 @@ namespace DTConverter
 
             // First message needs TaskWriteStatus already run
             TaskWriteStatus = Task.CompletedTask;
+
+            MainConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            CheckUpdates();
 
             TvwVideos.Items.Clear();
             TvwVideos.IsEnabled = false;
@@ -98,35 +104,6 @@ namespace DTConverter
             App.Current.Exit += Current_Exit;
 
             ListConversion = new List<ConversionParameters>();
-        }
-
-        private void Current_Exit(object sender, ExitEventArgs e)
-        {
-            CleanWorkDir();
-        }
-
-        private void CleanWorkDir()
-        {
-            try
-            {
-                foreach (string eachFile in Directory.GetFiles(WorkDir))
-                {
-                    File.Delete(eachFile);
-                }
-            }
-            catch (Exception E) { }
-        }
-
-        public void FindCompleted(bool success)
-        {
-            if (success)
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    TvwVideos.IsEnabled = true;
-                    WriteStatus("Ready!", false);
-                });
-            }
         }
 
         #region Write Status
@@ -1174,6 +1151,100 @@ namespace DTConverter
             }
         }
         #endregion
+
+        #region Settings
+        private void CheckUpdates()
+        {
+            CheckUpdateFrequencies CheckUpdateFrequency;
+            try
+            {
+                string strCheckUpdateFrequency = MainConfig.AppSettings.Settings[CheckUpdateFrequencyKey].Value;
+                CheckUpdateFrequency = (CheckUpdateFrequencies) Enum.Parse(typeof(CheckUpdateFrequencies), strCheckUpdateFrequency);
+            }
+            catch (Exception E)
+            {
+                CheckUpdateFrequency = CheckUpdateFrequencies.Daily;
+                if (MainConfig.AppSettings.Settings.AllKeys.Contains(CheckUpdateFrequencyKey))
+                {
+                    MainConfig.AppSettings.Settings[CheckUpdateFrequencyKey].Value = CheckUpdateFrequency.ToString();
+                }
+                else
+                {
+                    MainConfig.AppSettings.Settings.Add(CheckUpdateFrequencyKey, CheckUpdateFrequency.ToString());
+                }
+            }
+
+            DateTime lastCheckDate;
+            try
+            {
+                string strLastCheck = MainConfig.AppSettings.Settings[LastCheckUpdateKey].Value;
+                lastCheckDate = DateTime.Parse(strLastCheck);
+            }
+            catch (Exception E)
+            {
+                lastCheckDate = DateTime.MinValue;
+                if (MainConfig.AppSettings.Settings.AllKeys.Contains(LastCheckUpdateKey))
+                {
+                    MainConfig.AppSettings.Settings[LastCheckUpdateKey].Value = lastCheckDate.ToShortDateString();
+                }
+                else
+                {
+                    MainConfig.AppSettings.Settings.Add(LastCheckUpdateKey, lastCheckDate.ToShortDateString());
+                }
+            }
+
+            switch (CheckUpdateFrequency)
+            {
+                case CheckUpdateFrequencies.Daily:
+                    if (lastCheckDate < DateTime.Now.Date)
+                    {
+                    }
+                    break;
+                case CheckUpdateFrequencies.Weekly:
+                    if (lastCheckDate < DateTime.Now.Date.AddDays(-7))
+                    { }
+                    break;
+                case CheckUpdateFrequencies.Monthly:
+                    if (lastCheckDate < DateTime.Now.Date.AddDays(-31))
+                    { }
+                    break;
+            }
+
+            MainConfig.AppSettings.Settings[LastCheckUpdateKey].Value = DateTime.Now.ToShortDateString();
+        }
+
+
+        #endregion
+
+        private void Current_Exit(object sender, ExitEventArgs e)
+        {
+            CleanWorkDir();
+            MainConfig.Save();
+        }
+
+        private void CleanWorkDir()
+        {
+            try
+            {
+                foreach (string eachFile in Directory.GetFiles(WorkDir))
+                {
+                    File.Delete(eachFile);
+                }
+            }
+            catch (Exception E) { }
+        }
+
+        public void FindCompleted(bool success)
+        {
+            if (success)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    TvwVideos.IsEnabled = true;
+                    WriteStatus("Ready!", false);
+                });
+            }
+        }
 
         private void MnAbout_Click(object sender, RoutedEventArgs e)
         {
