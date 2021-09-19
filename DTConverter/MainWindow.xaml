@@ -643,8 +643,13 @@
                 </DockPanel>
             </Grid>
 
-            <StackPanel Grid.Column="2"  Height="32px" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <StackPanel Grid.Column="2"  Height="32px" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
                 <Label Name="LblName" Content="DT Converter" FontWeight="Bold"/>
+                <Label Name="LblUpdateAvailable">
+                    <Label.Content>
+                        <Hyperlink Name="hypUpdate" RequestNavigate="Hyperlink_RequestNavigate">Update!</Hyperlink>
+                    </Label.Content>
+                </Label>
                 <Menu Background="Transparent" Width="32px" Height="32px" FlowDirection="RightToLeft" >
                     <Menu.Resources>
                         <Style TargetType="Label"/>
@@ -653,7 +658,7 @@
                         <MenuItem.Header>
                             <Label Content="⁝" FontWeight="Bold" />
                         </MenuItem.Header>
-                        <MenuItem Name="MnAbout" Header="About" Click="MnAbout_Click"></MenuItem>
+                        <MenuItem Name="MnAbout" Header="About" Click="MnAbout_Click"/>
                     </MenuItem>
                 </Menu>
             </StackPanel>
