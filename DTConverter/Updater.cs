@@ -8,8 +8,14 @@ namespace DTConverter
 {
     public enum CheckUpdateFrequencies { Daily, Weekly, Monthly };
 
-    class Updater :  INotifyPropertyChanged
+    public class Updater :  INotifyPropertyChanged
     {
+        /// <summary>
+        /// This constructor is used only for bindings. A Configuration must be passed in parameter.
+        /// </summary>
+        public Updater()
+        { }
+
         public Updater(Configuration configurationFile)
         {
             Config = configurationFile;
@@ -95,6 +101,39 @@ namespace DTConverter
                     }
                 }
                 OnPropertyChanged("CheckUpdateFrequency");
+            }
+        }
+        public bool IsCheckUpdateFrequencyDaily
+        {
+            get => CheckUpdateFrequency == CheckUpdateFrequencies.Daily;
+            set
+            {
+                CheckUpdateFrequency = CheckUpdateFrequencies.Daily;
+                OnPropertyChanged("IsCheckUpdateFrequencyDaily");
+                OnPropertyChanged("IsCheckUpdateFrequencyWeekly");
+                OnPropertyChanged("IsCheckUpdateFrequencyMonthly");
+            }
+        }
+        public bool IsCheckUpdateFrequencyWeekly
+        {
+            get => CheckUpdateFrequency == CheckUpdateFrequencies.Weekly;
+            set
+            {
+                CheckUpdateFrequency = CheckUpdateFrequencies.Weekly;
+                OnPropertyChanged("IsCheckUpdateFrequencyDaily");
+                OnPropertyChanged("IsCheckUpdateFrequencyWeekly");
+                OnPropertyChanged("IsCheckUpdateFrequencyMonthly");
+            }
+        }
+        public bool IsCheckUpdateFrequencyMonthly
+        {
+            get => CheckUpdateFrequency == CheckUpdateFrequencies.Monthly;
+            set
+            {
+                CheckUpdateFrequency = CheckUpdateFrequencies.Monthly;
+                OnPropertyChanged("IsCheckUpdateFrequencyDaily");
+                OnPropertyChanged("IsCheckUpdateFrequencyWeekly");
+                OnPropertyChanged("IsCheckUpdateFrequencyMonthly");
             }
         }
 

@@ -44,7 +44,8 @@ namespace DTConverter
     {
         public readonly string AppData;
         public readonly string WorkDir;
-        private Configuration MainConfig;
+        private readonly Configuration MainConfig;
+        private readonly Updater AppUpdater;
 
         public MainWindow()
         {
@@ -56,37 +57,28 @@ namespace DTConverter
             TaskWriteStatus = Task.CompletedTask;
 
             MainConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            Updater updater = new Updater(MainConfig);
+            AppUpdater = new Updater(MainConfig);
+
+            PnlMainMenu.DataContext = AppUpdater;
             
-            LblUpdateAvailable.DataContext = updater;
-            Binding b = new Binding()
-            {
-                Path = new PropertyPath("UpdateAvailable"),
-                Converter = new VisibilityConverter()
-            };
-            LblUpdateAvailable.SetBinding(Label.VisibilityProperty, b);
-
-            hypUpdate.DataContext = updater;
-            hypUpdate.SetBinding(Hyperlink.NavigateUriProperty, "AvailableVersionUri");
-
-            switch (updater.CheckUpdateFrequency)
+            switch (AppUpdater.CheckUpdateFrequency)
             {
                 case CheckUpdateFrequencies.Daily:
-                    if (updater.LastCheckUpdate < DateTime.Now.Date)
+                    if (AppUpdater.LastCheckUpdate < DateTime.Now.Date)
                     {
-                        Task.Run(() => updater.CheckUpdate(new Action<string, bool>(WriteStatus)));
+                        Task.Run(() => AppUpdater.CheckUpdate(new Action<string, bool>(WriteStatus)));
                     }
                     break;
                 case CheckUpdateFrequencies.Weekly:
-                    if (updater.LastCheckUpdate < DateTime.Now.Date.AddDays(-7))
+                    if (AppUpdater.LastCheckUpdate < DateTime.Now.Date.AddDays(-7))
                     {
-                        Task.Run(() => updater.CheckUpdate(new Action<string, bool>(WriteStatus)));
+                        Task.Run(() => AppUpdater.CheckUpdate(new Action<string, bool>(WriteStatus)));
                     }
                     break;
                 case CheckUpdateFrequencies.Monthly:
-                    if (updater.LastCheckUpdate < DateTime.Now.Date.AddDays(-31))
+                    if (AppUpdater.LastCheckUpdate < DateTime.Now.Date.AddDays(-31))
                     {
-                        Task.Run(() => updater.CheckUpdate(new Action<string, bool>(WriteStatus)));
+                        Task.Run(() => AppUpdater.CheckUpdate(new Action<string, bool>(WriteStatus)));
                     }
                     break;
             }

@@ -39,6 +39,7 @@
         <SolidColorBrush x:Key="Sky8" Color="#daebe8"/>
 
         <local:ConversionParameters x:Key="CP" />
+        <local:Updater x:Key="Upd"/>
         <local:BackgroundConverter x:Key="BkgConverter"/>
         <local:VisibilityConverter x:Key="VisibConverter"/>
 
@@ -643,21 +644,34 @@
                 </DockPanel>
             </Grid>
 
-            <StackPanel Grid.Column="2"  Height="32px" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
+            <StackPanel Name="PnlMainMenu" Grid.Column="2"  Height="32px" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
+                <StackPanel.DataContext>
+                    <Binding Source="{StaticResource Upd}"/>
+                </StackPanel.DataContext>
                 <Label Name="LblName" Content="DT Converter" FontWeight="Bold"/>
-                <Label Name="LblUpdateAvailable">
+                <Label Name="LblUpdateAvailable" Visibility="{Binding UpdateAvailable, Converter={StaticResource VisibConverter}}">
                     <Label.Content>
-                        <Hyperlink Name="hypUpdate" RequestNavigate="Hyperlink_RequestNavigate">Update!</Hyperlink>
+                        <Hyperlink Name="hypUpdate" NavigateUri="{Binding AvailableVersionUri}" RequestNavigate="Hyperlink_RequestNavigate">Update!</Hyperlink>
                     </Label.Content>
                 </Label>
-                <Menu Background="Transparent" Width="32px" Height="32px" FlowDirection="RightToLeft" >
+                <Menu Background="Transparent" Width="32px" Height="32px">
                     <Menu.Resources>
                         <Style TargetType="Label"/>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="FlowDirection" Value="LeftToRight"/>
+                        </Style>
                     </Menu.Resources>
-                    <MenuItem >
+                    <MenuItem FlowDirection="RightToLeft">
                         <MenuItem.Header>
                             <Label Content="⁝" FontWeight="Bold" />
                         </MenuItem.Header>
+                        <MenuItem Name="MnUpdates" Header="Updates" HorizontalContentAlignment="Left">
+                            <CheckBox Content="Beta Releases" IsChecked="{Binding BetaReleases}"/>
+                            <Separator/>
+                            <CheckBox Name="ChkDaily" Content="Daily" IsChecked="{Binding IsCheckUpdateFrequencyDaily}"/>
+                            <CheckBox Name="ChkWeeekly" Content="Weekly" IsChecked="{Binding IsCheckUpdateFrequencyWeekly}"/>
+                            <CheckBox Name="ChkMonthly" Content="Monthly" IsChecked="{Binding IsCheckUpdateFrequencyMonthly}"/>
+                        </MenuItem>
                         <MenuItem Name="MnAbout" Header="About" Click="MnAbout_Click"/>
                     </MenuItem>
                 </Menu>
