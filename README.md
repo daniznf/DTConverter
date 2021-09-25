@@ -5,14 +5,17 @@ Copyright (C) 2021 Daniznf
 
 ### What it does:<br>
 * Convert video files to **HAP** (hap, hap q, hap alpha), **H264**, still image, **image sequence**
-* **Crop**, pad, scale video and change FPS
+* **Crop**, pad, scale, rotate, change FPS and bitrate
 * Cut video in up to 8x8 slices considering **bezels** or **overlaps**
-* Export **WAV** audio files
+* Export **WAV** audio files to separate files
+* Split stereo or multichannel audio
+* Extract audio or video from input files
 
 
 ### How to use it:<br>
 * Drag and **drop** multiple files or folders and click **Convert**
 * Yes, just one click
+* Any other option must be selected if needed
 
 
 ### How to install it:<br>
