@@ -712,6 +712,11 @@ namespace DTConverter
                 ffArguments = $"{strvArgsIn} -filter:v \"{strvFilters}\" {strvArgsOut} \"{destinationPath}\"";
             }
 
+            if (videoEncoder == VideoEncoders.Copy)
+            {
+                ffArguments = $"{strvArgsIn} {strvArgsOut} \"{destinationPath}\"";
+            }
+
             // Process
             Process FFmpegProcess = new Process();
             FFmpegProcess.StartInfo = new ProcessStartInfo() { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
@@ -889,7 +894,7 @@ namespace DTConverter
 
             strArgsOut = aArgsOut.Aggregate("", AggregateWithSpace);
 
-            if (aFilters.Count > 0)
+            if (aFilters.Count > 0 && audioEncoder != AudioEncoders.Copy)
             {
                 straFilters = aFilters.Aggregate("", AggregateFilters);
 
