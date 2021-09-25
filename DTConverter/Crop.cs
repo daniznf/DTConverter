@@ -103,6 +103,21 @@ namespace DTConverter
             return inHeight - _Top - _Bottom;
         }
 
+        /// <summary>
+        /// Returns a new clone of this object
+        /// </summary>
+        public Crop Clone()
+        {
+            return new Crop()
+            {
+                IsEnabled = this.IsEnabled,
+                Left = this.Left,
+                Right = this.Right,
+                Top = this.Top,
+                Bottom = this.Bottom
+            };
+        }
+
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string info)

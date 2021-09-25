@@ -31,8 +31,9 @@ using System.Windows.Media.Imaging;
 using Path = System.IO.Path;
 using System.Diagnostics;
 using System.Threading;
+using System.Configuration;
 using System.Windows.Data;
-using System.Globalization;
+using System.Windows.Documents;
 
 namespace DTConverter
 {
@@ -43,7 +44,8 @@ namespace DTConverter
     {
         public readonly string AppData;
         public readonly string WorkDir;
-        public readonly string DTVersion;
+        private readonly Configuration MainConfig;
+        private readonly Updater AppUpdater;
 
         public MainWindow()
         {
@@ -54,6 +56,33 @@ namespace DTConverter
             // First message needs TaskWriteStatus already run
             TaskWriteStatus = Task.CompletedTask;
 
+            MainConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            AppUpdater = new Updater(MainConfig);
+
+            PnlMainMenu.DataContext = AppUpdater;
+            
+            switch (AppUpdater.CheckUpdateFrequency)
+            {
+                case CheckUpdateFrequencies.Daily:
+                    if (AppUpdater.LastCheckUpdate < DateTime.Now.Date)
+                    {
+                        Task.Run(() => AppUpdater.CheckUpdate(new Action<string, bool>(WriteStatus)));
+                    }
+                    break;
+                case CheckUpdateFrequencies.Weekly:
+                    if (AppUpdater.LastCheckUpdate < DateTime.Now.Date.AddDays(-7))
+                    {
+                        Task.Run(() => AppUpdater.CheckUpdate(new Action<string, bool>(WriteStatus)));
+                    }
+                    break;
+                case CheckUpdateFrequencies.Monthly:
+                    if (AppUpdater.LastCheckUpdate < DateTime.Now.Date.AddDays(-31))
+                    {
+                        Task.Run(() => AppUpdater.CheckUpdate(new Action<string, bool>(WriteStatus)));
+                    }
+                    break;
+            }
+            
             TvwVideos.Items.Clear();
             TvwVideos.IsEnabled = false;
 
@@ -74,7 +103,7 @@ namespace DTConverter
             Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             LblName.Content += " " + v.ToString(2);
 
-            // we do some bindings here, not in XAML, so we can use the XAML editor more confortably
+            // these bindings are done here, not in XAML, so it's possible to use XAML editor more confortably
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "CropParams.IsEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "PaddingParams.IsEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "SliceParams.IsEnabled");
@@ -83,6 +112,9 @@ namespace DTConverter
             ChkEnableOutFramerate.SetBinding(CheckBox.IsCheckedProperty, "IsOutFramerateEnabled");
             ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
             ChkOriginal.SetBinding(CheckBox.IsCheckedProperty, "IsChkOriginalChecked");
+            ChkEnableAudioRate.SetBinding(CheckBox.IsCheckedProperty, "IsAudioRateEnabled");
+            ChkEnableChannels.SetBinding(CheckBox.IsCheckedProperty, "IsChannelsEnabled");
+            ChkEnableRotation.SetBinding(CheckBox.IsCheckedProperty, "IsRotationEnabled");
 
             UpdateImgPreviewIn();
 
@@ -97,37 +129,14 @@ namespace DTConverter
             ListConversion = new List<ConversionParameters>();
         }
 
-        private void Current_Exit(object sender, ExitEventArgs e)
-        {
-            CleanWorkDir();
-        }
-
-        private void CleanWorkDir()
-        {
-            try
-            {
-                foreach (string eachFile in Directory.GetFiles(WorkDir))
-                {
-                    File.Delete(eachFile);
-                }
-            }
-            catch (Exception E) { }
-        }
-
-        public void FindCompleted(bool success)
-        {
-            if (success)
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    TvwVideos.IsEnabled = true;
-                    WriteStatus("Ready!", false);
-                });
-            }
-        }
-
         #region Write Status
         private Task TaskWriteStatus;
+        /// <summary>
+        /// Writes message to the StatusBar, chaining all messages and waiting few seconds if isError is true.
+        /// If message contains some words like error or fail, it will be automatically be considered error.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="isError">True if it is error</param>
         private async void WriteStatus(string message, bool isError)
         {
             if (message != null)
@@ -187,13 +196,14 @@ namespace DTConverter
         private List<ConversionParameters> ListConversion;
 
         /// <summary>
-        /// ConversionParameters currently displayed, used for binding visual elements with it
+        /// ConversionParameters object currently displayed, used for binding visual elements
         /// </summary>
         public ConversionParameters DisplayedConversionParameters { get; set; }
 
         public void ConversionStarted()
         {
             PnlVideoSettings.IsEnabled = false;
+            BtnConvert.Background = (SolidColorBrush)Resources["Sky4"];
             BtnConvert.Content = "Stop Conversions";
             BtnConvert.Click -= BtnStartConvert_Click;
             BtnConvert.Click += BtnStopConvert_Click;
@@ -203,6 +213,7 @@ namespace DTConverter
         public void ConversionFinished()
         {
             PnlVideoSettings.IsEnabled = true;
+            BtnConvert.Background = (SolidColorBrush)Resources["Sky8"];
             BtnConvert.Content = "Start Conversions";
             BtnConvert.Click -= BtnStopConvert_Click;
             BtnConvert.Click += BtnStartConvert_Click;
@@ -210,7 +221,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// The file being converted
+        /// Represents the file being converted
         /// </summary>
         private ConversionParameters convertingCP;
         private async void BtnStartConvert_Click(object sender, RoutedEventArgs e)
@@ -218,6 +229,7 @@ namespace DTConverter
             stopConversion = false;
 
             ConversionStarted();
+            // await the foreach that will sequentially convert all videos and audios
             await Task.Run(() =>
             {
                 foreach (ConversionParameters cp in ListConversion)
@@ -231,11 +243,14 @@ namespace DTConverter
                             cp.ConvertVideo(
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
+                            cp.ConvertAudio(
+                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
+                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
                         }
                     }
                     catch (Exception E)
                     {
-                        //WriteStatus(E.Message, true);
+                        WriteStatus(E.Message, true);
                     }
                     if (stopConversion)
                     {
@@ -253,14 +268,14 @@ namespace DTConverter
             stopConversion = true;
             if (convertingCP != null)
             {
-                convertingCP.KillConversion();
+                convertingCP.KillVideoConversion();
             }
         }
         #endregion
 
         #region TvwVideos
-        TaskFactory TF;
-        List<Task> PreviewTasks;
+        private TaskFactory TF;
+        private List<Task> PreviewTasks;
         /// <summary>
         /// Adds all files and folder in a semi recursive way: files will be added directly.
         /// If directories are dropped, only files inside those directories will be added, child directories will not be added.
@@ -336,7 +351,7 @@ namespace DTConverter
         /// Adds given file in TvwVideos nesting it inside its parent directory.
         /// If parent directory does not exist, it will be added.
         /// Binding with CheckBox will be created here.
-        /// Probing video info and creating preview image will be done in a new Task
+        /// Probing video info and creating preview image will be done here in a new Task
         /// </summary>
         /// <param name="file">Full name of file to add</param>
         private void AddTvwFile(string file)
@@ -382,7 +397,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Probes VideoInfo and creates a preview image file at 50% of video duration for the ConversionParameters passed as argument
+        /// Probes VideoInfo and creates a preview image for the ConversionParameters passed as argument
         /// </summary>
         /// <param name="cp"></param>
         private void ProbeSourceInfoAndPreviewImage(ConversionParameters cp)
@@ -397,13 +412,15 @@ namespace DTConverter
                         Horizontal = 640,
                         Vertical = Convert.ToInt32(640 / cp.SourceInfo.AspectRatio)
                     };
-                    cp.PreviewTimeSeconds = cp.SourceInfo.Duration.Seconds / 2;
                     cp.PreviewResolution = vr;
 
-                    cp.CreateImagePreviewIn(
-                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                    WriteStatus("", false);
+                    if (cp.SourceInfo != null && cp.SourceInfo.HasVideo)
+                    {
+                        cp.CreateImagePreviewIn(
+                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                            (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                        WriteStatus("", false);
+                    }
                 }
                 UpdateImgPreviewIn();
             }
@@ -479,10 +496,6 @@ namespace DTConverter
             {
                 foreach (object eachItem in tvParent.Items)
                 {
-                    /*if (eachItem is CheckBox cbItem)
-                    {
-                        cbItem.IsChecked = check;
-                    }*/
                     if (eachItem is StackPanel spItem)
                     {
                         CheckBox cb = spItem.Children.OfType<CheckBox>().First();
@@ -581,13 +594,13 @@ namespace DTConverter
             if (e.Key == Key.A)
             {
                 CheckChildren(sender as Control, !(Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)),
-                    (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)));
+                    Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl));
                 e.Handled = true;
             }
         }
 
         /// <summary>
-        /// Handles deletion selection of item in TvwVideos
+        /// Handles deletion of item in TvwVideos
         /// </summary>
         private void TreeViewItem_KeyUp(object sender, KeyEventArgs e)
         {
@@ -600,49 +613,10 @@ namespace DTConverter
         #endregion
 
         #region Bitrate Framerate Crop Padding Slices
-        private void ChkEnableOutFramerate_CheckedUnchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                if (ChkEnableOutFramerate.IsChecked.Value)
-                {
-                    PnlOutFrameRate.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlOutFrameRate.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        private void ChkEnableVideoBitrate_CheckedUnchecked(object sender, RoutedEventArgs e)
-        {
-            if (IsInitialized)
-            {
-                if (ChkEnableVideoBitrate.IsChecked.Value)
-                {
-                    PnlVideoBitrate.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlVideoBitrate.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
         private async void ChkEnableCrop_CheckedUnchecked(object sender, RoutedEventArgs e)
         {
             if (IsInitialized)
             {
-                if (ChkEnableCrop.IsChecked.Value)
-                {
-                    PnlCrop.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlCrop.Visibility = Visibility.Collapsed;
-                }
-
                 await RegenerateUpdatePreviews();
             }
         }
@@ -651,15 +625,6 @@ namespace DTConverter
         {
             if (IsInitialized)
             {
-                if (ChkEnablePadding.IsChecked.Value)
-                {
-                    PnlPadding.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlPadding.Visibility = Visibility.Collapsed;
-                }
-
                 await RegenerateUpdatePreviews();
             }
         }
@@ -670,12 +635,10 @@ namespace DTConverter
             {
                 if (ChkEnableSlices.IsChecked.Value)
                 {
-                    PnlSlices.Visibility = Visibility.Visible;
                     SliceGrdPreviewOut(Convert.ToInt32(CbxVerticalSlices.Text), Convert.ToInt32(CbxHorizontalSlices.Text));
                 }
                 else
                 {
-                    PnlSlices.Visibility = Visibility.Collapsed;
                     SliceGrdPreviewOut(1, 1);
                 }
 
@@ -685,7 +648,7 @@ namespace DTConverter
 
         /// <summary>
         /// Populates the grid GrdPreviewOut with specified number of rows and columns. 
-        /// After calling this, it's necessary to call ReneratePreviewIn/Out or UpdateImgPreviewIn/Out
+        /// After calling this, it's necessary to call RegeneratePreviewIn/OutImages or UpdateImgPreviewIn/Out
         /// </summary>
         private void SliceGrdPreviewOut(int rows, int columns)
         {
@@ -762,21 +725,12 @@ namespace DTConverter
         {
             if (IsInitialized)
             {
-                if (ChkEnableResolution.IsChecked.Value)
-                {
-                    PnlResolution.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    PnlResolution.Visibility = Visibility.Collapsed;
-                }
-
                 await RegenerateUpdatePreviews();
             }
         }
 
         /// <summary>
-        /// Reloads image of ImgPvwIn
+        /// Reloads image of GrdPreviewIn if it exists
         /// </summary>
         private void UpdateImgPreviewIn()
         {
@@ -800,7 +754,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Reloads all images of ImgPvwOut, either if it's a single image, or if it is multiple images
+        /// Reloads all existing images of GrdPreviewOut, either if it's a single image, or if they are multiple images
         /// </summary>
         public void UpdateImgPreviewOut()
         {
@@ -855,6 +809,10 @@ namespace DTConverter
             }
         }
 
+        /// <summary>
+        /// Regenerate Preview In/Out images and updates them in their respective grids.
+        /// </summary>
+        /// <returns></returns>
         private async Task RegenerateUpdatePreviews()
         {
             Task pvwIn = RegeneratePreviewInImages();
@@ -866,8 +824,7 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Recreates images of ImgPreviewIn.
-        /// This should be run in a separate Task or Thread
+        /// Recreates images of GrdPreviewIn.
         /// </summary>
         private Task RegeneratePreviewInImages()
         {
@@ -885,28 +842,28 @@ namespace DTConverter
                         img.Source = null;
                     }
 
-                    return Task.Run(() =>
+                    if (DisplayedConversionParameters.SourceInfo != null && DisplayedConversionParameters.SourceInfo.HasVideo)
                     {
-                        try
+                        return Task.Run(() =>
                         {
-                            DisplayedConversionParameters.CreateImagePreviewIn(
-                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                                (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                            WriteStatus("", false);
-                        }
-                        catch (Exception E)
-                        {
-                            //WriteStatus(E.Message, true);
-                        }
-                    });
+                            try
+                            {
+                                DisplayedConversionParameters.CreateImagePreviewIn(
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                                WriteStatus("", false);
+                            }
+                            catch (Exception E)
+                            { }
+                        });
+                    }
                 }
             }
-            return  Task.Run(() => { return; });
+            return  Task.CompletedTask;
         }
 
         /// <summary>
-        /// Recreates images of ImgPreviewOut
-        /// This should be run in a separate Task or Thread
+        /// Recreates images of GrdPreviewOut
         /// </summary>
         private Task RegeneratePreviewOutImages()
         {
@@ -926,28 +883,29 @@ namespace DTConverter
                             imgOut.Source = null;
                         }
                     }
-                    if (ChkEnableCrop.IsChecked.Value || ChkEnablePadding.IsChecked.Value || ChkEnableSlices.IsChecked.Value ||
+                    if (DisplayedConversionParameters.SourceInfo != null && DisplayedConversionParameters.SourceInfo.HasVideo)
+                    {
+                        if (ChkEnableCrop.IsChecked.Value || ChkEnablePadding.IsChecked.Value || ChkEnableSlices.IsChecked.Value ||
                         (CbxRotation.SelectedItem as ComboBoxItem).Content.ToString() != "0" ||
                         ChkEnableResolution.IsChecked.Value)
-                    {
-                        return Task.Run(() =>
                         {
-                            try
+                            return Task.Run(() =>
                             {
-                                DisplayedConversionParameters.CreateImagePreviewOut(
-                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
-                                    (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
-                                WriteStatus("", false);
-                            }
-                            catch (Exception E)
-                            {
-                                //WriteStatus(E.Message, true);
-                            }
-                        });
+                                try
+                                {
+                                    DisplayedConversionParameters.CreateImagePreviewOut(
+                                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); },
+                                        (object o, DataReceivedEventArgs d) => { WriteStatus(d.Data, false); });
+                                    WriteStatus("", false);
+                                }
+                                catch (Exception E)
+                                { }
+                            });
+                        }
                     }
                 }
             }
-            return  Task.Run(() => { return; });
+            return Task.CompletedTask;
         }
         #endregion
 
@@ -1082,7 +1040,7 @@ namespace DTConverter
 
             if (path != null)
             {
-                System.Diagnostics.Process.Start("explorer.exe", Directory.GetParent(path).FullName);
+                Process.Start("explorer.exe", Directory.GetParent(path).FullName);
             }
         }
 
@@ -1161,6 +1119,21 @@ namespace DTConverter
 
             }
         }
+
+        private void MnAbout_Click(object sender, RoutedEventArgs e)
+        {
+            About a = new About();
+            a.Owner = this;
+            a.Show();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            if (sender is Hyperlink hs)
+            {
+                System.Diagnostics.Process.Start(hs.NavigateUri.ToString());
+            }
+        }
         #endregion
 
         #region Time Events
@@ -1168,7 +1141,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.StartTimeSeconds = DisplayedConversionParameters.PreviewTimeSeconds;
+                DisplayedConversionParameters.StartTime.HMS = DisplayedConversionParameters.PreviewTime.HMS;
             }
         }
 
@@ -1176,7 +1149,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.EndTimeSeconds = DisplayedConversionParameters.PreviewTimeSeconds;
+                DisplayedConversionParameters.EndTime.HMS = DisplayedConversionParameters.PreviewTime.HMS;
             }
         }
 
@@ -1184,7 +1157,7 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.StartTimeSeconds;
+                DisplayedConversionParameters.PreviewTime.Seconds = DisplayedConversionParameters.StartTime.Seconds;
                 AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
             }
         }
@@ -1193,29 +1166,58 @@ namespace DTConverter
         {
             if (DisplayedConversionParameters != null)
             {
-                DisplayedConversionParameters.PreviewTimeSeconds = DisplayedConversionParameters.EndTimeSeconds;
+                DisplayedConversionParameters.PreviewTime.Seconds = DisplayedConversionParameters.EndTime.Seconds;
                 AnyonePreviewRegeneration_PreviewMouseUp(sender, null);
             }
         }
 
         private void TxtStartTime_LostFocus(object sender, RoutedEventArgs e)
         {
-            TxtStartTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-            SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTimeSeconds);
+            if (DisplayedConversionParameters != null)
+            {
+                TxtStartTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.StartTime.Seconds);
+            }
         }
 
         private void TxtEndTime_LostFocus(object sender, RoutedEventArgs e)
         {
-            TxtEndTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-            SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTimeSeconds);
+            if (DisplayedConversionParameters != null)
+            {
+                TxtEndTime.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                SldPreviewTime.Value = Convert.ToDouble(DisplayedConversionParameters.EndTime.Seconds);
+            }
         }
         #endregion
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void Current_Exit(object sender, ExitEventArgs e)
         {
-            About a = new About();
-            a.Owner = this;
-            a.Show();
+            CleanWorkDir();
+            MainConfig.Save();
+        }
+
+        private void CleanWorkDir()
+        {
+            try
+            {
+                foreach (string eachFile in Directory.GetFiles(WorkDir))
+                {
+                    File.Delete(eachFile);
+                }
+            }
+            catch (Exception E) { }
+        }
+
+        public void FindCompleted(bool success)
+        {
+            if (success)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    TvwVideos.IsEnabled = true;
+                    WriteStatus("Ready!", false);
+                });
+            }
         }
     }
 }

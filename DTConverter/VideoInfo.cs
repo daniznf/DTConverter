@@ -36,8 +36,8 @@ namespace DTConverter
         }
 
         private TimeDuration _Duration;
-        public TimeDuration Duration 
-        { 
+        public TimeDuration Duration
+        {
             get => _Duration;
             set
             {
@@ -106,7 +106,7 @@ namespace DTConverter
 
         private int _VideoBitrate;
         /// <summary>
-        /// Bitrate in kb/s
+        /// Bitrate in Kb/s
         /// </summary>
         public int VideoBitrate
         { 
@@ -118,17 +118,16 @@ namespace DTConverter
             }
         }
 
-        private float _FrameRate;
         /// <summary>
         /// Framerate in fps
         /// </summary>
-        public float FrameRate
-        { 
-            get => _FrameRate;
+        public double Framerate
+        {
+            get => Duration != null ? Duration.Framerate : 0;
             set
             {
-                _FrameRate = value;
-                OnPropertyChanged("FrameRate");
+                Duration.Framerate = value;
+                OnPropertyChanged("Framerate");
             }
         }
         
@@ -168,8 +167,8 @@ namespace DTConverter
             }
         }
 
-        private string _AudioChannels;
-        public string AudioChannels
+        private AudioChannels _AudioChannels;
+        public AudioChannels AudioChannels
         {
             get => _AudioChannels;
             set
@@ -181,7 +180,7 @@ namespace DTConverter
 
         private int _AudioBitrate;
         /// <summary>
-        /// Bitrate in kb/s
+        /// Bitrate in Kb/s
         /// </summary>
         public int AudioBitrate
         { 

@@ -156,7 +156,7 @@ namespace DTConverter
             return null;
         }
 
-        /// Tries to read version by launching a new process with FFmpegPath if not null, defaulting to ffmpeg.exe and FFprobePath and ffprobe.exe.
+        /// Tries to read version by launching a new process with FFmpegPath if not null, defaulting to ffmpeg.exe.
         /// Video and Audio encoders will be probed by this method.
         private static void CheckFFmpegVersion()
         {
@@ -238,7 +238,6 @@ namespace DTConverter
                 catch { }
             }
 
-
             // Version is printed in StandardError 
             while (!ffmpegProc.StandardError.EndOfStream)
             {
@@ -254,7 +253,10 @@ namespace DTConverter
             }
         }
 
+
+        /// <summary>
         /// Tries to read version by launching a new process with FFprobePath if not null, defaulting to ffprobe.exe.
+        /// </summary>
         private static void CheckFFprobeVersion()
         {
             string line;
@@ -290,13 +292,12 @@ namespace DTConverter
                 catch { }
             }
         }
-            
 
         /// <summary>
         /// Probes all possible informations from SourcePath. 
-        /// This method takes few seconds to execute so it should be run in a separate Process or Task
+        /// This method takes few seconds to execute so it should be run in a separate Thread or Task
         /// </summary>
-        /// <param name="SourcePath"></param>
+        /// <param name="SourcePath">Video or Audio file complete path</param>
         /// <param name="timeout">Time in ms to wait for the process to finish</param>
         /// <returns>VideoInfo with all informations read</returns>
         public static VideoInfo ProbeVideoInfo(string SourcePath, int timeout)
@@ -322,16 +323,16 @@ namespace DTConverter
             string[] splitted;
             string duration;
             string videoCodec, chromaSubsampling, resolution, videoBitrate, framerate;
-            string audioCodec, samplingRate, audioChannels, audioBitrate;
+            string audioCodec, samplingRate, audioBitrate;
 
             while (!FFprobeProcess.StandardError.EndOfStream)
             {
                 try
                 {
                     videoInfo.SourcePath = SourcePath;
-                    lineRead = FFprobeProcess.StandardError.ReadLine().Trim();
+                    lineRead = FFprobeProcess.StandardError.ReadLine().ToLower().Trim();
                     splitted = lineRead.Split(',');
-                    if (lineRead.StartsWith("Duration:"))
+                    if (lineRead.StartsWith("duration:"))
                     {
                         duration = splitted[0].Split(' ')[1].Trim();
                         videoInfo.Duration = new TimeDuration()
@@ -339,7 +340,7 @@ namespace DTConverter
                             HMS = duration
                         };
                     }
-                    if (lineRead.Contains("Video:"))
+                    if (lineRead.Contains("video:"))
                     {
                         videoInfo.HasVideo = true;
                         videoCodec = splitted[0].Split(':').Last().Split('(')[0].Trim();
@@ -352,7 +353,7 @@ namespace DTConverter
                                 chromaSubsampling = sPiece.Split('(')[0];
                                 videoInfo.ChromaSubsampling = chromaSubsampling;
                             }
-                            if (sPiece.ToLower().Contains('x'))
+                            if (sPiece.Contains('x'))
                             {
                                 Match m = Regex.Match(sPiece, @"\d+x\d+");
                                 if (m.Success)
@@ -362,49 +363,57 @@ namespace DTConverter
                                     videoInfo.VerticalResolution = int.Parse(resolution.Split('x')[1]);
                                 }
                             }
-                            if (sPiece.ToLower().Contains("fps"))
+                            if (sPiece.Contains("fps"))
                             {
                                 framerate = sPiece.Trim().Split(' ')[0].Trim();
-                                videoInfo.FrameRate = float.Parse(framerate.Replace('.', ','));
+                                videoInfo.Framerate = double.Parse(framerate, CultureInfo.InvariantCulture);
                             }
-                            if (sPiece.ToLower().Contains("kb/s"))
+                            if (sPiece.Contains("kb/s"))
                             {
                                 videoBitrate = sPiece.Trim().Split(' ')[0].Trim();
                                 videoInfo.VideoBitrate = int.Parse(videoBitrate);
                             }
                         }
                     }
-                    if (lineRead.Contains("Audio:"))
+                    if (lineRead.Contains("audio:"))
                     {
                         videoInfo.HasAudio = true;
                         foreach (string sPiece in splitted)
                         {
-                            audioCodec = sPiece.Split(':').Last().Split('(')[0].Trim();
-                            if (sPiece.ToLower().Contains("hz"))
+                            if (sPiece.Contains(':'))
+                            {
+                                audioCodec = sPiece.Split(':').Last().Split('(')[0].Trim();
+                                if (FFmpegWrapper.AudioEncoderDictionary.ContainsKey(audioCodec))
+                                {
+                                    videoInfo.AudioCodec = audioCodec;
+                                }
+                            }
+                            
+                            if (sPiece.Contains("hz"))
                             {
                                 samplingRate = splitted[1].Trim().Split(' ')[0].Trim();
                                 videoInfo.AudioSamplingRate = int.Parse(samplingRate);
                             }
-                            if (sPiece.ToLower().Contains("mono"))
+                            if (sPiece.Contains("1 channel") || sPiece.Contains("mono"))
                             {
-                                audioChannels = "mono";
-                                videoInfo.AudioCodec = audioCodec;
+                                videoInfo.AudioChannels = AudioChannels.Mono;
                             }
-                            if (sPiece.ToLower().Contains("stereo"))
+                            if (sPiece.Contains("2 channel") || sPiece.Contains("stereo"))
                             {
-                                audioChannels = "stereo";
-                                videoInfo.AudioCodec = audioCodec;
+                                videoInfo.AudioChannels = AudioChannels.Stereo;
                             }
                             if (sPiece.Contains('.'))
                             {
                                 Match m = Regex.Match(sPiece, @"\d\.\d");
                                 if (m.Success)
                                 {
-                                    audioChannels = m.Value;
-                                    videoInfo.AudioCodec = audioCodec;
+                                    if (m.Value == "5.1")
+                                    {
+                                        videoInfo.AudioChannels = AudioChannels.ch_5_1;
+                                    }
                                 }
                             }
-                            if (sPiece.ToLower().Contains("kb/s"))
+                            if (sPiece.Contains("kb/s"))
                             {
                                 audioBitrate = sPiece.Trim().Split(' ')[0].Trim();
                                 videoInfo.AudioBitrate = int.Parse(audioBitrate);
@@ -415,7 +424,6 @@ namespace DTConverter
                 catch (Exception E)
                 { }
             }
-
             FFprobeProcess.WaitForExit(timeout);
             return videoInfo;
         }
@@ -429,7 +437,7 @@ namespace DTConverter
             TimeDuration start, TimeDuration duration,
             VideoEncoders videoEncoder,
             VideoResolution videoResolution,
-            int videoBitrate, 
+            int videoBitrate,
             double outFramerate,
             int rotation, bool rotateMetadataOnly,
             Crop crop,
@@ -447,34 +455,33 @@ namespace DTConverter
                 Directory.CreateDirectory(destinationDir);
             }
 
-            // There are 3 lists: vArgsIn, vFilters, and ffArgsOut
+            // There are 3 main lists: vArgsIn, vFilters, and vArgsOut
             // vArgsIn contains arguments to be given prior to input file
             // vFilters contains filters, that will be aggregated using connectors like
             // [connectorA] filter [connectorB]; [connectorB] filter [connectorC]; [connectorC] filter [connectorD]; ...
             // if IsSlicesEnabled, last filter of vFilters will be a split like
             // [connectorN] split [split_r1c1][split_r1c2][split_r2c1][split_r2c2]...
-            // ffArgsOut wil be put at the end of ffArguments, or in each vMaps if IsSliceEnabled
+            // vArgsOut wil be put at the end of ffArguments, or in each vMaps if IsSliceEnabled
 
             List<string> vArgsIn = new List<string>();
             List<string> vFilters = new List<string>();
             List<string> vArgsOut = new List<string>();
             List<string> metadatas = new List<string>();
+            List<string> vOptions = new List<string>();
 
-            string strArgsIn = "";
-            string strvFilters = "";
-            string strSlices = "";
+            string strvArgsIn;
+            string strvFilters;
+            string strvArgsOut;
+
+            string strSlices;
 
             // Input
             vArgsIn.Add("-hide_banner");
 
             // FFmpeg does not accept frames as input start
-            if (start.DurationType == DurationTypes.Frames)
+            if (start > 0)
             {
-                start.Seconds = start.GetSeconds(outFramerate);
-            }
-            if (start.Seconds > 0)
-            {
-                vArgsIn.Add($"-ss {start.Seconds.ToString().Replace(',', '.')}s");
+                vArgsIn.Add($"-ss {Math.Round(start.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
             }
 
             // skip Audio, Subtitles, Data streams
@@ -482,49 +489,42 @@ namespace DTConverter
 
             // Input file
             vArgsIn.Add($"-i \"{sourcePath}\"");
-            
-            if (duration.Seconds > 0)
-            {
-                if (duration.DurationType != DurationTypes.Frames)
-                {
-                    vArgsOut.Add($"-t {duration.Seconds.ToString().Replace(',', '.')}s");
-                }
-            }
 
-            strArgsIn = vArgsIn.Aggregate("", AggregateWithSpace);
+            strvArgsIn = vArgsIn.Aggregate("", AggregateWithSpace);
 
-            // Output
             string vEncoder = null;
             string vFormat = null;
 
-            switch (videoEncoder.ToString().ToLower())
+            switch (videoEncoder)
             {
-                case "hap":
+                case VideoEncoders.HAP:
                     vEncoder = "hap";
                     break;
-                case "hap_alpha":
+                case VideoEncoders.HAP_Alpha:
                     vEncoder = "hap -format hap_alpha";
                     break;
-                case "hap_q":
+                case VideoEncoders.HAP_Q:
                     vEncoder = "hap -format hap_q";
                     break;
-                case "h264":
+                case VideoEncoders.H264:
                     vEncoder = "libx264";
-                    // TODO: elaborate h264 conversion
+                    vOptions.Add("-preset medium");
+                    vOptions.Add("-tune fastdecode");
+                    //vOptions.Add("-profile baseline";
                     break;
-                case "still_jpg":
+                case VideoEncoders.Still_JPG:
                     vFormat = "image2";
                     break;
-                case "still_ong":
+                case VideoEncoders.Still_PNG:
                     vFormat = "image2";
                     break;
-                case "jpg_sequence":
+                case VideoEncoders.JPG_Sequence:
                     vFormat = "image2";
                     break;
-                case "png_sequence":
+                case VideoEncoders.PNG_Sequence:
                     vFormat = "image2";
                     break;
-                case "copy":
+                case VideoEncoders.Copy:
                     vEncoder = "copy";
                     break;
                 default:
@@ -533,7 +533,14 @@ namespace DTConverter
 
             if (vEncoder != null)
             {
+                vOptions.Add("-bf 0");
+                if (outFramerate > 0)
+                {
+                    vOptions.Add($"-g {Math.Round(outFramerate, 2)}");
+                }
+
                 vArgsOut.Add($"-c:v {vEncoder}");
+                vArgsOut.Add(vOptions.Aggregate("", AggregateWithSpace));
             }
 
             if (vFormat != null)
@@ -552,9 +559,21 @@ namespace DTConverter
                 vArgsOut.Add($"-r {outFramerate.ToString(CultureInfo.InvariantCulture)}");
             }
 
-            if (duration.DurationType == DurationTypes.Frames)
+            if (videoEncoder == VideoEncoders.Still_JPG || videoEncoder == VideoEncoders.Still_PNG)
             {
-                vArgsOut.Add($"-frames:v {duration.Frames}");
+                duration = new TimeDuration() { Frames = 1 };
+            }
+
+            if (duration > 0)
+            {
+                if (duration.DurationType == DurationTypes.Frames)
+                {
+                    vArgsOut.Add($"-frames:v {duration.Frames}");
+                }
+                else
+                {
+                    vArgsOut.Add($"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
+                }
             }
 
             // Filters
@@ -573,7 +592,7 @@ namespace DTConverter
             // Scale Resolution
             if (videoResolution != null && videoResolution.IsEnabled)
             {
-                // -s option uses scale and keep input aspect ratio
+                // -s option uses scale and keeps input aspect ratio, so it may happen to have a wrong display aspect ratio in output file
                 vFilters.Add($"scale={videoResolution.Horizontal}:{videoResolution.Vertical},setsar=1/1 [scaled]");
             }
 
@@ -611,8 +630,10 @@ namespace DTConverter
             }
 
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
+
+            // Output
             vArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
-            
+
             if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
             {
                 // Add a split filter without the out connection, there will be many connectors!
@@ -620,78 +641,271 @@ namespace DTConverter
                 vFilters.Add($"split={slices.HorizontalNumber * slices.VerticalNumber}");
             }
 
-            string strArgsOut;
-            strArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
+            strvArgsOut = vArgsOut.Aggregate("", AggregateWithSpace);
 
             string ffArguments;
 
-            if (vFilters.Count > 0)
+            // vSlices will contain each crop for each slice, like
+            // [split_ric1] crop=w:h:x:y: [out_r1c1]; [split_r1c2] crop=w:h:x:y: [out_r1c2]; [split_r2c1] crop=w:h:x:y: [out_r2c1]; [split_r2c2] crop=w:h:x:y: [out_r2c2]
+            if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
             {
-                // vSlices will contain each crop for each slice, like
-                // [split_ric1] crop=w:h:x:y: [out_r1c1]; [split_r1c2] crop=w:h:x:y: [out_r1c2]; [split_r2c1] crop=w:h:x:y: [out_r2c1]; [split_r2c2] crop=w:h:x:y: [out_r2c2]
-                if (slices != null && slices.IsEnabled && (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
+                List<string> vSlices = new List<string>();
+
+                string strSplitConnectors = "";
+                string sliceConnector;
+                string w, h, x, y;
+
+                w = $"(iw+{slices.HorizontalOverlap}*{slices.HorizontalNumber - 1})/{slices.HorizontalNumber}";
+                h = $"(ih+{slices.VerticalOverlap}*{slices.VerticalNumber - 1})/{slices.VerticalNumber}";
+
+                // for r,c add slices in vfilters
+                for (int r = 1; r <= slices.VerticalNumber; r++)
                 {
-                    List<string> vSlices = new List<string>();
-
-                    string strSplitConnectors = "";
-                    string sliceConnector;
-                    string w, h, x, y;
-                    
-                    w = $"(iw+{slices.HorizontalOverlap}*{slices.HorizontalNumber - 1})/{slices.HorizontalNumber}";
-                    h = $"(ih+{slices.VerticalOverlap}*{slices.VerticalNumber - 1})/{slices.VerticalNumber}";
-                    
-                    // for r,c add slices in vfilters
-                    for (int r = 1; r <= slices.VerticalNumber; r++)
+                    y = $"{h}*{r - 1}-({ slices.VerticalOverlap}*{r - 1})";
+                    for (int c = 1; c <= slices.HorizontalNumber; c++)
                     {
-                        y = $"{h}*{r - 1}-({ slices.VerticalOverlap}*{r - 1})";
-                        for (int c = 1; c <= slices.HorizontalNumber; c++)
-                        {
-                            sliceConnector = $"r{r}c{c}";
-                            strSplitConnectors += $"[split_{sliceConnector}]";
+                        sliceConnector = $"r{r}c{c}";
+                        strSplitConnectors += $"[split_{sliceConnector}]";
 
-                            x = $"{w}*{c-1}-({ slices.HorizontalOverlap}*{c-1})";
+                        x = $"{w}*{c - 1}-({ slices.HorizontalOverlap}*{c - 1})";
 
-                            vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [cropped_{sliceConnector}]");
-                            
-                            // Round final slice resolution to Multiple
-                            vSlices.Add($"[cropped_{sliceConnector}] scale=0:-{videoResolution.Multiple} [scaledh_{sliceConnector}]");
-                            vSlices.Add($"[scaledh_{sliceConnector}] scale=-{videoResolution.Multiple}:0 [out_{sliceConnector}]");
-                        }
+                        vSlices.Add($"[split_{sliceConnector}] crop={w}:{h}:{x}:{y},setsar=1/1 [cropped_{sliceConnector}]");
+
+                        // Round final slice resolution to Multiple
+                        vSlices.Add($"[cropped_{sliceConnector}] scale=0:-{videoResolution.Multiple} [scaledh_{sliceConnector}]");
+                        vSlices.Add($"[scaledh_{sliceConnector}] scale=-{videoResolution.Multiple}:0 [out_{sliceConnector}]");
                     }
+                }
 
-                    // last filter should be the split filter
-                    strvFilters = vFilters.Aggregate("", AggregateFilters);
-                    // complete strvFilters with many outputs of the split filter
-                    strvFilters += " " + strSplitConnectors + ";";
-                    strSlices = vSlices.Aggregate("", AggregateWithSemicolon);
+                // last filter should be the split filter
+                strvFilters = vFilters.Aggregate("", AggregateFilters);
+                // complete strvFilters with many outputs of the split filter
+                strvFilters += " " + strSplitConnectors + ";";
+                strSlices = vSlices.Aggregate("", AggregateWithSemicolon);
 
-                    strvFilters += " " + strSlices;
+                strvFilters += " " + strSlices;
 
-                    List<string> vMaps = new List<string>();
-                    string destinationPathMapped;
+                List<string> vMaps = new List<string>();
+                string destinationPathMapped;
 
-                    for (int r = 1; r <= slices.VerticalNumber; r++)
+                for (int r = 1; r <= slices.VerticalNumber; r++)
+                {
+                    for (int c = 1; c <= slices.HorizontalNumber; c++)
                     {
-                        for (int c = 1; c <= slices.HorizontalNumber; c++)
-                        {
-                            destinationPathMapped = Slicer.GetSliceName(destinationPath, r, c);
-                            vMaps.Add($"-map \"[out_r{r}c{c}]\" {strArgsOut} \"{destinationPathMapped}\" -y");
-                        }
+                        destinationPathMapped = Slicer.GetSliceName(destinationPath, r, c);
+                        vMaps.Add($"-map \"[out_r{r}c{c}]\" {strvArgsOut} \"{destinationPathMapped}\" -y");
                     }
+                }
 
-                    string strvMaps;
-                    strvMaps = vMaps.Aggregate("", AggregateWithSpace);
+                string strvMaps;
+                strvMaps = vMaps.Aggregate("", AggregateWithSpace);
 
-                    ffArguments = $"{strArgsIn} -filter_complex \"{strvFilters}\" {strvMaps}";
+                ffArguments = $"{strvArgsIn} -filter_complex \"{strvFilters}\" {strvMaps}";
+            }
+            else
+            {
+                // Round final resolution to Multiple
+                vFilters.Add($"scale=0:-{videoResolution.Multiple} [scaledh]");
+                vFilters.Add($"scale=-{videoResolution.Multiple}:0");
+
+                strvFilters = vFilters.Aggregate("", AggregateFilters);
+                ffArguments = $"{strvArgsIn} -filter:v \"{strvFilters}\" {strvArgsOut} \"{destinationPath}\"";
+            }
+
+            if (videoEncoder == VideoEncoders.Copy)
+            {
+                ffArguments = $"{strvArgsIn} {strvArgsOut} \"{destinationPath}\"";
+            }
+
+            // Process
+            Process FFmpegProcess = new Process();
+            FFmpegProcess.StartInfo = new ProcessStartInfo() { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            FFmpegProcess.StartInfo.FileName = FFmpegPath;
+            FFmpegProcess.StartInfo.Arguments = ffArguments;
+            return FFmpegProcess;
+        }
+
+        /// <summary>
+        /// Creates the Process for converting audio, not videos or images. The Process returned needs to be started
+        /// </summary>
+        /// <param name="sourcePath">Complete path of source file (C:\dir\file.ext)</param>
+        /// <param name="destinationPath">Complete path of destination file (C:\dir\file.ext")</param>
+        public static Process ConvertAudio(string sourcePath, string destinationPath,
+    TimeDuration start, TimeDuration duration,
+    AudioEncoders audioEncoder,
+    int audioRate,
+    bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels)
+        {
+            if (FFmpegPath == null)
+            {
+                return null;
+            }
+
+            string destinationDir = Path.GetDirectoryName(destinationPath);
+            if (!Directory.Exists(destinationDir))
+            {
+                Directory.CreateDirectory(destinationDir);
+            }
+
+            List<string> aArgsIn = new List<string>();
+            List<string> aFilters = new List<string>();
+            List<string> aArgsOut = new List<string>();
+            List<string> metadatas = new List<string>();
+
+            string strArgsIn;
+
+            // Input
+            aArgsIn.Add("-hide_banner");
+
+            // FFmpeg does not accept frames as input start
+            if (start > 0)
+            {
+                aArgsIn.Add($"-ss {Math.Round(start.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
+            }
+
+            // skip Video, Subtitles, Data streams
+            aArgsIn.Add($"-vn -sn -dn");
+
+            // Input file
+            aArgsIn.Add($"-i \"{sourcePath}\"");
+
+            // using frames as duration returns an audio file of different lenght than the video one with same frames
+            //aArgsOut.Add($"-frames:a {duration.Frames.ToString(CultureInfo.InvariantCulture)}");
+            if (duration > 0)
+            {
+                aArgsOut.Add($"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s");
+            }
+
+            strArgsIn = aArgsIn.Aggregate("", AggregateWithSpace);
+
+            metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
+
+            // Output
+            aArgsOut.Add(metadatas.Aggregate("", AggregateWithSpace));
+
+            string aEncoder = null;
+
+            // WAV_16bit, WAV_24bit, WAV_32bit
+            switch (audioEncoder)
+            {
+                case AudioEncoders.WAV_16:
+                    aEncoder = "pcm_s16le";
+                    break;
+                case AudioEncoders.WAV_24:
+                    aEncoder = "pcm_s24le";
+                    break;
+                case AudioEncoders.WAV_32:
+                    aEncoder = "pcm_s32le";
+                    break;
+                case AudioEncoders.Copy:
+                    aEncoder = "copy";
+                    break;
+            }
+
+            if (aEncoder != null)
+            {
+                aArgsOut.Add($"-c:a {aEncoder}");
+            }
+
+            if (audioRate > 0)
+            {
+                aArgsOut.Add($"-ar {audioRate}");
+            }
+
+            string strArgsOut;
+
+            List<string> aMaps = new List<string>();
+
+            if (isAudioChannelsEnabled)
+            {
+                strArgsOut = aArgsOut.Aggregate("", AggregateWithSpace);
+                switch (outChannels)
+                {
+                    case AudioChannels.Mono:
+                        if (splitChannels)
+                        {
+                            // take L
+                            aFilters.Add($"channelsplit=1 [L]");
+                            aMaps.Add($"-map \"[L]\" {strArgsOut} \"{destinationPathCh(destinationPath, "L")}\" -y");
+                        }
+                        else
+                        {
+                            // Any source will be downmixed to mono
+                            aArgsOut.Add($"-ac 1");
+                        }
+                        break;
+                    case AudioChannels.Stereo:
+                        if (splitChannels)
+                        {
+                            // source should be stereo, otherwise only L and R will be considered
+                            aFilters.Add($"channelsplit=channel_layout=stereo [L][R]");
+                            aMaps.Add($"-map \"[L]\" {strArgsOut} \"{destinationPathCh(destinationPath, "L")}\"");
+                            aMaps.Add($"-map \"[R]\" {strArgsOut} \"{destinationPathCh(destinationPath, "R")}\"");
+                        }
+                        else
+                        {
+                            // if source is mono: output will be dual mono
+                            // if source is 5.1: output will be downmixed to stereo
+                            aArgsOut.Add($"-ac 2");
+                        }
+                        break;
+                    case AudioChannels.ch_5_1:
+                        string[] channels51 = { "FL", "FR", "FC", "LFE", "SL", "SR" };
+                        if (splitChannels)
+                        {
+                            // source should be 5.1, otherwise error will occur
+                            if (inChannels == AudioChannels.ch_5_1)
+                            {
+                                aFilters.Add($"channelsplit=channel_layout=5.1 {channels51.Aggregate("", AggregateWithSquareBrackets)}");
+                                foreach (string ch in channels51)
+                                {
+                                    aMaps.Add($"-map \"[{ch}]\" {strArgsOut} \"{destinationPathCh(destinationPath, ch)}\"");
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception($"Cannot split a {inChannels} source into 6 channels");
+                            }
+                        }
+                        else
+                        {
+                            if (inChannels == AudioChannels.Mono)
+                            {
+                                aFilters.Add($"asplit=6 {channels51.Aggregate("", AggregateWithSquareBrackets)}");
+                                aFilters.Add($"join=inputs=6:channel_layout=5.1");
+                            }
+                            else if (inChannels == AudioChannels.Stereo)
+                            {
+                                aFilters.Add($"channelsplit=channel_layout=stereo [L][R]");
+                                aFilters.Add($"join=inputs=2:channel_layout=5.1:map=0.0-FL|1.0-FR|0.0-FC|0.0-BL|1.0-BR|1.0-LFE");
+                            }
+                            else if (inChannels == AudioChannels.ch_5_1)
+                            {
+                                // 5.1 source will be encoded without mappings
+                            }
+                        }
+                        break;
+                }
+            }
+
+            string straFilters;
+            string straMaps;
+            string ffArguments;
+
+            strArgsOut = aArgsOut.Aggregate("", AggregateWithSpace);
+
+            if (aFilters.Count > 0 && audioEncoder != AudioEncoders.Copy)
+            {
+                straFilters = aFilters.Aggregate("", AggregateFilters);
+
+                if (splitChannels)
+                {
+                    straMaps = aMaps.Aggregate("", AggregateWithSpace);
+                    ffArguments = $"{strArgsIn} -filter_complex \"{straFilters}\" {straMaps}";
                 }
                 else
                 {
-                    // Round final resolution to Multiple
-                    vFilters.Add($"scale=0:-{videoResolution.Multiple} [scaledh]");
-                    vFilters.Add($"scale=-{videoResolution.Multiple}:0");
-                    
-                    strvFilters = vFilters.Aggregate("", AggregateFilters);
-                    ffArguments = $"{strArgsIn} -filter:v \"{strvFilters}\" {strArgsOut} \"{destinationPath}\"";
+                    ffArguments = $"{strArgsIn} -filter_complex \"{straFilters}\" {strArgsOut} \"{destinationPath}\"";
                 }
             }
             else
@@ -744,26 +958,46 @@ namespace DTConverter
         }
 
         /// <summary>
-        /// Aggregates filters using [out connector] of Prev filter as [input connector] of Next filter
+        /// Aggregates elements enclosing them in [square][brackets]
         /// </summary>
-        /// <param name="Prev"></param>
-        /// <param name="Next"></param>
-        /// <returns></returns>
-        private static string AggregateFilters(string Prev, string Next)
+        private static string AggregateWithSquareBrackets(string Prev, string Next)
         {
-            if (Prev.Contains('[') && Prev.Contains(']'))
+            if (Prev.Trim() != "")
             {
-                return Prev + "; " + Prev.Substring(Prev.LastIndexOf('[')) + " " + Next;
+                return $"{Prev}[{Next}]";
             }
             else
             {
-                return Next;
+                return $"[{Next}]";
             }
         }
 
-        public static void ConvertAudio()
+        /// <summary>
+        /// Aggregates filters using [out connector] of Prev filter as [input connector] of Next filter
+        /// </summary>
+        /// <param name="prev"></param>
+        /// <param name="next"></param>
+        /// <returns></returns>
+        private static string AggregateFilters(string prev, string next)
         {
-            // TODO: implement ConvertAudio
+            // -filter [ina] aaa [outa];[outa] bbb [outb]; [outb] ccc [outc]
+            // -filter_complex [ia1][ia2][ia3] aaa [oa1][oa2][oa3]; [oa1][oa2][oa3] bbb [ob1][ob2][ob3]; [ob1][ob2][ob3] ccc [oc1][oc2][oc3]
+            if (prev.Contains('[') && prev.Contains(']'))
+            {
+                return prev + "; " + prev.Substring(prev.LastIndexOf(' ')) + " " + next;
+            }
+            else
+            {
+                return next;
+            }
+        }
+
+        /// <summary>
+        /// Generates the name for given path, adding channel in a standard way.
+        /// </summary>
+        public static string destinationPathCh(string originalName, string channel)
+        {
+            return Path.Combine(Path.GetDirectoryName(originalName), Path.GetFileNameWithoutExtension(originalName) + $"_{channel}" + Path.GetExtension(originalName));
         }
     }
 }

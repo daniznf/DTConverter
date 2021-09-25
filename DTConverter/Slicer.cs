@@ -105,6 +105,21 @@ namespace DTConverter
             return Path.Combine(Path.GetDirectoryName(originalName), Path.GetFileNameWithoutExtension(originalName)) + $"_r{r}c{c}" + Path.GetExtension(originalName);
         }
 
+        /// <summary>
+        /// Returns a new clone of this object
+        /// </summary>
+        public Slicer Clone()
+        {
+            return new Slicer()
+            {
+                IsEnabled = this.IsEnabled,
+                HorizontalNumber = this.HorizontalNumber,
+                VerticalNumber = this.VerticalNumber,
+                HorizontalOverlap = this.HorizontalOverlap,
+                VerticalOverlap = this.VerticalOverlap,
+            };
+        }
+
         // This implements INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string info)
