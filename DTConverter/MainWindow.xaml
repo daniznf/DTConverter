@@ -537,7 +537,7 @@
                                         <Label Content="Encoder"/>
                                         <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
                                     </StackPanel>
-                                    <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
                                         <CheckBox Name="ChkEnableAudioRate" Content="Sampling rate" IsChecked="True"/>
                                         <StackPanel Name="PnlSamplingRate" HorizontalAlignment="Center" Visibility="{Binding ElementName=ChkEnableAudioRate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                             <ComboBox Name="CbxSamplingRate" SelectedIndex="0" Text="{Binding AudioRate}">
@@ -553,7 +553,7 @@
                                             <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
                                         </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
                                         <CheckBox Name="ChkEnableChannels" Content="Channels" IsChecked="True"/>
                                         <StackPanel Visibility="{Binding ElementName=ChkEnableChannels, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                             <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
