@@ -240,10 +240,7 @@ namespace DTConverter
                         convertingCP = cp;
                         if (cp.IsValid && cp.IsConversionEnabled)
                         {
-                            cp.ConvertVideo(
-                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
-                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
-                            cp.ConvertAudio(
+                            cp.ConvertVideoAudio(
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
                         }

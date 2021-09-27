@@ -29,8 +29,8 @@ using System.Windows.Controls;
 
 namespace DTConverter
 {
-    public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy }
-    public enum AudioEncoders { WAV_16, WAV_24, WAV_32, Copy }
+    public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy, None }
+    public enum AudioEncoders { WAV_16, WAV_24, WAV_32, Copy, None }
     public enum AudioChannels { Mono, Stereo, ch_5_1 }
     //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
@@ -247,10 +247,6 @@ namespace DTConverter
                         extension = Path.GetExtension(SourcePath);
                     }
 
-                    if (File.Exists(outPath + extension))
-                    {
-                        outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
-                    }
                     outPath += extension;
 
                     return outPath;
@@ -287,10 +283,6 @@ namespace DTConverter
                         extension = Path.GetExtension(SourcePath);
                     }
 
-                    if (File.Exists(outPath + extension))
-                    {
-                        outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
-                    }
                     outPath += extension;
 
                     return outPath;
@@ -818,8 +810,10 @@ namespace DTConverter
                 _AudioEncoder = value;
                 OnPropertyChanged("AudioEncoder");
                 OnPropertyChanged("DestinationAudioPath");
+                OnPropertyChanged("IsAudioEncoderNotCopy");
             }
         }
+        public bool IsAudioEncoderNotCopy => AudioEncoder != AudioEncoders.Copy;
 
         private ConversionStatus _AudioConversionStatus;
         public ConversionStatus AudioConversionStatus
@@ -931,8 +925,9 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
-                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        PreviewResolution, 0, 0, 0, false, null, null, null);
+                    ProcessPreviewIn = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                        PreviewResolution, 0, 0, 0, false, null, null, null,
+                        null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
@@ -987,11 +982,29 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewOut;
                 try
                 {
-                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams);
+                    if (SliceParams != null && SliceParams.IsEnabled &&
+                    (SliceParams.HorizontalNumber > 1 || SliceParams.VerticalNumber > 1))
+                    {
+                        for (int r = 1; r <= SliceParams.VerticalNumber; r++)
+                        {
+                            for (int c = 1; c <= SliceParams.HorizontalNumber; c++)
+                            {
+                                if (File.Exists(Slicer.GetSliceName(ThumbnailPathOut, r, c)))
+                                {
+                                    File.Delete(Slicer.GetSliceName(ThumbnailPathOut, r, c));
+                                }
+                            }
+                        }
+                    }
+                    if (File.Exists(ThumbnailPathOut))
+                    {
+                        File.Delete(ThumbnailPathOut);
+                    }
+                    ProcessPreviewOut = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                        VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams,
+                        null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
-                    ProcessPreviewOut.StartInfo.Arguments += " -y";
                     if (ProcessPreviewOut.Start())
                     {
                         ProcessPreviewOut.BeginOutputReadLine();
@@ -1033,23 +1046,27 @@ namespace DTConverter
         
         private Process VideoConversionProcess;
         /// <summary>
-        /// Converts video stream, but not audio.
+        /// Converts video and audio stream. 
+        /// If DestinationVideoPath == DestinationAudioPath the resulting video will contain audio, otherwise video and audio will be in separate files.
         /// This method takes several seconds to execute so it should be run it in a separate Thread or Task
         /// </summary>
-        public void ConvertVideo(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
+        public void ConvertVideoAudio(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
         {
             if (VideoConversionStatus != ConversionStatus.Converting)
             {
                 VideoConversionStatus = ConversionStatus.Converting;
                 try
                 {
-                    if (IsValid && IsConversionEnabled && IsVideoEnabled)
+                    if (IsValid && IsConversionEnabled)
                     {
-                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, StartTime, DurationTimeEquivalent, VideoEncoder,
+                        VideoConversionProcess = FFmpegWrapper.ConvertVideoAudio(SourcePath, DestinationVideoPath, StartTime, DurationTimeEquivalent, VideoEncoder,
                             VideoResolutionParams,
                             IsVideoBitrateEnabled? VideoBitrate : 0,
                             IsOutFramerateEnabled? OutFramerate : 0,
-                            IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
+                            IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams,
+                            SourcePath, (true)? DestinationVideoPath : DestinationAudioPath, AudioEncoder,
+                            IsAudioRateEnabled ? AudioRate : 0, 
+                            IsChannelsEnabled, SourceInfo != null? SourceInfo.AudioChannels : AudioChannels.Stereo, Channels, SplitChannels);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())
@@ -1086,65 +1103,6 @@ namespace DTConverter
                 if (VideoConversionProcess != null && !VideoConversionProcess.HasExited)
                 {
                     VideoConversionProcess.Kill();
-                    VideoConversionStatus = ConversionStatus.None;
-                }
-            }
-            catch (Exception E) { }
-        }
-
-        private Process AudioConversionProcess;
-        /// <summary>
-        /// Converts audio stream, but not video.
-        /// This method takes several seconds to execute so it should be run it in a separate Thread or Task
-        /// </summary>
-        public void ConvertAudio(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
-        {
-            if (VideoConversionStatus != ConversionStatus.Converting)
-            {
-                VideoConversionStatus = ConversionStatus.Converting;
-                try
-                {
-                    if (IsValid && IsConversionEnabled && IsAudioEnabled)
-                    {
-                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, StartTime, DurationTimeEquivalent, AudioEncoder,
-                            IsAudioRateEnabled ? AudioRate : 0,
-                            IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels);
-                        AudioConversionProcess.OutputDataReceived += outputReceived;
-                        AudioConversionProcess.ErrorDataReceived += errorReceived;
-                        if (AudioConversionProcess.Start())
-                        {
-                            AudioConversionProcess.BeginOutputReadLine();
-                            AudioConversionProcess.BeginErrorReadLine();
-                            if (!AudioConversionProcess.HasExited)
-                            {
-                                AudioConversionProcess.WaitForExit();
-                            }
-                            if (AudioConversionProcess.ExitCode != 0)
-                            {
-                                throw new Exception($"Conversion failed with error {AudioConversionProcess.ExitCode}");
-                            }
-                        }
-                    }
-                    VideoConversionStatus = ConversionStatus.Success;
-                }
-                catch (Exception E)
-                {
-                    VideoConversionStatus = ConversionStatus.Failed;
-                    throw E;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Instantly kills this audio conversion
-        /// </summary>
-        public void KillAudioConversion()
-        {
-            try
-            {
-                if (AudioConversionProcess != null && !AudioConversionProcess.HasExited)
-                {
-                    AudioConversionProcess.Kill();
                     VideoConversionStatus = ConversionStatus.None;
                 }
             }
