@@ -150,6 +150,8 @@ namespace DTConverter
                     messageLow.Contains("fail") ||
                     messageLow.Contains("invalid") ||
                     messageLow.Contains("cannot") ||
+                    messageLow.Contains("could not") ||
+                    messageLow.Contains("not exist") ||
                     messageLow.Contains("is not multiple"))
                     {
                         isError = true;
