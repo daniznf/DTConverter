@@ -30,7 +30,7 @@ using System.Windows.Controls;
 namespace DTConverter
 {
     public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy, None }
-    public enum AudioEncoders { WAV_16, WAV_24, WAV_32, Copy, None }
+    public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit, Copy, None }
     public enum AudioChannels { Mono, Stereo, ch_5_1 }
     //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
@@ -79,7 +79,7 @@ namespace DTConverter
             IsConversionEnabled = true;
             JoinAudioVideo = false;
             VideoEncoder = VideoEncoders.HAP;
-            AudioEncoder = AudioEncoders.WAV_16;
+            AudioEncoder = AudioEncoders.WAV_16bit;
             IsAudioRateEnabled = false;
             AudioRate = 44100;
             IsChannelsEnabled = false;
@@ -286,7 +286,7 @@ namespace DTConverter
                     }
 
                     string extension;
-                    if ((AudioEncoder == AudioEncoders.WAV_16) || (AudioEncoder == AudioEncoders.WAV_24) || (AudioEncoder == AudioEncoders.WAV_32))
+                    if ((AudioEncoder == AudioEncoders.WAV_16bit) || (AudioEncoder == AudioEncoders.WAV_24bit) || (AudioEncoder == AudioEncoders.WAV_32bit))
                     {
                         extension = ".wav";
                     }

@@ -628,13 +628,13 @@ namespace DTConverter
                 string straEncoder = null;
                 switch (audioEncoder)
                 {
-                    case AudioEncoders.WAV_16:
+                    case AudioEncoders.WAV_16bit:
                         straEncoder = "pcm_s16le";
                         break;
-                    case AudioEncoders.WAV_24:
+                    case AudioEncoders.WAV_24bit:
                         straEncoder = "pcm_s24le";
                         break;
-                    case AudioEncoders.WAV_32:
+                    case AudioEncoders.WAV_32bit:
                         straEncoder = "pcm_s32le";
                         break;
                     case AudioEncoders.Copy:
