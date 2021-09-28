@@ -199,6 +199,11 @@ namespace DTConverter
         {
             get
             {
+                if (VideoEncoder == VideoEncoders.None)
+                {
+                    return "";
+                }
+
                 if (SourcePath != null)
                 {
                     string outPath = Path.GetDirectoryName(SourcePath);
@@ -257,6 +262,10 @@ namespace DTConverter
         {
             get
             {
+                if (AudioEncoder == AudioEncoders.None)
+                {
+                    return "";
+                }
                 if (JoinAudioVideo)
                 {
                     return DestinationVideoPath;
