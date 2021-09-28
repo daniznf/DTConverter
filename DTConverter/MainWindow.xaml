@@ -264,7 +264,7 @@
 
                 <TabControl Grid.Row="0" TabStripPlacement="Top" Margin="0,0,0,0" IsEnabled="{Binding IsValid}">
                     <TabItem Header="Video">
-                        <DockPanel Name="PnlVideoSettings">
+                        <DockPanel Name="PnlVideoSettings" IsEnabled="{Binding SourceInfo.HasVideo}">
                             <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
                                 <DockPanel.Resources>
                                     <Style TargetType="Label"  BasedOn="{StaticResource StyleLabelBase}">
@@ -482,7 +482,7 @@
                     </TabItem>
 
                     <TabItem Header="Audio">
-                        <DockPanel Name="PnlAudioSettings">
+                        <DockPanel Name="PnlAudioSettings"  IsEnabled="{Binding SourceInfo.HasAudio}">
                             <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
                                 <DockPanel.Resources>
                                     <Style TargetType="Label"  BasedOn="{StaticResource StyleLabelBase}">
@@ -507,10 +507,9 @@
                                 </Label>
                             </DockPanel>
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Vertical" IsEnabled="{Binding SourceInfo.HasAudio}">
                                     <StackPanel.Resources>
                                         <Style TargetType="StackPanel" BasedOn="{StaticResource StyleStackPanelBase}" />
-                                        
                                         <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
                                             <Setter Property="Width" Value="128px"/>
                                         </Style>
@@ -520,33 +519,35 @@
                                             <Label Content="Encoder"/>
                                             <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
                                         </StackPanel>
-                                        <CheckBox Content="Join with Video" IsEnabled="{Binding IsVideoEncoderVideo}" IsChecked="{Binding JoinAudioVideo}"/>
+                                        <StackPanel>
+                                            <CheckBox Content="Join with Video" IsEnabled="{Binding IsVideoEncoderVideo}" IsChecked="{Binding JoinAudioVideo}"/>
+                                        </StackPanel>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
-                                        <CheckBox Name="ChkEnableAudioRate" Content="Sampling rate" IsChecked="True"/>
-                                        <StackPanel Name="PnlSamplingRate" HorizontalAlignment="Center" Visibility="{Binding ElementName=ChkEnableAudioRate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
-                                            <ComboBox Name="CbxSamplingRate" SelectedIndex="0" Text="{Binding AudioRate}">
-                                                <ComboBoxItem Content="8000"/>
-                                                <ComboBoxItem Content="11025"/>
-                                                <ComboBoxItem Content="22050"/>
-                                                <ComboBoxItem Content="32000"/>
-                                                <ComboBoxItem Content="44100"/>
-                                                <ComboBoxItem Content="48000"/>
-                                                <ComboBoxItem Content="96000"/>
-                                                <ComboBoxItem Content="192000"/>
-                                            </ComboBox>
-                                            <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
+                                            <CheckBox Name="ChkEnableAudioRate" Content="Sampling rate" IsChecked="True"/>
+                                            <StackPanel Name="PnlSamplingRate" HorizontalAlignment="Center" Visibility="{Binding ElementName=ChkEnableAudioRate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
+                                                <ComboBox Name="CbxSamplingRate" SelectedIndex="0" Text="{Binding AudioRate}">
+                                                    <ComboBoxItem Content="8000"/>
+                                                    <ComboBoxItem Content="11025"/>
+                                                    <ComboBoxItem Content="22050"/>
+                                                    <ComboBoxItem Content="32000"/>
+                                                    <ComboBoxItem Content="44100"/>
+                                                    <ComboBoxItem Content="48000"/>
+                                                    <ComboBoxItem Content="96000"/>
+                                                    <ComboBoxItem Content="192000"/>
+                                                </ComboBox>
+                                                <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
+                                            <CheckBox Name="ChkEnableChannels" Content="Channels" IsChecked="True"/>
+                                            <StackPanel Visibility="{Binding ElementName=ChkEnableChannels, Path=IsChecked, Converter={StaticResource VisibConverter}}">
+                                                <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
+                                                <CheckBox Name="ChkSplitChannels" Content="Split" Width="64px" Margin="8px,0,0,0" IsChecked="{Binding SplitChannels}"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
-                                        <CheckBox Name="ChkEnableChannels" Content="Channels" IsChecked="True"/>
-                                        <StackPanel Visibility="{Binding ElementName=ChkEnableChannels, Path=IsChecked, Converter={StaticResource VisibConverter}}">
-                                            <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
-                                            <CheckBox Name="ChkSplitChannels" Content="Split" Width="64px" Margin="8px,0,0,0" IsChecked="{Binding SplitChannels}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </StackPanel>
                                 </StackPanel>
                             </ScrollViewer>
                         </DockPanel>

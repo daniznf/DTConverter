@@ -542,9 +542,11 @@ namespace DTConverter
             }
         }
 
-        public bool IsVideoEnabled => _SourceInfo != null ? VideoEncoder != VideoEncoders.None && _SourceInfo.HasVideo : false;
+        //public bool IsVideoEnabled => _SourceInfo != null ? VideoEncoder != VideoEncoders.None && _SourceInfo.HasVideo : false;
+        public bool IsVideoEnabled => VideoEncoder != VideoEncoders.None;
 
-        public bool IsAudioEnabled => _SourceInfo != null ? AudioEncoder != AudioEncoders.None && _SourceInfo.HasAudio : false;
+        //public bool IsAudioEnabled => _SourceInfo != null ? AudioEncoder != AudioEncoders.None && _SourceInfo.HasAudio : false;
+        public bool IsAudioEnabled => AudioEncoder != AudioEncoders.None;
 
         private bool _JoinAudioVideo;
         public bool JoinAudioVideo
