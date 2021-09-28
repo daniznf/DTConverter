@@ -511,16 +511,17 @@
                                 <StackPanel Orientation="Vertical">
                                     <StackPanel.Resources>
                                         <Style TargetType="StackPanel" BasedOn="{StaticResource StyleStackPanelBase}" />
-                                        <Style TargetType="Label" BasedOn="{StaticResource StyleLabelBase}">
-                                            <Setter Property="Width" Value="128px"/>
-                                        </Style>
+                                        
                                         <Style TargetType="ComboBox" BasedOn="{StaticResource StyleComboBoxBase}">
                                             <Setter Property="Width" Value="128px"/>
                                         </Style>
                                     </StackPanel.Resources>
                                     <StackPanel>
-                                        <Label Content="Encoder"/>
-                                        <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
+                                        <StackPanel>
+                                            <Label Content="Encoder"/>
+                                            <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
+                                        </StackPanel>
+                                        <CheckBox Content="Join with Video" IsEnabled="{Binding IsVideoEncoderVideo}" IsChecked="{Binding JoinAudioVideo}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
                                         <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">

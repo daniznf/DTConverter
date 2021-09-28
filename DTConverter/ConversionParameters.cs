@@ -77,6 +77,7 @@ namespace DTConverter
             AudioConversionStatus = ConversionStatus.None;
 
             IsConversionEnabled = true;
+            JoinAudioVideo = false;
             VideoEncoder = VideoEncoders.HAP;
             AudioEncoder = AudioEncoders.WAV_16;
             IsAudioRateEnabled = false;
@@ -138,6 +139,7 @@ namespace DTConverter
             PreviewTime = copyFrom.PreviewTime.Clone();
 
             IsConversionEnabled = IsValid && copyFrom.IsConversionEnabled;
+            JoinAudioVideo = copyFrom.JoinAudioVideo;
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
             IsAudioRateEnabled = copyFrom.IsAudioRateEnabled;
@@ -255,6 +257,11 @@ namespace DTConverter
         {
             get
             {
+                if (JoinAudioVideo)
+                {
+                    return DestinationVideoPath;
+                }
+
                 if (SourcePath != null)
                 {
                     string outPath = Path.GetDirectoryName(SourcePath);
@@ -530,10 +537,23 @@ namespace DTConverter
 
         public bool IsAudioEnabled => _SourceInfo != null ? AudioEncoder != AudioEncoders.None && _SourceInfo.HasAudio : false;
 
+        private bool _JoinAudioVideo;
+        public bool JoinAudioVideo
+        {
+            get => _JoinAudioVideo;
+            set
+            {
+                _JoinAudioVideo = value;
+                OnPropertyChanged("JoinAudioVideo");
+                OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("DestinationAudioPath");
+            }
+        }
+
         private VideoEncoders _VideoEncoder;
         public VideoEncoders VideoEncoder
         {
-            get => _VideoEncoder;
+            get => SourceInfo != null ? SourceInfo.HasVideo ? _VideoEncoder : VideoEncoders.None : VideoEncoders.None;
             set
             {
                 _VideoEncoder = value;
@@ -552,12 +572,14 @@ namespace DTConverter
 
                 OnPropertyChanged("VideoEncoder");
                 OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("DestinationAudioPath");
                 OnPropertyChanged("IsVideoEnabled");
                 OnPropertyChanged("IsVideoEncoderCopy");
                 OnPropertyChanged("IsVideoEncoderNotCopy");
                 OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotHAP");
                 OnPropertyChanged("IsVideoEncoderNotStillImage");
+                OnPropertyChanged("IsVideoEncoderVideo");
             }
         }
         public bool IsVideoEncoderCopy => VideoEncoder == VideoEncoders.Copy;
@@ -565,6 +587,12 @@ namespace DTConverter
         public bool IsVideoEncoderH264 => VideoEncoder == VideoEncoders.H264;
         public bool IsVideoEncoderNotHAP => !VideoEncoder.ToString().ToLower().Contains("hap");
         public bool IsVideoEncoderNotStillImage => !VideoEncoder.ToString().ToLower().Contains("still");
+        public bool IsVideoEncoderVideo =>
+            VideoEncoder != VideoEncoders.Still_JPG &&
+            VideoEncoder != VideoEncoders.Still_PNG &&
+            VideoEncoder != VideoEncoders.JPG_Sequence &&
+            VideoEncoder != VideoEncoders.PNG_Sequence &&
+            VideoEncoder != VideoEncoders.None;
 
         public VideoResolution VideoResolutionParams { get; set; }
 
@@ -780,7 +808,7 @@ namespace DTConverter
         private AudioEncoders _AudioEncoder;
         public AudioEncoders AudioEncoder
         {
-            get => _AudioEncoder;
+            get => SourceInfo != null ? SourceInfo.HasAudio? _AudioEncoder : AudioEncoders.None : AudioEncoders.None;
             set
             {
                 _AudioEncoder = value;
@@ -1041,7 +1069,7 @@ namespace DTConverter
                             IsVideoBitrateEnabled? VideoBitrate : 0,
                             IsOutFramerateEnabled? OutFramerate : 0,
                             IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams,
-                            SourcePath, (true)? DestinationVideoPath : DestinationAudioPath, AudioEncoder,
+                            SourcePath, DestinationAudioPath, AudioEncoder,
                             IsAudioRateEnabled ? AudioRate : 0, 
                             IsChannelsEnabled, SourceInfo != null? SourceInfo.AudioChannels : AudioChannels.Stereo, Channels, SplitChannels);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
