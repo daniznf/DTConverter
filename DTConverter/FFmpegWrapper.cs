@@ -879,11 +879,11 @@ namespace DTConverter
                         {
                             if (audioEncoder == AudioEncoders.Copy)
                             {
-                                aMaps.Add($"-map 0:a {strDuration} {strMetadata} \"{destinationPath(dstAudioPath)}\"");
+                                aMaps.Add($"-map 0:a {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath)}\"");
                             }
                             else
                             {
-                                aMaps.Add($"-map \"[aout]\" {strDuration} {strMetadata} \"{destinationPath(dstAudioPath)}\"");
+                                aMaps.Add($"-map \"[aout]\" {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath)}\"");
                             }
                         }
                     }
@@ -908,7 +908,7 @@ namespace DTConverter
                         }
 
                         // straMapOut may be "" so it's not necessary to check the audioEncoder
-                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{destinationPath(dstVideoPath, r, c)}\"");
+                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, r, c)}\"");
                     }
                 }
             }
@@ -933,25 +933,25 @@ namespace DTConverter
                         {
                             // strvMapOut may be "" so it's not necessary to check the videoEncoder
                             case AudioChannels.Mono:
-                                aMaps.Add($"{strvMapOut} -map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"{strvMapOut} -map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
                                 break;
                             case AudioChannels.Stereo:
                                 // source should be stereo, otherwise only L and R will be considered
-                                aMaps.Add($"{strvMapOut.Replace("vout", "voutL")} -map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, "L")}\"");
-                                aMaps.Add($"{strvMapOut.Replace("vout", "voutR")} -map \"[R]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, "R")}\"");
+                                aMaps.Add($"{strvMapOut.Replace("vout", "voutL")} -map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"{strvMapOut.Replace("vout", "voutR")} -map \"[R]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "R")}\"");
                                 break;
                             case AudioChannels.ch_5_1:
                                 string[] channels51 = { "FL", "FR", "FC", "LFE", "SL", "SR" };
                                 foreach (string ch in channels51)
                                 {
-                                    aMaps.Add($"{strvMapOut.Replace("vout", "vout" + ch)} -map \"[{ch}]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, ch)}\"");
+                                    aMaps.Add($"{strvMapOut.Replace("vout", "vout" + ch)} -map \"[{ch}]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, ch)}\"");
                                 }
                                 break;
                         }
                     }
                     else
                     {
-                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{destinationPath(dstVideoPath)}\"");
+                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath)}\"");
                     }
                 }
                 else
@@ -962,37 +962,37 @@ namespace DTConverter
                         switch (outChannels)
                         {
                             case AudioChannels.Mono:
-                                aMaps.Add($"-map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"-map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
                                 break;
                             case AudioChannels.Stereo:
                                 // source should be stereo, otherwise only L and R will be considered
-                                aMaps.Add($"-map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, "L")}\"");
-                                aMaps.Add($"-map \"[R]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, "R")}\"");
+                                aMaps.Add($"-map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"-map \"[R]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "R")}\"");
                                 break;
                             case AudioChannels.ch_5_1:
                                 string[] channels51 = { "FL", "FR", "FC", "LFE", "SL", "SR" };
                                 foreach (string ch in channels51)
                                 {
-                                    aMaps.Add($"-map \"[{ch}]\" {straArgsOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath, ch)}\"");
+                                    aMaps.Add($"-map \"[{ch}]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, ch)}\"");
                                 }
                                 break;
                         }
 
                         if (videoEncoder != VideoEncoders.None && dstVideoPath != null)
                         {
-                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{destinationPath(dstVideoPath)}\"");
+                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath)}\"");
                         }
                     }
                     else
                     {
                         if (videoEncoder != VideoEncoders.None && dstVideoPath != null)
                         {
-                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{destinationPath(dstVideoPath)}\"");
+                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath)}\"");
                         }
 
                         if (audioEncoder != AudioEncoders.None && dstAudioPath != null)
                         {
-                            aMaps.Add($"{straMapOut} {strDuration} {strMetadata} \"{destinationPath(dstAudioPath)}\"");
+                            aMaps.Add($"{straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath)}\"");
                         }
                     }
                 }
@@ -1148,7 +1148,7 @@ namespace DTConverter
         /// Checks if destinationPath exists, adds time (hhmmss) to the end of originalName.
         /// If parent directory does not exists, tries to create it.
         /// </summary>
-        public static string destinationPath(string originalName)
+        public static string DestinationPath(string originalName)
         {
             string originalDir = Path.GetDirectoryName(originalName);
             if (!Directory.Exists(originalDir))
@@ -1169,9 +1169,9 @@ namespace DTConverter
         /// <summary>
         /// Generates the name for given path, adding channel name in a standard way.
         /// </summary>
-        public static string destinationPath(string originalName, string channel)
+        public static string DestinationPath(string originalName, string channel)
         {
-            return destinationPath(Path.Combine(
+            return DestinationPath(Path.Combine(
                 Path.GetDirectoryName(originalName),
                 Path.GetFileNameWithoutExtension(originalName) + $"_{channel}" + Path.GetExtension(originalName)));
             //return Path.Combine(Path.GetDirectoryName(originalName), Path.GetFileNameWithoutExtension(originalName) + $"_{channel}" + Path.GetExtension(originalName));
@@ -1180,9 +1180,9 @@ namespace DTConverter
         /// <summary>
         /// Generates the name for given path, adding slice number in a standard way.
         /// </summary>
-        public static string destinationPath(string originalName, int r, int c)
+        public static string DestinationPath(string originalName, int r, int c)
         {
-            return destinationPath(Slicer.GetSliceName(originalName, r, c));
+            return DestinationPath(Slicer.GetSliceName(originalName, r, c));
         }
     }
 }
