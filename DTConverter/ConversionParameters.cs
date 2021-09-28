@@ -77,8 +77,6 @@ namespace DTConverter
             AudioConversionStatus = ConversionStatus.None;
 
             IsConversionEnabled = true;
-            IsVideoEnabled = true;
-            IsAudioEnabled = true;
             VideoEncoder = VideoEncoders.HAP;
             AudioEncoder = AudioEncoders.WAV_16;
             IsAudioRateEnabled = false;
@@ -140,8 +138,6 @@ namespace DTConverter
             PreviewTime = copyFrom.PreviewTime.Clone();
 
             IsConversionEnabled = IsValid && copyFrom.IsConversionEnabled;
-            IsVideoEnabled = copyFrom.IsVideoEnabled;
-            IsAudioEnabled = copyFrom.IsAudioEnabled;
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
             IsAudioRateEnabled = copyFrom.IsAudioRateEnabled;
@@ -530,28 +526,9 @@ namespace DTConverter
             }
         }
 
-        private bool _IsVideoEnabled;
-        public bool IsVideoEnabled
-        {
-            get => _SourceInfo != null ? _IsVideoEnabled && _SourceInfo.HasVideo : false;
-            
-            set
-            {
-                _IsVideoEnabled = value;
-                OnPropertyChanged("IsVideoEnabled");
-            }
-        }
+        public bool IsVideoEnabled => _SourceInfo != null ? VideoEncoder != VideoEncoders.None && _SourceInfo.HasVideo : false;
 
-        private bool _IsAudioEnabled;
-        public bool IsAudioEnabled
-        {
-            get => _SourceInfo != null ? _IsAudioEnabled && _SourceInfo.HasAudio : false;
-            set
-            {
-                _IsAudioEnabled = value;
-                OnPropertyChanged("IsAudioEnabled");
-            }
-        }
+        public bool IsAudioEnabled => _SourceInfo != null ? AudioEncoder != AudioEncoders.None && _SourceInfo.HasAudio : false;
 
         private VideoEncoders _VideoEncoder;
         public VideoEncoders VideoEncoder
@@ -577,6 +554,7 @@ namespace DTConverter
                 OnPropertyChanged("DurationTimeEquivalent");
                 OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("IsVideoEnabled");
                 OnPropertyChanged("IsVideoEncoderCopy");
                 OnPropertyChanged("IsVideoEncoderNotCopy");
                 OnPropertyChanged("IsVideoEncoderH264");
@@ -809,6 +787,7 @@ namespace DTConverter
             {
                 _AudioEncoder = value;
                 OnPropertyChanged("AudioEncoder");
+                OnPropertyChanged("IsAudioEnabled");
                 OnPropertyChanged("DestinationAudioPath");
                 OnPropertyChanged("IsAudioEncoderNotCopy");
             }
