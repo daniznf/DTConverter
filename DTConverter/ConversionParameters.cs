@@ -551,8 +551,6 @@ namespace DTConverter
                 }
 
                 OnPropertyChanged("VideoEncoder");
-                OnPropertyChanged("DurationTimeEquivalent");
-                OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("DestinationVideoPath");
                 OnPropertyChanged("IsVideoEnabled");
                 OnPropertyChanged("IsVideoEncoderCopy");
