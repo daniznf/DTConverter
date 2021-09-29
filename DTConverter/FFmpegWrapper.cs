@@ -879,11 +879,11 @@ namespace DTConverter
                         {
                             if (audioEncoder == AudioEncoders.Copy)
                             {
-                                aMaps.Add($"-map 0:a {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath)}\"");
+                                aMaps.Add($"-map 0:a {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
                             }
                             else
                             {
-                                aMaps.Add($"-map \"[aout]\" {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath)}\"");
+                                aMaps.Add($"-map \"[aout]\" {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
                             }
                         }
                     }
@@ -908,7 +908,7 @@ namespace DTConverter
                         }
 
                         // straMapOut may be "" so it's not necessary to check the audioEncoder
-                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, r, c)}\"");
+                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, r, c, videoEncoder)}\"");
                     }
                 }
             }
@@ -951,7 +951,7 @@ namespace DTConverter
                     }
                     else
                     {
-                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath)}\"");
+                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
                     }
                 }
                 else
@@ -980,19 +980,19 @@ namespace DTConverter
 
                         if (videoEncoder != VideoEncoders.None && dstVideoPath != null)
                         {
-                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath)}\"");
+                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
                         }
                     }
                     else
                     {
                         if (videoEncoder != VideoEncoders.None && dstVideoPath != null)
                         {
-                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath)}\"");
+                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
                         }
 
                         if (audioEncoder != AudioEncoders.None && dstAudioPath != null)
                         {
-                            aMaps.Add($"{straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath)}\"");
+                            aMaps.Add($"{straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
                         }
                     }
                 }
@@ -1148,21 +1148,33 @@ namespace DTConverter
         /// Checks if destinationPath exists, adds time (hhmmss) to the end of originalName.
         /// If parent directory does not exists, tries to create it.
         /// </summary>
-        public static string DestinationPath(string originalName)
+        public static string DestinationPath(string originalName, VideoEncoders vEncoder)
         {
+            string destinationName = Path.GetFileNameWithoutExtension(originalName);
             string originalDir = Path.GetDirectoryName(originalName);
+
+            // If image sequence rename its folder, instead of single file
+            if (vEncoder == VideoEncoders.JPG_Sequence || vEncoder == VideoEncoders.PNG_Sequence)
+            {
+                if (Directory.Exists(originalDir))
+                {
+                    originalDir += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
+                }
+            }
+            else
+            {
+                if (File.Exists(originalName))
+                {
+                    destinationName += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
+                }
+            }
+
             if (!Directory.Exists(originalDir))
             {
                 Directory.CreateDirectory(originalDir);
             }
 
-            string destinationName = Path.GetFileNameWithoutExtension(originalName);
-            if (File.Exists(originalName))
-            {
-                destinationName += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
-            }
             destinationName += Path.GetExtension(originalName);
-
             return Path.Combine(originalDir, destinationName);
         }
 
@@ -1173,16 +1185,29 @@ namespace DTConverter
         {
             return DestinationPath(Path.Combine(
                 Path.GetDirectoryName(originalName),
-                Path.GetFileNameWithoutExtension(originalName) + $"_{channel}" + Path.GetExtension(originalName)));
-            //return Path.Combine(Path.GetDirectoryName(originalName), Path.GetFileNameWithoutExtension(originalName) + $"_{channel}" + Path.GetExtension(originalName));
+                Path.GetFileNameWithoutExtension(originalName) + $"_{channel}" + Path.GetExtension(originalName)), VideoEncoders.None);
         }
 
         /// <summary>
         /// Generates the name for given path, adding slice number in a standard way.
         /// </summary>
-        public static string DestinationPath(string originalName, int r, int c)
+        public static string DestinationPath(string originalName, int r, int c, VideoEncoders vEncoder)
         {
-            return DestinationPath(Slicer.GetSliceName(originalName, r, c));
+            // If image sequence rename its folder, instead of each single image file
+            if (vEncoder == VideoEncoders.JPG_Sequence || vEncoder == VideoEncoders.PNG_Sequence)
+            {
+                string sliceFile = Path.GetFileName(originalName);
+                string sliceDir = Slicer.GetSliceName(Path.GetDirectoryName(originalName), r, c); 
+                if (Directory.Exists(sliceDir))
+                {
+                    sliceDir += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
+                }
+                return DestinationPath(Path.Combine(sliceDir, sliceFile), vEncoder);
+            }
+            else
+            {
+                return DestinationPath(Slicer.GetSliceName(originalName, r, c), vEncoder);
+            }
         }
     }
 }
