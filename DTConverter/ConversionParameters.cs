@@ -32,7 +32,6 @@ namespace DTConverter
     public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy, None }
     public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit, Copy, None }
     public enum AudioChannels { Mono, Stereo, ch_5_1 }
-    //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
 
     /// <summary>
@@ -850,6 +849,7 @@ namespace DTConverter
             {
                 _IsAudioRateEnabled = value;
                 OnPropertyChanged("IsAudioRateEnabled");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -861,6 +861,7 @@ namespace DTConverter
             {
                 _AudioRate = value;
                 OnPropertyChanged("AudioRate");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -872,6 +873,7 @@ namespace DTConverter
             {
                 _IsChannelsEnabled = value;
                 OnPropertyChanged("IsChannelsEnabled");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -883,6 +885,7 @@ namespace DTConverter
             {
                 _Channels = value;
                 OnPropertyChanged("Channels");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
