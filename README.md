@@ -1,5 +1,5 @@
-# DTConverter
-Dani's Tools Video Converter<br>
+# Dani's Tools Video Converter
+DT Converter <br>
 Copyright (C) 2021 Daniznf
 
 
