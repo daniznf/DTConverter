@@ -423,6 +423,10 @@ namespace DTConverter
                             }
                         }
                     }
+                    if (videoInfo.VideoCodec == "png" || videoInfo.VideoCodec == "mjpeg")
+                    {
+                        videoInfo.Duration = new TimeDuration() { Frames = 1 };
+                    }
                 }
                 catch (Exception E)
                 { }
