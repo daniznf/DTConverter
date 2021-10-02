@@ -11,7 +11,7 @@ using System.Windows;
 [assembly: AssemblyDescription("Converts videos and images sequences")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Znf Labs")]
-[assembly: AssemblyProduct("DT Converter")]
+[assembly: AssemblyProduct("Dani's Tools Video Converter")]
 [assembly: AssemblyCopyright("Copyright © Daniznf 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -54,5 +54,5 @@ using System.Windows;
 [assembly: NeutralResourcesLanguage("en")]
 
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.34.50.0")]
-[assembly: AssemblyFileVersion("0.34.50.0")]
+[assembly: AssemblyVersion("0.34.51.0")]
+[assembly: AssemblyFileVersion("0.34.51.0")]
