@@ -27,7 +27,7 @@
         mc:Ignorable="d"
         Icon="DTConverter_icon.ico"
         Name="DTWindow"
-        Title="DT Converter" Width="1280" Height="1280" MinWidth="800" MinHeight="480">
+        Title="Dani's Tools Video Converter" Width="1280" Height="1280" MinWidth="800" MinHeight="480">
     <Window.Resources>
         <SolidColorBrush x:Key="Sky1" Color="#bccad6"/>
         <SolidColorBrush x:Key="Sky2" Color="#8d9db6"/>
@@ -636,7 +636,7 @@
                 <StackPanel.DataContext>
                     <Binding Source="{StaticResource Upd}"/>
                 </StackPanel.DataContext>
-                <Label Name="LblName" Content="DT Converter" FontWeight="Bold"/>
+                <Label Name="LblName" Content="Dani's Tools Video Converter" FontWeight="Bold"/>
                 <Label Name="LblUpdateAvailable" Visibility="{Binding UpdateAvailable, Converter={StaticResource VisibConverter}}">
                     <Label.Content>
                         <Hyperlink Name="hypUpdate" NavigateUri="{Binding AvailableVersionUri}" RequestNavigate="Hyperlink_RequestNavigate">Update!</Hyperlink>
