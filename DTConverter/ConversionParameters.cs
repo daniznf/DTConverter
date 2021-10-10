@@ -449,7 +449,7 @@ namespace DTConverter
             {
                 if (_DurationTime != null)
                 {
-                    return _DurationTime.DurationType == DurationTypes.Frames ?
+                    return _DurationTime.DurationType == DurationTypes.Frames && StartTime.Framerate > 0 && DurationTime.Framerate > 0 ?
                         _DurationTime * (_DurationTime.Framerate / StartTime.Framerate) :
                         _DurationTime;
                 }
