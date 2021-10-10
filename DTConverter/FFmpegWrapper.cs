@@ -622,10 +622,9 @@ namespace DTConverter
 
                 if (videoEncoder == VideoEncoders.Still_JPG || videoEncoder == VideoEncoders.Still_PNG)
                 {
-                    duration = new TimeDuration() { Frames = 1 };
+                    strvDuration = $"-frames:v 1";
                 }
-
-                if (duration > 0)
+                else if (duration > 0)
                 {
                     if (duration.DurationType == DurationTypes.Frames)
                     {
