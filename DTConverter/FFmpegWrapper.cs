@@ -928,7 +928,9 @@ namespace DTConverter
                     straMapOut = audioEncoder == AudioEncoders.Copy ? $"-map 0:a {straArgsOut}" : $"-map \"[aout]\" {straArgsOut}";
                 }
 
-                if (dstVideoPath == dstAudioPath)
+                if (dstVideoPath == dstAudioPath &&
+                    videoEncoder != VideoEncoders.Still_JPG && videoEncoder != VideoEncoders.Still_PNG &&
+                    videoEncoder != VideoEncoders.JPG_Sequence && videoEncoder != VideoEncoders.PNG_Sequence)
                 {
                     // Join Audio and Video
                     if (isAudioChannelsEnabled && splitChannels && dstAudioPath != null && audioEncoder != AudioEncoders.Copy && audioEncoder != AudioEncoders.None)
