@@ -486,7 +486,8 @@ namespace DTConverter
             string strMetadata;
             string strvArgsOut;
             string straArgsOut;
-            string strDuration = "";
+            string strvDuration = "";
+            string straDuration = "";
             string strvMapOut = "";
             string straMapOut = "";
             string strvMaps;
@@ -623,6 +624,18 @@ namespace DTConverter
                 {
                     duration = new TimeDuration() { Frames = 1 };
                 }
+
+                if (duration > 0)
+                {
+                    if (duration.DurationType == DurationTypes.Frames)
+                    {
+                        strvDuration = $"-frames:v {duration.Frames}";
+                    }
+                    else
+                    {
+                        strvDuration = $"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s";
+                    }
+                }
             }
             #endregion
 
@@ -655,20 +668,15 @@ namespace DTConverter
                 {
                     aArgsOut.Add($"-ar {audioRate}");
                 }
+
+                if (duration > 0)
+                {
+                    // using frames as duration for audio-only files, returns an audio file of different length than the video-only file with same frames
+                    straDuration = $"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s";
+                }
             }
 
-            if (duration > 0)
-            {
-                // using frames as duration for audio-only files, returns an audio file of different length than the video-only file with same frames
-                if (duration.DurationType == DurationTypes.Frames && videoEncoder != VideoEncoders.None)
-                {
-                    strDuration = $"-frames:v {duration.Frames}";
-                }
-                else
-                {
-                    strDuration = $"-t {Math.Round(duration.Seconds, 6).ToString(CultureInfo.InvariantCulture)}s";
-                }
-            }
+            
             #endregion
 
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
@@ -883,11 +891,11 @@ namespace DTConverter
                         {
                             if (audioEncoder == AudioEncoders.Copy)
                             {
-                                aMaps.Add($"-map 0:a {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
+                                aMaps.Add($"-map 0:a {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
                             }
                             else
                             {
-                                aMaps.Add($"-map \"[aout]\" {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
+                                aMaps.Add($"-map \"[aout]\" {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
                             }
                         }
                     }
@@ -912,7 +920,7 @@ namespace DTConverter
                         }
 
                         // straMapOut may be "" so it's not necessary to check the audioEncoder
-                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, r, c, videoEncoder)}\"");
+                        vMaps.Add($"{strvMapOut} {straMapOut} {strvDuration} {strMetadata} \"{DestinationPath(dstVideoPath, r, c, videoEncoder)}\"");
                     }
                 }
             }
@@ -939,25 +947,25 @@ namespace DTConverter
                         {
                             // strvMapOut may be "" so it's not necessary to check the videoEncoder
                             case AudioChannels.Mono:
-                                aMaps.Add($"{strvMapOut} -map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"{strvMapOut} -map \"[L]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
                                 break;
                             case AudioChannels.Stereo:
                                 // source should be stereo, otherwise only L and R will be considered
-                                aMaps.Add($"{strvMapOut.Replace("vout", "voutL")} -map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
-                                aMaps.Add($"{strvMapOut.Replace("vout", "voutR")} -map \"[R]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "R")}\"");
+                                aMaps.Add($"{strvMapOut.Replace("vout", "voutL")} -map \"[L]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"{strvMapOut.Replace("vout", "voutR")} -map \"[R]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "R")}\"");
                                 break;
                             case AudioChannels.ch_5_1:
                                 string[] channels51 = { "FL", "FR", "FC", "LFE", "SL", "SR" };
                                 foreach (string ch in channels51)
                                 {
-                                    aMaps.Add($"{strvMapOut.Replace("vout", "vout" + ch)} -map \"[{ch}]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, ch)}\"");
+                                    aMaps.Add($"{strvMapOut.Replace("vout", "vout" + ch)} -map \"[{ch}]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, ch)}\"");
                                 }
                                 break;
                         }
                     }
                     else
                     {
-                        vMaps.Add($"{strvMapOut} {straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
+                        vMaps.Add($"{strvMapOut} {straMapOut} {straDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
                     }
                 }
                 else
@@ -968,37 +976,37 @@ namespace DTConverter
                         switch (outChannels)
                         {
                             case AudioChannels.Mono:
-                                aMaps.Add($"-map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"-map \"[L]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
                                 break;
                             case AudioChannels.Stereo:
                                 // source should be stereo, otherwise only L and R will be considered
-                                aMaps.Add($"-map \"[L]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
-                                aMaps.Add($"-map \"[R]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "R")}\"");
+                                aMaps.Add($"-map \"[L]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "L")}\"");
+                                aMaps.Add($"-map \"[R]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, "R")}\"");
                                 break;
                             case AudioChannels.ch_5_1:
                                 string[] channels51 = { "FL", "FR", "FC", "LFE", "SL", "SR" };
                                 foreach (string ch in channels51)
                                 {
-                                    aMaps.Add($"-map \"[{ch}]\" {straArgsOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, ch)}\"");
+                                    aMaps.Add($"-map \"[{ch}]\" {straArgsOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, ch)}\"");
                                 }
                                 break;
                         }
 
                         if (videoEncoder != VideoEncoders.None && dstVideoPath != null)
                         {
-                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
+                            vMaps.Add($"{strvMapOut} {strvDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
                         }
                     }
                     else
                     {
                         if (videoEncoder != VideoEncoders.None && dstVideoPath != null)
                         {
-                            vMaps.Add($"{strvMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
+                            vMaps.Add($"{strvMapOut} {strvDuration} {strMetadata} \"{DestinationPath(dstVideoPath, videoEncoder)}\"");
                         }
 
                         if (audioEncoder != AudioEncoders.None && dstAudioPath != null)
                         {
-                            aMaps.Add($"{straMapOut} {strDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
+                            aMaps.Add($"{straMapOut} {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
                         }
                     }
                 }
