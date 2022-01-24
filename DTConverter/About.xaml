@@ -1,6 +1,6 @@
 ﻿<!--
     DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2021 Daniznf
+    Copyright (C) 2022 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@
                         <Hyperlink NavigateUri="https://github.com/daniznf/DTConverter">DTConverter on github</Hyperlink>
                     </TextBlock>
                     <TextBlock>
-                        Copyright (C) 2021 <Hyperlink NavigateUri="https://github.com/daniznf"> Daniznf </Hyperlink>
+                        Copyright (C) 2022 <Hyperlink NavigateUri="https://github.com/daniznf"> Daniznf </Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </StackPanel>
