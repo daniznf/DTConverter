@@ -950,6 +950,11 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
+                    if (File.Exists(ThumbnailPathIn))
+                    {
+                        File.Delete(ThumbnailPathIn);
+                    }
+
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         PreviewResolution, 0, 0, 0, false, null, null, null,
                         null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
@@ -1025,6 +1030,7 @@ namespace DTConverter
                     {
                         File.Delete(ThumbnailPathOut);
                     }
+
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams,
                         null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
