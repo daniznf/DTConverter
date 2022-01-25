@@ -268,7 +268,7 @@ namespace DTConverter
                 {
                     return "";
                 }
-                if (JoinAudioVideo)
+                if (JoinAudioVideo && IsVideoEncoderVideo)
                 {
                     return DestinationVideoPath;
                 }
