@@ -266,7 +266,7 @@ namespace DTConverter
                 {
                     return "";
                 }
-                if (JoinAudioVideo && IsVideoEncoderVideo)
+                if (JoinAudioVideo && IsJoinable)
                 {
                     return DestinationVideoPath;
                 }
@@ -590,18 +590,19 @@ namespace DTConverter
                 OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotHAP");
                 OnPropertyChanged("IsVideoEncoderNotStillImage");
-                OnPropertyChanged("IsVideoEncoderVideo");
+                OnPropertyChanged("IsJoinable");
             }
         }
         public bool IsVideoEncoderH264 => VideoEncoder == VideoEncoders.H264;
         public bool IsVideoEncoderNotHAP => !VideoEncoder.ToString().ToLower().Contains("hap");
         public bool IsVideoEncoderNotStillImage => !VideoEncoder.ToString().ToLower().Contains("still");
-        public bool IsVideoEncoderVideo =>
+        public bool IsJoinable =>
             VideoEncoder != VideoEncoders.Still_JPG &&
             VideoEncoder != VideoEncoders.Still_PNG &&
             VideoEncoder != VideoEncoders.JPG_Sequence &&
             VideoEncoder != VideoEncoders.PNG_Sequence &&
-            VideoEncoder != VideoEncoders.None;
+            VideoEncoder != VideoEncoders.None &&
+            AudioEncoder != AudioEncoders.None;
 
         public VideoResolution VideoResolutionParams { get; set; }
 
@@ -823,6 +824,7 @@ namespace DTConverter
                 _AudioEncoder = value;
                 OnPropertyChanged("AudioEncoder");
                 OnPropertyChanged("IsAudioEnabled");
+                OnPropertyChanged("IsJoinable");
                 OnPropertyChanged("DestinationAudioPath");
             }
         }

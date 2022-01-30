@@ -519,7 +519,7 @@
                                             <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
                                         </StackPanel>
                                         <StackPanel>
-                                            <CheckBox Content="Join with Video" IsEnabled="{Binding IsVideoEncoderVideo}" IsChecked="{Binding JoinAudioVideo}"/>
+                                            <CheckBox Content="Join with Video" IsEnabled="{Binding IsJoinable}" IsChecked="{Binding JoinAudioVideo}"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
