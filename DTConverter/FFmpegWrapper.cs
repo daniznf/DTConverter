@@ -446,7 +446,7 @@ namespace DTConverter
             VideoResolution videoResolution,
             int videoBitrate,
             double outFramerate,
-            int rotation, bool rotateMetadataOnly,
+            int rotation,
             Crop crop, Padding padding, Slicer slices,
             string srcAudioPath, string dstAudioPath,
             AudioEncoders audioEncoder,
@@ -505,16 +505,11 @@ namespace DTConverter
                 throw new Exception("Audio and Video encoders must not be None when joining video and audio");
             }
 
-            if (slices != null && slices.IsEnabled && videoEncoder != VideoEncoders.Copy && videoEncoder != VideoEncoders.None)
+            if (slices != null && slices.IsEnabled && videoEncoder != VideoEncoders.None)
             {
-                if (isAudioChannelsEnabled && splitChannels && audioEncoder != AudioEncoders.Copy && audioEncoder != AudioEncoders.None)
+                if (isAudioChannelsEnabled && splitChannels && audioEncoder != AudioEncoders.None)
                 {
                     throw new Exception("Cannot split audio channels when using video slices");
-                }
-
-                if (dstVideoPath == dstAudioPath && audioEncoder == AudioEncoders.Copy)
-                {
-                    throw new Exception("Cannot join video slices and audio Copy");
                 }
             }
 
@@ -586,9 +581,6 @@ namespace DTConverter
                     case VideoEncoders.PNG_Sequence:
                         strvEncoder = "png -f image2";
                         break;
-                    case VideoEncoders.Copy:
-                        strvEncoder = "copy";
-                        break;
                     default:
                         break;
                 }
@@ -597,13 +589,10 @@ namespace DTConverter
                 {
                     vArgsOut.Add($"-c:v {strvEncoder}");
 
-                    if (videoEncoder != VideoEncoders.Copy)
-                    {
-                        // bframes 0
-                        vOptions.Add("-bf 0");
-                    }
-
-                    if (outFramerate > 0 && videoEncoder != VideoEncoders.Copy)
+                    // bframes 0
+                    vOptions.Add("-bf 0");
+                    
+                    if (outFramerate > 0)
                     {
                         // framerate
                         vArgsOut.Add($"-r {outFramerate.ToString(CultureInfo.InvariantCulture)}");
@@ -614,7 +603,7 @@ namespace DTConverter
                     vArgsOut.Add(vOptions.Aggregate("", AggregateWithSpace));
 
                     // force CBR
-                    if (videoBitrate > 0 && videoEncoder != VideoEncoders.Copy)
+                    if (videoBitrate > 0)
                     {
                         vArgsOut.Add($"-b:v {videoBitrate}k -minrate {videoBitrate}k -maxrate {videoBitrate}k");
                     }
@@ -653,9 +642,6 @@ namespace DTConverter
                     case AudioEncoders.WAV_32bit:
                         straEncoder = "pcm_s32le";
                         break;
-                    case AudioEncoders.Copy:
-                        straEncoder = "copy";
-                        break;
                 }
 
                 if (straEncoder != null)
@@ -663,7 +649,7 @@ namespace DTConverter
                     aArgsOut.Add($"-c:a {straEncoder}");
                 }
 
-                if (audioRate > 0 && audioEncoder != AudioEncoders.Copy)
+                if (audioRate > 0)
                 {
                     aArgsOut.Add($"-ar {audioRate}");
                 }
@@ -681,7 +667,7 @@ namespace DTConverter
             metadatas.Add("-metadata comment=\"Encoded with DT Converter\"");
 
             #region Video Filters
-            if (videoEncoder != VideoEncoders.None && videoEncoder != VideoEncoders.Copy)
+            if (videoEncoder != VideoEncoders.None)
             {
                 // Crop
                 if (crop != null && crop.IsEnabled)
@@ -703,43 +689,24 @@ namespace DTConverter
                 }
 
                 // Rotation
-                string metadataRot = "-metadata:s:v:0 ";
-                if (rotateMetadataOnly)
+                if (rotation == 90)
                 {
-                    if (rotation == 90)
-                    {
-                        metadatas.Add($"{metadataRot} rotate=-90");
-                    }
-                    else if (rotation == 180)
-                    {
-                        metadatas.Add($"{metadataRot} rotate=-180 ");
-                    }
-                    else if (rotation == 270)
-                    {
-                        metadatas.Add($"{metadataRot} rotate=-270 ");
-                    }
+                    vFilters.Add($"transpose=1 [rotated]");
                 }
-                else
+                else if (rotation == 180)
                 {
-                    if (rotation == 90)
-                    {
-                        vFilters.Add($"transpose=1 [rotated]");
-                    }
-                    else if (rotation == 180)
-                    {
-                        vFilters.Add($"transpose=2, transpose=2 [rotated]");
-                    }
-                    else if (rotation == 270)
-                    {
-                        vFilters.Add($"transpose=0 [rotated]");
-                    }
+                    vFilters.Add($"transpose=2, transpose=2 [rotated]");
+                }
+                else if (rotation == 270)
+                {
+                    vFilters.Add($"transpose=0 [rotated]");
                 }
             }
             #endregion
 
             #region Slices
             string straSplitConnectors = "";
-            if (videoEncoder != VideoEncoders.None && videoEncoder != VideoEncoders.Copy)
+            if (videoEncoder != VideoEncoders.None)
             {
                 if (slices != null && slices.IsEnabled &&
                 (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1))
@@ -790,7 +757,7 @@ namespace DTConverter
             #endregion
 
             #region AudioChannels
-            if (isAudioChannelsEnabled && audioEncoder != AudioEncoders.None && audioEncoder != AudioEncoders.Copy)
+            if (isAudioChannelsEnabled && audioEncoder != AudioEncoders.None)
             {
                 if (splitChannels)
                 {
@@ -869,7 +836,7 @@ namespace DTConverter
             #region Maps
             if (slices != null && slices.IsEnabled &&
                 (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1) &&
-                videoEncoder != VideoEncoders.None && videoEncoder != VideoEncoders.Copy && dstVideoPath != null)
+                videoEncoder != VideoEncoders.None && dstVideoPath != null)
             {
                 // Slices
                 if (audioEncoder != AudioEncoders.None)
@@ -877,8 +844,7 @@ namespace DTConverter
                     if (dstVideoPath == dstAudioPath)
                     {
                         if (videoEncoder != VideoEncoders.Still_JPG && videoEncoder != VideoEncoders.Still_PNG &&
-                                    videoEncoder != VideoEncoders.JPG_Sequence && videoEncoder != VideoEncoders.PNG_Sequence &&
-                                    audioEncoder != AudioEncoders.Copy)
+                                    videoEncoder != VideoEncoders.JPG_Sequence && videoEncoder != VideoEncoders.PNG_Sequence)
                         {
                             // add a split filter that will feed audio to all slices
                             aFilters.Add($"asplit={slices.HorizontalNumber * slices.VerticalNumber} {straSplitConnectors}");
@@ -888,14 +854,7 @@ namespace DTConverter
                     {
                         if (dstAudioPath != null)
                         {
-                            if (audioEncoder == AudioEncoders.Copy)
-                            {
-                                aMaps.Add($"-map 0:a {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
-                            }
-                            else
-                            {
-                                aMaps.Add($"-map \"[aout]\" {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");
-                            }
+                            aMaps.Add($"-map \"[aout]\" {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");   
                         }
                     }
                 }
@@ -908,7 +867,7 @@ namespace DTConverter
 
                         if (dstVideoPath == dstAudioPath)
                         {
-                            if (audioEncoder != AudioEncoders.None && audioEncoder != AudioEncoders.Copy)
+                            if (audioEncoder != AudioEncoders.None)
                             {
                                 if (videoEncoder != VideoEncoders.Still_JPG && videoEncoder != VideoEncoders.Still_PNG &&
                                     videoEncoder != VideoEncoders.JPG_Sequence && videoEncoder != VideoEncoders.PNG_Sequence)
@@ -928,11 +887,11 @@ namespace DTConverter
                 // Not slices
                 if (videoEncoder != VideoEncoders.None)
                 {
-                    strvMapOut = videoEncoder == VideoEncoders.Copy ? $"-map 0:v {strvArgsOut}" : $"-map \"[vout]\" {strvArgsOut}";
+                    strvMapOut = $"-map \"[vout]\" {strvArgsOut}";
                 }
                 if (audioEncoder != AudioEncoders.None)
                 {
-                    straMapOut = audioEncoder == AudioEncoders.Copy ? $"-map 0:a {straArgsOut}" : $"-map \"[aout]\" {straArgsOut}";
+                    straMapOut = $"-map \"[aout]\" {straArgsOut}";
                 }
 
                 if (dstVideoPath == dstAudioPath &&
@@ -940,7 +899,7 @@ namespace DTConverter
                     videoEncoder != VideoEncoders.JPG_Sequence && videoEncoder != VideoEncoders.PNG_Sequence)
                 {
                     // Join Audio and Video
-                    if (isAudioChannelsEnabled && splitChannels && dstAudioPath != null && audioEncoder != AudioEncoders.Copy && audioEncoder != AudioEncoders.None)
+                    if (isAudioChannelsEnabled && splitChannels && dstAudioPath != null && audioEncoder != AudioEncoders.None)
                     {
                         switch (outChannels)
                         {
@@ -970,7 +929,7 @@ namespace DTConverter
                 else
                 {
                     // Not Join Audio and Video
-                    if (isAudioChannelsEnabled && splitChannels && dstAudioPath != null && audioEncoder != AudioEncoders.Copy && audioEncoder != AudioEncoders.None)
+                    if (isAudioChannelsEnabled && splitChannels && dstAudioPath != null &&  audioEncoder != AudioEncoders.None)
                     {
                         switch (outChannels)
                         {
@@ -1016,7 +975,7 @@ namespace DTConverter
             #endregion
 
             #region Arguments
-            if (videoEncoder != VideoEncoders.None && videoEncoder != VideoEncoders.Copy)
+            if (videoEncoder != VideoEncoders.None)
             {
                 strvFilters = $"[0:v] {vFilters.Aggregate("", AggregateFilters)}";
 
@@ -1026,7 +985,7 @@ namespace DTConverter
                 }
             }
 
-            if (audioEncoder != AudioEncoders.None && audioEncoder != AudioEncoders.Copy)
+            if (audioEncoder != AudioEncoders.None)
             {
                 if (aFilters.Count == 0)
                 {
@@ -1037,7 +996,7 @@ namespace DTConverter
                 {
                     if (slices != null && slices.IsEnabled &&
                         (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1) &&
-                        videoEncoder != VideoEncoders.None && videoEncoder != VideoEncoders.Copy)
+                        videoEncoder != VideoEncoders.None)
                     {
                         for (int r = 1; r <= slices.VerticalNumber; r++)
                         {

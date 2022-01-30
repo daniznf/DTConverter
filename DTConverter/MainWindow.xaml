@@ -332,7 +332,7 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEnabled}">
-                                        <StackPanel IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                        <StackPanel>
                                             <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotStillImage}">
                                                 <CheckBox Name="ChkEnableOutFramerate" Content="Framerate" IsChecked="True"/>
                                                 <StackPanel Name="PnlOutFramerate" Visibility="{Binding ElementName=ChkEnableOutFramerate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
@@ -356,7 +356,7 @@
                                                 </Style>
                                             </StackPanel.Resources>
 
-                                            <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                            <StackPanel Orientation="Vertical">
                                                 <CheckBox Name="ChkEnableCrop" Content="Crop" Checked="ChkEnableCrop_CheckedUnchecked" Unchecked="ChkEnableCrop_CheckedUnchecked" IsChecked="True"/>
                                                 <DockPanel Name="PnlCrop" LastChildFill="False" Width="224px" Height="160px" Visibility="{Binding ElementName=ChkEnableCrop, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                                     <StackPanel DockPanel.Dock="Top" Orientation="Vertical" >
@@ -378,7 +378,7 @@
                                                 </DockPanel>
                                             </StackPanel>
 
-                                            <StackPanel Orientation="Vertical" IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                            <StackPanel Orientation="Vertical">
                                                 <StackPanel.Resources>
                                                     <Style TargetType="DockPanel">
                                                         <Setter Property="Margin" Value="4px"/>
@@ -407,7 +407,7 @@
                                         </StackPanel>
 
                                         <StackPanel>
-                                            <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                            <StackPanel Orientation="Vertical">
                                                 <CheckBox Name="ChkEnableResolution" Content="Resolution" Checked="ChkEnableResolution_CheckedUnchecked" Unchecked="ChkEnableResolution_CheckedUnchecked" IsChecked="True"/>
                                                 <StackPanel Name="PnlResolution" Visibility="{Binding ElementName=ChkEnableResolution, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                                     <TextBox Name="TxtHorizontalResolution" Text="{Binding VideoResolutionParams.Horizontal}"/>
@@ -425,12 +425,11 @@
                                                         <ComboBoxItem Content="180"/>
                                                         <ComboBoxItem Content="270"/>
                                                     </ComboBox>
-                                                    <CheckBox Name="ChkRotateMetadataOnly" Content="Metadata Only" IsChecked="{Binding RotateMetadataOnly}" IsEnabled="{Binding IsVideoEncoderCopy}"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
 
-                                        <StackPanel Orientation="Vertical"  IsEnabled="{Binding IsVideoEncoderNotCopy}">
+                                        <StackPanel Orientation="Vertical">
                                             <StackPanel.Resources>
                                                 <Style TargetType="Label" BasedOn="{StaticResource StyleLabelBase}">
                                                     <Setter Property="HorizontalContentAlignment" Value="Right"/>
@@ -520,11 +519,11 @@
                                             <ComboBox Name="CbxAudioEncoders" SelectedIndex="0" Text="{Binding AudioEncoder}" ItemsSource="{Binding Source={StaticResource AudioEncodersValues}}" />
                                         </StackPanel>
                                         <StackPanel>
-                                            <CheckBox Content="Join with Video" IsEnabled="{Binding IsVideoEncoderVideo}" IsChecked="{Binding JoinAudioVideo}"/>
+                                            <CheckBox Content="Join with Video" IsEnabled="{Binding IsJoinable}" IsChecked="{Binding JoinAudioVideo}"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEnabled}">
-                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
+                                        <StackPanel Orientation="Vertical">
                                             <CheckBox Name="ChkEnableAudioRate" Content="Sampling rate" IsChecked="True"/>
                                             <StackPanel Name="PnlSamplingRate" HorizontalAlignment="Center" Visibility="{Binding ElementName=ChkEnableAudioRate, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                                 <ComboBox Name="CbxSamplingRate" SelectedIndex="0" Text="{Binding AudioRate}">
@@ -540,7 +539,7 @@
                                                 <Label Content="Hz" Width="35px" HorizontalContentAlignment="Left"/>
                                             </StackPanel>
                                         </StackPanel>
-                                        <StackPanel Orientation="Vertical" IsEnabled="{Binding IsAudioEncoderNotCopy}">
+                                        <StackPanel Orientation="Vertical">
                                             <CheckBox Name="ChkEnableChannels" Content="Channels" IsChecked="True"/>
                                             <StackPanel Visibility="{Binding ElementName=ChkEnableChannels, Path=IsChecked, Converter={StaticResource VisibConverter}}">
                                                 <ComboBox Name="CbxChannels" SelectedIndex="0" Text="{Binding Channels}" ItemsSource="{Binding Source={StaticResource AudioChannelsValues}}" />
