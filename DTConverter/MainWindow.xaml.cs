@@ -1,6 +1,6 @@
 ﻿/*
     DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2021 Daniznf
+    Copyright (C) 2022 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -150,6 +150,8 @@ namespace DTConverter
                     messageLow.Contains("fail") ||
                     messageLow.Contains("invalid") ||
                     messageLow.Contains("cannot") ||
+                    messageLow.Contains("could not") ||
+                    messageLow.Contains("not exist") ||
                     messageLow.Contains("is not multiple"))
                     {
                         isError = true;
@@ -240,10 +242,7 @@ namespace DTConverter
                         convertingCP = cp;
                         if (cp.IsValid && cp.IsConversionEnabled)
                         {
-                            cp.ConvertVideo(
-                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
-                                (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
-                            cp.ConvertAudio(
+                            cp.ConvertVideoAudio(
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false),
                                 (object o, DataReceivedEventArgs d) => WriteStatus(d.Data, false));
                         }

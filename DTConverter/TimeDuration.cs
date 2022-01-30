@@ -1,6 +1,6 @@
 ﻿/*
     DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2021 Daniznf
+    Copyright (C) 2022 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -510,7 +510,7 @@ namespace DTConverter
             }
             
             return A.DurationType == DurationTypes.Frames ?
-                new TimeDuration() { Frames = A.Frames + Convert.ToInt32(B), Framerate = A.Framerate } :
+                new TimeDuration() { Frames = Convert.ToInt32(A.Frames + B), Framerate = A.Framerate } :
                 new TimeDuration() { Seconds = A.Seconds + B, Framerate = A.Framerate };
         }
 
@@ -526,7 +526,7 @@ namespace DTConverter
             }
 
             return A.DurationType == DurationTypes.Frames ?
-                new TimeDuration() { Frames = A.Frames - Convert.ToInt32(B), Framerate = A.Framerate } :
+                new TimeDuration() { Frames = Convert.ToInt32(A.Frames - B), Framerate = A.Framerate } :
                 new TimeDuration() { Seconds = A.Seconds - B, Framerate = A.Framerate };
         }
 
@@ -542,7 +542,7 @@ namespace DTConverter
             }
 
             return A.DurationType == DurationTypes.Frames ?
-                new TimeDuration() { Frames = A.Frames * Convert.ToInt32(B), Framerate = A.Framerate } :
+                new TimeDuration() { Frames = Convert.ToInt32(A.Frames * B), Framerate = A.Framerate } :
                 new TimeDuration() { Seconds = A.Seconds * B, Framerate = A.Framerate };
         }
 

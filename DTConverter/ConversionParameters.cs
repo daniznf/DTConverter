@@ -1,6 +1,6 @@
 ﻿/*
     DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2021 Daniznf
+    Copyright (C) 2022 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,10 +29,9 @@ using System.Windows.Controls;
 
 namespace DTConverter
 {
-    public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, Copy }
-    public enum AudioEncoders { WAV_16, WAV_24, WAV_32, Copy }
+    public enum VideoEncoders { HAP, HAP_Alpha, HAP_Q, H264, Still_PNG, Still_JPG, PNG_Sequence, JPG_Sequence, None }
+    public enum AudioEncoders { WAV_16bit, WAV_24bit, WAV_32bit, None }
     public enum AudioChannels { Mono, Stereo, ch_5_1 }
-    //public enum AudioEncoders { pcm_s16le }
     public enum ConversionStatus { None, CreatingPreviewIn, CreatingPreviewOut, Converting, Success, Failed };
 
     /// <summary>
@@ -77,10 +76,9 @@ namespace DTConverter
             AudioConversionStatus = ConversionStatus.None;
 
             IsConversionEnabled = true;
-            IsVideoEnabled = true;
-            IsAudioEnabled = true;
+            JoinAudioVideo = false;
             VideoEncoder = VideoEncoders.HAP;
-            AudioEncoder = AudioEncoders.WAV_16;
+            AudioEncoder = AudioEncoders.WAV_16bit;
             IsAudioRateEnabled = false;
             AudioRate = 44100;
             IsChannelsEnabled = false;
@@ -140,8 +138,7 @@ namespace DTConverter
             PreviewTime = copyFrom.PreviewTime.Clone();
 
             IsConversionEnabled = IsValid && copyFrom.IsConversionEnabled;
-            IsVideoEnabled = copyFrom.IsVideoEnabled;
-            IsAudioEnabled = copyFrom.IsAudioEnabled;
+            JoinAudioVideo = copyFrom.JoinAudioVideo;
             VideoEncoder = copyFrom.VideoEncoder;
             AudioEncoder = copyFrom.AudioEncoder;
             IsAudioRateEnabled = copyFrom.IsAudioRateEnabled;
@@ -201,32 +198,35 @@ namespace DTConverter
         {
             get
             {
+                if (VideoEncoder == VideoEncoders.None)
+                {
+                    return "";
+                }
+
                 if (SourcePath != null)
                 {
                     string outPath = Path.GetDirectoryName(SourcePath);
                     outPath = Path.Combine(outPath, VideoEncoder.ToString());
                     outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                    if (VideoEncoder != VideoEncoders.Copy)
+                    if (VideoResolutionParams.IsEnabled || CropParams.IsEnabled || PaddingParams.IsEnabled)
                     {
-                        if (VideoResolutionParams.IsEnabled || CropParams.IsEnabled || PaddingParams.IsEnabled)
-                        {
-                            outPath += $"_{VideoFinalResolutionHorizontal}x{VideoFinalResolutionVertical}";
-                        }
-                        if (IsOutFramerateEnabled)
-                        {
-                            outPath += $"_{OutFramerate.ToString(CultureInfo.InvariantCulture)}";
-                        }
-                        if (IsVideoBitrateEnabled)
-                        {
-                            outPath += $"_{VideoBitrate}";
-                        }
-                        if ((VideoEncoder == VideoEncoders.JPG_Sequence) || (VideoEncoder == VideoEncoders.PNG_Sequence))
-                        {
-                            outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                            int nDigits = TimeDuration.GetFrames(DurationTime.Seconds, OutFramerate).ToString().Length;
-                            outPath += $"-%0{nDigits}d";
-                        }
+                        outPath += $"_{VideoFinalResolutionHorizontal}x{VideoFinalResolutionVertical}";
                     }
+                    if (IsOutFramerateEnabled)
+                    {
+                        outPath += $"_{OutFramerate.ToString(CultureInfo.InvariantCulture)}";
+                    }
+                    if (IsVideoBitrateEnabled)
+                    {
+                        outPath += $"_{VideoBitrate}";
+                    }
+                    if ((VideoEncoder == VideoEncoders.JPG_Sequence) || (VideoEncoder == VideoEncoders.PNG_Sequence))
+                    {
+                        outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
+                        int nDigits = TimeDuration.GetFrames(DurationTime.Seconds, OutFramerate).ToString().Length;
+                        outPath += $"-%0{nDigits}d";
+                    }
+
 
                     string extension;
                     if ((VideoEncoder == VideoEncoders.HAP) || (VideoEncoder == VideoEncoders.HAP_Alpha) || (VideoEncoder == VideoEncoders.HAP_Q))
@@ -245,15 +245,11 @@ namespace DTConverter
                     {
                         extension = ".png";
                     }
-                    else // VideoEncoder == VideoEncoders.Copy
+                    else
                     {
                         extension = Path.GetExtension(SourcePath);
                     }
 
-                    if (File.Exists(outPath + extension))
-                    {
-                        outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
-                    }
                     outPath += extension;
 
                     return outPath;
@@ -266,37 +262,41 @@ namespace DTConverter
         {
             get
             {
+                if (AudioEncoder == AudioEncoders.None)
+                {
+                    return "";
+                }
+                if (JoinAudioVideo && IsJoinable)
+                {
+                    return DestinationVideoPath;
+                }
+
                 if (SourcePath != null)
                 {
                     string outPath = Path.GetDirectoryName(SourcePath);
                     outPath = Path.Combine(outPath, AudioEncoder.ToString());
                     outPath = Path.Combine(outPath, Path.GetFileNameWithoutExtension(SourcePath));
-                    if (AudioEncoder != AudioEncoders.Copy)
+
+                    if (IsAudioRateEnabled)
                     {
-                        if (IsAudioRateEnabled)
-                        {
-                            outPath += $"_{AudioRate}";
-                        }
-                        if (IsChannelsEnabled)
-                        {
-                            outPath += $"_{Channels}";
-                        }
+                        outPath += $"_{AudioRate}";
+                    }
+                    if (IsChannelsEnabled)
+                    {
+                        outPath += $"_{Channels}";
                     }
 
+
                     string extension;
-                    if ((AudioEncoder == AudioEncoders.WAV_16) || (AudioEncoder == AudioEncoders.WAV_24) || (AudioEncoder == AudioEncoders.WAV_32))
+                    if ((AudioEncoder == AudioEncoders.WAV_16bit) || (AudioEncoder == AudioEncoders.WAV_24bit) || (AudioEncoder == AudioEncoders.WAV_32bit))
                     {
                         extension = ".wav";
                     }
-                    else // AudioEncoder == AudioEncoders.Copy
+                    else
                     {
                         extension = Path.GetExtension(SourcePath);
                     }
 
-                    if (File.Exists(outPath + extension))
-                    {
-                        outPath += "_" + DateTime.Now.Hour.ToString("00") + DateTime.Now.Minute.ToString("00") + DateTime.Now.Second.ToString("00");
-                    }
                     outPath += extension;
 
                     return outPath;
@@ -446,7 +446,7 @@ namespace DTConverter
             {
                 if (_DurationTime != null)
                 {
-                    return _DurationTime.DurationType == DurationTypes.Frames ?
+                    return _DurationTime.DurationType == DurationTypes.Frames && StartTime.Framerate > 0 && DurationTime.Framerate > 0 ?
                         _DurationTime * (_DurationTime.Framerate / StartTime.Framerate) :
                         _DurationTime;
                 }
@@ -544,33 +544,29 @@ namespace DTConverter
             }
         }
 
-        private bool _IsVideoEnabled;
-        public bool IsVideoEnabled
-        {
-            get => _SourceInfo != null ? _IsVideoEnabled && _SourceInfo.HasVideo : false;
-            
-            set
-            {
-                _IsVideoEnabled = value;
-                OnPropertyChanged("IsVideoEnabled");
-            }
-        }
+        //public bool IsVideoEnabled => _SourceInfo != null ? VideoEncoder != VideoEncoders.None && _SourceInfo.HasVideo : false;
+        public bool IsVideoEnabled => VideoEncoder != VideoEncoders.None;
 
-        private bool _IsAudioEnabled;
-        public bool IsAudioEnabled
+        //public bool IsAudioEnabled => _SourceInfo != null ? AudioEncoder != AudioEncoders.None && _SourceInfo.HasAudio : false;
+        public bool IsAudioEnabled => AudioEncoder != AudioEncoders.None;
+
+        private bool _JoinAudioVideo;
+        public bool JoinAudioVideo
         {
-            get => _SourceInfo != null ? _IsAudioEnabled && _SourceInfo.HasAudio : false;
+            get => _JoinAudioVideo;
             set
             {
-                _IsAudioEnabled = value;
-                OnPropertyChanged("IsAudioEnabled");
+                _JoinAudioVideo = value;
+                OnPropertyChanged("JoinAudioVideo");
+                OnPropertyChanged("DestinationVideoPath");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
         private VideoEncoders _VideoEncoder;
         public VideoEncoders VideoEncoder
         {
-            get => _VideoEncoder;
+            get => SourceInfo != null ? SourceInfo.HasVideo ? _VideoEncoder : VideoEncoders.None : VideoEncoders.None;
             set
             {
                 _VideoEncoder = value;
@@ -588,21 +584,25 @@ namespace DTConverter
                 }
 
                 OnPropertyChanged("VideoEncoder");
-                OnPropertyChanged("DurationTimeEquivalent");
-                OnPropertyChanged("EndTimeHMS");
                 OnPropertyChanged("DestinationVideoPath");
-                OnPropertyChanged("IsVideoEncoderCopy");
-                OnPropertyChanged("IsVideoEncoderNotCopy");
+                OnPropertyChanged("DestinationAudioPath");
+                OnPropertyChanged("IsVideoEnabled");
                 OnPropertyChanged("IsVideoEncoderH264");
                 OnPropertyChanged("IsVideoEncoderNotHAP");
                 OnPropertyChanged("IsVideoEncoderNotStillImage");
+                OnPropertyChanged("IsJoinable");
             }
         }
-        public bool IsVideoEncoderCopy => VideoEncoder == VideoEncoders.Copy;
-        public bool IsVideoEncoderNotCopy => VideoEncoder != VideoEncoders.Copy;
         public bool IsVideoEncoderH264 => VideoEncoder == VideoEncoders.H264;
         public bool IsVideoEncoderNotHAP => !VideoEncoder.ToString().ToLower().Contains("hap");
         public bool IsVideoEncoderNotStillImage => !VideoEncoder.ToString().ToLower().Contains("still");
+        public bool IsJoinable =>
+            VideoEncoder != VideoEncoders.Still_JPG &&
+            VideoEncoder != VideoEncoders.Still_PNG &&
+            VideoEncoder != VideoEncoders.JPG_Sequence &&
+            VideoEncoder != VideoEncoders.PNG_Sequence &&
+            VideoEncoder != VideoEncoders.None &&
+            AudioEncoder != AudioEncoders.None;
 
         public VideoResolution VideoResolutionParams { get; set; }
 
@@ -818,16 +818,16 @@ namespace DTConverter
         private AudioEncoders _AudioEncoder;
         public AudioEncoders AudioEncoder
         {
-            get => _AudioEncoder;
+            get => SourceInfo != null ? SourceInfo.HasAudio? _AudioEncoder : AudioEncoders.None : AudioEncoders.None;
             set
             {
                 _AudioEncoder = value;
                 OnPropertyChanged("AudioEncoder");
+                OnPropertyChanged("IsAudioEnabled");
+                OnPropertyChanged("IsJoinable");
                 OnPropertyChanged("DestinationAudioPath");
-                OnPropertyChanged("IsAudioEncoderNotCopy");
             }
         }
-        public bool IsAudioEncoderNotCopy => AudioEncoder != AudioEncoders.Copy;
 
         private ConversionStatus _AudioConversionStatus;
         public ConversionStatus AudioConversionStatus
@@ -848,6 +848,7 @@ namespace DTConverter
             {
                 _IsAudioRateEnabled = value;
                 OnPropertyChanged("IsAudioRateEnabled");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -859,6 +860,7 @@ namespace DTConverter
             {
                 _AudioRate = value;
                 OnPropertyChanged("AudioRate");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -870,6 +872,7 @@ namespace DTConverter
             {
                 _IsChannelsEnabled = value;
                 OnPropertyChanged("IsChannelsEnabled");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -881,6 +884,7 @@ namespace DTConverter
             {
                 _Channels = value;
                 OnPropertyChanged("Channels");
+                OnPropertyChanged("DestinationAudioPath");
             }
         }
 
@@ -939,8 +943,14 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewIn;
                 try
                 {
-                    ProcessPreviewIn = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        PreviewResolution, 0, 0, 0, false, null, null, null);
+                    if (File.Exists(ThumbnailPathIn))
+                    {
+                        File.Delete(ThumbnailPathIn);
+                    }
+
+                    ProcessPreviewIn = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                        PreviewResolution, 0, 0, 0, null, null, null,
+                        null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
@@ -995,11 +1005,30 @@ namespace DTConverter
                 VideoConversionStatus = ConversionStatus.CreatingPreviewOut;
                 try
                 {
-                    ProcessPreviewOut = FFmpegWrapper.ConvertVideo(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
-                        VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, false, CropParams, PaddingParams, SliceParams);
+                    if (SliceParams != null && SliceParams.IsEnabled &&
+                    (SliceParams.HorizontalNumber > 1 || SliceParams.VerticalNumber > 1))
+                    {
+                        for (int r = 1; r <= SliceParams.VerticalNumber; r++)
+                        {
+                            for (int c = 1; c <= SliceParams.HorizontalNumber; c++)
+                            {
+                                if (File.Exists(Slicer.GetSliceName(ThumbnailPathOut, r, c)))
+                                {
+                                    File.Delete(Slicer.GetSliceName(ThumbnailPathOut, r, c));
+                                }
+                            }
+                        }
+                    }
+                    if (File.Exists(ThumbnailPathOut))
+                    {
+                        File.Delete(ThumbnailPathOut);
+                    }
+
+                    ProcessPreviewOut = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
+                        VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, CropParams, PaddingParams, SliceParams,
+                        null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
-                    ProcessPreviewOut.StartInfo.Arguments += " -y";
                     if (ProcessPreviewOut.Start())
                     {
                         ProcessPreviewOut.BeginOutputReadLine();
@@ -1041,23 +1070,27 @@ namespace DTConverter
         
         private Process VideoConversionProcess;
         /// <summary>
-        /// Converts video stream, but not audio.
+        /// Converts video and audio stream. 
+        /// If DestinationVideoPath == DestinationAudioPath the resulting video will contain audio, otherwise video and audio will be in separate files.
         /// This method takes several seconds to execute so it should be run it in a separate Thread or Task
         /// </summary>
-        public void ConvertVideo(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
+        public void ConvertVideoAudio(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
         {
             if (VideoConversionStatus != ConversionStatus.Converting)
             {
                 VideoConversionStatus = ConversionStatus.Converting;
                 try
                 {
-                    if (IsValid && IsConversionEnabled && IsVideoEnabled)
+                    if (IsValid && IsConversionEnabled)
                     {
-                        VideoConversionProcess = FFmpegWrapper.ConvertVideo(SourcePath, DestinationVideoPath, StartTime, DurationTimeEquivalent, VideoEncoder,
+                        VideoConversionProcess = FFmpegWrapper.ConvertVideoAudio(SourcePath, DestinationVideoPath, StartTime, DurationTimeEquivalent, VideoEncoder,
                             VideoResolutionParams,
                             IsVideoBitrateEnabled? VideoBitrate : 0,
                             IsOutFramerateEnabled? OutFramerate : 0,
-                            IsRotationEnabled? Rotation : 0, RotateMetadataOnly, CropParams, PaddingParams, SliceParams);
+                            IsRotationEnabled? Rotation : 0, CropParams, PaddingParams, SliceParams,
+                            SourcePath, DestinationAudioPath, AudioEncoder,
+                            IsAudioRateEnabled ? AudioRate : 0, 
+                            IsChannelsEnabled, SourceInfo != null? SourceInfo.AudioChannels : AudioChannels.Stereo, Channels, SplitChannels);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;
                         if (VideoConversionProcess.Start())
@@ -1094,65 +1127,6 @@ namespace DTConverter
                 if (VideoConversionProcess != null && !VideoConversionProcess.HasExited)
                 {
                     VideoConversionProcess.Kill();
-                    VideoConversionStatus = ConversionStatus.None;
-                }
-            }
-            catch (Exception E) { }
-        }
-
-        private Process AudioConversionProcess;
-        /// <summary>
-        /// Converts audio stream, but not video.
-        /// This method takes several seconds to execute so it should be run it in a separate Thread or Task
-        /// </summary>
-        public void ConvertAudio(DataReceivedEventHandler outputReceived, DataReceivedEventHandler errorReceived)
-        {
-            if (VideoConversionStatus != ConversionStatus.Converting)
-            {
-                VideoConversionStatus = ConversionStatus.Converting;
-                try
-                {
-                    if (IsValid && IsConversionEnabled && IsAudioEnabled)
-                    {
-                        AudioConversionProcess = FFmpegWrapper.ConvertAudio(SourcePath, DestinationAudioPath, StartTime, DurationTimeEquivalent, AudioEncoder,
-                            IsAudioRateEnabled ? AudioRate : 0,
-                            IsChannelsEnabled, SourceInfo.AudioChannels, Channels, SplitChannels);
-                        AudioConversionProcess.OutputDataReceived += outputReceived;
-                        AudioConversionProcess.ErrorDataReceived += errorReceived;
-                        if (AudioConversionProcess.Start())
-                        {
-                            AudioConversionProcess.BeginOutputReadLine();
-                            AudioConversionProcess.BeginErrorReadLine();
-                            if (!AudioConversionProcess.HasExited)
-                            {
-                                AudioConversionProcess.WaitForExit();
-                            }
-                            if (AudioConversionProcess.ExitCode != 0)
-                            {
-                                throw new Exception($"Conversion failed with error {AudioConversionProcess.ExitCode}");
-                            }
-                        }
-                    }
-                    VideoConversionStatus = ConversionStatus.Success;
-                }
-                catch (Exception E)
-                {
-                    VideoConversionStatus = ConversionStatus.Failed;
-                    throw E;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Instantly kills this audio conversion
-        /// </summary>
-        public void KillAudioConversion()
-        {
-            try
-            {
-                if (AudioConversionProcess != null && !AudioConversionProcess.HasExited)
-                {
-                    AudioConversionProcess.Kill();
                     VideoConversionStatus = ConversionStatus.None;
                 }
             }
