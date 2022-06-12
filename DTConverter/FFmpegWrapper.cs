@@ -997,18 +997,16 @@ namespace DTConverter
 
             if (audioEncoder != AudioEncoders.None)
             {
-                if (dstVideoPath == dstAudioPath)
+                if (dstVideoPath == dstAudioPath && 
+                    slices != null && slices.IsEnabled &&
+                    (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1) &&
+                    videoEncoder != VideoEncoders.None)
                 {
-                    if (slices != null && slices.IsEnabled &&
-                        (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1) &&
-                        videoEncoder != VideoEncoders.None)
+                    for (int r = 1; r <= slices.VerticalNumber; r++)
                     {
-                        for (int r = 1; r <= slices.VerticalNumber; r++)
+                        for (int c = 1; c <= slices.HorizontalNumber; c++)
                         {
-                            for (int c = 1; c <= slices.HorizontalNumber; c++)
-                            {
-                                aSlices.Add($"[asplit_r{r}c{c}] anull [aout_r{r}c{c}]");
-                            }
+                            aSlices.Add($"[asplit_r{r}c{c}] anull [aout_r{r}c{c}]");
                         }
                     }
                 }
