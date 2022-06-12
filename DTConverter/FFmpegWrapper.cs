@@ -450,7 +450,7 @@ namespace DTConverter
             Crop crop, Padding padding, Slicer slices,
             string srcAudioPath, string dstAudioPath,
             AudioEncoders audioEncoder,
-            int audioRate,
+            int audioRate, int volumeDB,
             bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels)
         {
             if (FFmpegPath == null) { return null; }
@@ -704,6 +704,16 @@ namespace DTConverter
             }
             #endregion
 
+            #region Audio Filters
+            if (audioEncoder != AudioEncoders.None)
+            {
+                if (volumeDB != 0)
+                {
+                    aFilters.Add($"volume={volumeDB}dB [volumed]");
+                }
+            }
+            #endregion
+
             #region Slices
             string straSplitConnectors = "";
             if (videoEncoder != VideoEncoders.None)
@@ -812,12 +822,12 @@ namespace DTConverter
                             if (inChannels == AudioChannels.Mono)
                             {
                                 aFilters.Add($"asplit=6 {channels51.Aggregate("", AggregateWithSquareBrackets)}");
-                                aFilters.Add($"join=inputs=6:channel_layout=5.1 [aout]");
+                                aFilters.Add($"join=inputs=6:channel_layout=5.1 [channelled]");
                             }
                             else if (inChannels == AudioChannels.Stereo)
                             {
                                 aFilters.Add($"channelsplit=channel_layout=stereo [L][R]");
-                                aFilters.Add($"join=inputs=2:channel_layout=5.1:map=0.0-FL|1.0-FR|0.0-FC|0.0-BL|1.0-BR|1.0-LFE [aout]");
+                                aFilters.Add($"join=inputs=2:channel_layout=5.1:map=0.0-FL|1.0-FR|0.0-FC|0.0-BL|1.0-BR|1.0-LFE [channelled]");
                             }
                             else if (inChannels == AudioChannels.ch_5_1)
                             {
@@ -987,11 +997,6 @@ namespace DTConverter
 
             if (audioEncoder != AudioEncoders.None)
             {
-                if (aFilters.Count == 0)
-                {
-                    aFilters.Add("anull [aout]");
-                }
-
                 if (dstVideoPath == dstAudioPath)
                 {
                     if (slices != null && slices.IsEnabled &&
@@ -1006,6 +1011,11 @@ namespace DTConverter
                             }
                         }
                     }
+                }
+                else
+                {
+                    // This is always needed to complete the graph. Video part uses scale filter to accomplish this
+                    aFilters.Add("anull [aout]");
                 }
 
                 straFilters = $"[0:a] {aFilters.Aggregate("", AggregateFilters)}";

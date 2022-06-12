@@ -546,21 +546,19 @@
                                                 <CheckBox Name="ChkSplitChannels" Content="Split" Width="64px" Margin="8px,0,0,0" IsChecked="{Binding SplitChannels}"/>
                                             </StackPanel>
                                         </StackPanel>
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox Name="ChkEnableVolume" Content="Volume" IsChecked="True"/>
+                                            <StackPanel Visibility="{Binding ElementName=ChkEnableVolume, Path=IsChecked, Converter={StaticResource VisibConverter}}">
+                                                <TextBox Name="TxtVolume" Text="{Binding VolumeDB}" Width="64"/>
+                                                <Label Content="dB" Width="35px" HorizontalContentAlignment="Left"/>
+                                            </StackPanel>
+                                        </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
                             </ScrollViewer>
                         </DockPanel>
                     </TabItem>
 
-                    <!--
-                    <TabItem Header="General">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
-                            <StackPanel Name="PnlGeneral" Orientation="Vertical">
-
-                            </StackPanel>
-                        </ScrollViewer>
-                    </TabItem>
-                    -->
 
                 </TabControl>
 

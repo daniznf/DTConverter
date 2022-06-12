@@ -113,6 +113,7 @@ namespace DTConverter
             ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
             ChkOriginal.SetBinding(CheckBox.IsCheckedProperty, "IsChkOriginalChecked");
             ChkEnableAudioRate.SetBinding(CheckBox.IsCheckedProperty, "IsAudioRateEnabled");
+            ChkEnableVolume.SetBinding(CheckBox.IsCheckedProperty, "IsVolumeEnabled");
             ChkEnableChannels.SetBinding(CheckBox.IsCheckedProperty, "IsChannelsEnabled");
             ChkEnableRotation.SetBinding(CheckBox.IsCheckedProperty, "IsRotationEnabled");
 
@@ -331,7 +332,7 @@ namespace DTConverter
                 {
                     Tag = dir
                 };
-
+                
                 if (SearchTvw(Directory.GetParent(dir).FullName, TvwVideos) is TreeViewItem parentDir)
                 {
                     DirectoryInfo dInfo = new DirectoryInfo(dir);
