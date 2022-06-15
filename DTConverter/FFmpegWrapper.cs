@@ -1012,8 +1012,11 @@ namespace DTConverter
                 }
                 else
                 {
-                    // This is always needed to complete the graph. Video part uses scale filter to accomplish this
-                    aFilters.Add("anull [aout]");
+                    if (!splitChannels)
+                    {
+                        // This is needed to complete the graph. Video part uses scale filter to accomplish this
+                        aFilters.Add("anull [aout]");
+                    }
                 }
 
                 straFilters = $"[0:a] {aFilters.Aggregate("", AggregateFilters)}";
