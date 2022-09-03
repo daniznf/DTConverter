@@ -864,7 +864,7 @@ namespace DTConverter
                     {
                         if (dstAudioPath != null)
                         {
-                            aMaps.Add($"-map \"[aout]\" {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");   
+                            aMaps.Add($"-map \"[aout]\" {straDuration} {straArgsOut} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");   
                         }
                     }
                 }
