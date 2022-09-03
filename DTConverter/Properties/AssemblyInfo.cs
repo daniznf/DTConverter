@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DT Converter")]
-[assembly: AssemblyDescription("Converts videos and images sequences")]
+[assembly: AssemblyTitle("DTConverter")]
+[assembly: AssemblyDescription("Converts videos and image sequences")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Znf Labs")]
-[assembly: AssemblyProduct("Dani's Tools Video Converter")]
+[assembly: AssemblyCompany("ZnfLabs")]
+[assembly: AssemblyProduct("Daniele's Tools Video Converter")]
 [assembly: AssemblyCopyright("Copyright © Daniznf 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -54,5 +54,5 @@ using System.Windows;
 [assembly: NeutralResourcesLanguage("en")]
 
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.35.14.0")]
-[assembly: AssemblyFileVersion("0.35.14.0")]
+[assembly: AssemblyVersion("0.35.15.0")]
+[assembly: AssemblyFileVersion("0.35.15.0")]

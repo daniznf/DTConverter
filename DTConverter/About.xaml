@@ -1,5 +1,5 @@
 ﻿<!--
-    DT Converter - Dani's Tools Video Converter    
+    DT Converter - Daniele's Tools Video Converter    
     Copyright (C) 2022 Daniznf
 
     This program is free software: you can redistribute it and/or modify
@@ -54,7 +54,7 @@
                             <Setter Property="Margin" Value="5px"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Name="TxtName" Text="Dani's Tools Video Converter" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    <TextBlock Name="TxtName" Text="Daniele's Tools Video Converter" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <TextBlock >
                         <Hyperlink NavigateUri="https://github.com/daniznf/DTConverter">DTConverter on github</Hyperlink>
                     </TextBlock>
