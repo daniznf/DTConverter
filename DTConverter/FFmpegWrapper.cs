@@ -691,15 +691,15 @@ namespace DTConverter
                 // Rotation
                 if (rotation == 90)
                 {
-                    vFilters.Add($"transpose=1 [rotated]");
+                    vFilters.Add($"transpose=clock [rotated]");
                 }
                 else if (rotation == 180)
                 {
-                    vFilters.Add($"transpose=2, transpose=2 [rotated]");
+                    vFilters.Add($"transpose=clock, transpose=clock [rotated]");
                 }
                 else if (rotation == 270)
                 {
-                    vFilters.Add($"transpose=0 [rotated]");
+                    vFilters.Add($"transpose=cclock [rotated]");
                 }
             }
             #endregion
