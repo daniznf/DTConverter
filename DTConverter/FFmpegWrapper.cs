@@ -135,20 +135,20 @@ namespace DTConverter
         /// Checks recursively to find fileName in parentDir
         /// </summary>
         /// <param name="fileName">File to search</param>
-        /// <param name="parendDir">Parent in which to search</param>
+        /// <param name="parentDir">Parent in which to search</param>
         /// <returns></returns>
-        private static string FindExePath(string fileName, string parendDir)
+        private static string FindExePath(string fileName, string parentDir)
         {
             string returningPath;
 
-            foreach (string eachFile in Directory.GetFiles(parendDir))
+            foreach (string eachFile in Directory.GetFiles(parentDir))
             {
                 if (fileName.ToLower() == Path.GetFileName(eachFile).ToLower())
                 {
-                    return Path.Combine(parendDir, eachFile);
+                    return Path.Combine(parentDir, eachFile);
                 }
             }
-            foreach (string eachDir in Directory.GetDirectories(parendDir))
+            foreach (string eachDir in Directory.GetDirectories(parentDir))
             {
                 returningPath = FindExePath(fileName, eachDir);
                 if (returningPath != null)
