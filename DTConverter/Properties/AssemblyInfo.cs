@@ -11,7 +11,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZnfLabs")]
 [assembly: AssemblyProduct("Daniele's Tools Video Converter")]
-[assembly: AssemblyCopyright("Copyright © Daniznf 2022")]
+[assembly: AssemblyCopyright("Copyright © Daniznf 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -53,5 +53,5 @@ using System.Windows;
 [assembly: NeutralResourcesLanguage("en")]
 
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.35.20.0")] 
-[assembly: AssemblyFileVersion("0.35.20.0")]
+[assembly: AssemblyVersion("0.35.21.0")]
+[assembly: AssemblyFileVersion("0.35.21.0")]
