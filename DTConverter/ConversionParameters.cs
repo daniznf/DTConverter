@@ -978,13 +978,12 @@ namespace DTConverter
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         PreviewResolution, 0, 0, 0, null, null, null,
                         null, null, AudioEncoders.None, 0, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
-                    ProcessPreviewIn.StartInfo.Arguments += " -y";
+                    ProcessPreviewIn.OutputDataReceived += outputDataReceived;
+                    ProcessPreviewIn.ErrorDataReceived += errorDataReceived;
                     if (ProcessPreviewIn.Start())
                     {
                         ProcessPreviewIn.BeginOutputReadLine();
                         ProcessPreviewIn.BeginErrorReadLine();
-                        ProcessPreviewIn.OutputDataReceived += outputDataReceived;
-                        ProcessPreviewIn.ErrorDataReceived += errorDataReceived;
                         if (!ProcessPreviewIn.HasExited)
                         {
                             ProcessPreviewIn.WaitForExit();
