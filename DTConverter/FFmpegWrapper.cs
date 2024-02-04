@@ -570,10 +570,10 @@ namespace DTConverter
                         //vOptions.Add("-profile baseline";
                         break;
                     case VideoEncoders.Still_JPG:
-                        strvEncoder = "mjpeg -f image2";
+                        strvEncoder = "mjpeg -f image2 -update 1";
                         break;
                     case VideoEncoders.Still_PNG:
-                        strvEncoder = "png -f image2";
+                        strvEncoder = "png -f image2 -update 1";
                         break;
                     case VideoEncoders.JPG_Sequence:
                         strvEncoder = "mjpeg -f image2";
