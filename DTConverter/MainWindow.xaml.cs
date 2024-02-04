@@ -1,6 +1,6 @@
 ﻿/*
-    DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2022 Daniznf
+    DT Converter - Daniele's Tools Video Converter    
+    Copyright (C) 2024 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ using Path = System.IO.Path;
 using System.Diagnostics;
 using System.Threading;
 using System.Configuration;
-using System.Windows.Data;
 using System.Windows.Documents;
 
 namespace DTConverter
@@ -103,7 +102,7 @@ namespace DTConverter
             Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             LblName.Content += " " + v.ToString(2);
 
-            // these bindings are done here, not in XAML, so it's possible to use XAML editor more confortably
+            // these bindings are done here, not in XAML, so it is possible to use the XAML designer more confortably
             ChkEnableCrop.SetBinding(CheckBox.IsCheckedProperty, "CropParams.IsEnabled");
             ChkEnablePadding.SetBinding(CheckBox.IsCheckedProperty, "PaddingParams.IsEnabled");
             ChkEnableSlices.SetBinding(CheckBox.IsCheckedProperty, "SliceParams.IsEnabled");
@@ -113,6 +112,7 @@ namespace DTConverter
             ChkOriginal.SetBinding(CheckBox.VisibilityProperty, "IsChkOriginalVisible");
             ChkOriginal.SetBinding(CheckBox.IsCheckedProperty, "IsChkOriginalChecked");
             ChkEnableAudioRate.SetBinding(CheckBox.IsCheckedProperty, "IsAudioRateEnabled");
+            ChkEnableVolume.SetBinding(CheckBox.IsCheckedProperty, "IsVolumeEnabled");
             ChkEnableChannels.SetBinding(CheckBox.IsCheckedProperty, "IsChannelsEnabled");
             ChkEnableRotation.SetBinding(CheckBox.IsCheckedProperty, "IsRotationEnabled");
 
@@ -331,7 +331,7 @@ namespace DTConverter
                 {
                     Tag = dir
                 };
-
+                
                 if (SearchTvw(Directory.GetParent(dir).FullName, TvwVideos) is TreeViewItem parentDir)
                 {
                     DirectoryInfo dInfo = new DirectoryInfo(dir);

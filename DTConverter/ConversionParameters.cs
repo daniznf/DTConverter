@@ -1,6 +1,6 @@
 ﻿/*
-    DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2022 Daniznf
+    DT Converter - Daniele's Tools Video Converter    
+    Copyright (C) 2024 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace DTConverter
 {
@@ -84,6 +83,7 @@ namespace DTConverter
             IsChannelsEnabled = false;
             Channels = AudioChannels.Stereo;
             SplitChannels = false;
+            VolumeDB = 0;
 
             IsVideoBitrateEnabled = false;
             VideoBitrate = 0;
@@ -146,6 +146,7 @@ namespace DTConverter
             IsChannelsEnabled = copyFrom.IsChannelsEnabled;
             Channels = copyFrom.Channels;
             SplitChannels = copyFrom.SplitChannels;
+            VolumeDB = copyFrom.VolumeDB;
 
             VideoResolutionParams = copyFrom.VideoResolutionParams.Clone();
 
@@ -285,7 +286,10 @@ namespace DTConverter
                     {
                         outPath += $"_{Channels}";
                     }
-
+                    if (IsVolumeEnabled && VolumeDB != 0)
+                    {
+                        outPath += $"_{VolumeDB}db";
+                    }
 
                     string extension;
                     if ((AudioEncoder == AudioEncoders.WAV_16bit) || (AudioEncoder == AudioEncoders.WAV_24bit) || (AudioEncoder == AudioEncoders.WAV_32bit))
@@ -899,6 +903,29 @@ namespace DTConverter
             }
         }
 
+        private bool _IsVolumeEnabled;
+        public bool IsVolumeEnabled
+        {
+            get => _IsVolumeEnabled;
+            set
+            {
+                _IsVolumeEnabled = value;
+                OnPropertyChanged("IsVolumeEnabled");
+                OnPropertyChanged("DestinationAudioPath");
+            }
+        }
+        private int _VolumeDB;
+        public int VolumeDB
+        {
+            get => _VolumeDB;
+            set
+            {
+                _VolumeDB = value;
+                OnPropertyChanged("VolumeDB");
+                OnPropertyChanged("DestinationAudioPath");
+            }
+        }
+
         /// <summary>
         /// Probes all video informations.
         /// This method takes some seconds to execute so it should be run in a separate Thread or Task
@@ -950,7 +977,7 @@ namespace DTConverter
 
                     ProcessPreviewIn = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathIn, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         PreviewResolution, 0, 0, 0, null, null, null,
-                        null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
+                        null, null, AudioEncoders.None, 0, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
                     ProcessPreviewIn.StartInfo.Arguments += " -y";
                     if (ProcessPreviewIn.Start())
                     {
@@ -1026,7 +1053,7 @@ namespace DTConverter
 
                     ProcessPreviewOut = FFmpegWrapper.ConvertVideoAudio(SourcePath, ThumbnailPathOut, PreviewTime, new TimeDuration() { Frames = 1 }, VideoEncoders.Still_JPG,
                         VideoResolutionParams, 0, 0, IsRotationEnabled ? Rotation : 0, CropParams, PaddingParams, SliceParams,
-                        null, null, AudioEncoders.None, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
+                        null, null, AudioEncoders.None, 0, 0, false, AudioChannels.Mono, AudioChannels.Mono, false);
                     ProcessPreviewOut.OutputDataReceived += outputDataReceived;
                     ProcessPreviewOut.ErrorDataReceived += errorDataReceived;
                     if (ProcessPreviewOut.Start())
@@ -1089,7 +1116,8 @@ namespace DTConverter
                             IsOutFramerateEnabled? OutFramerate : 0,
                             IsRotationEnabled? Rotation : 0, CropParams, PaddingParams, SliceParams,
                             SourcePath, DestinationAudioPath, AudioEncoder,
-                            IsAudioRateEnabled ? AudioRate : 0, 
+                            IsAudioRateEnabled ? AudioRate : 0,
+                            IsVolumeEnabled ? VolumeDB : 0,
                             IsChannelsEnabled, SourceInfo != null? SourceInfo.AudioChannels : AudioChannels.Stereo, Channels, SplitChannels);
                         VideoConversionProcess.OutputDataReceived += outputReceived;
                         VideoConversionProcess.ErrorDataReceived += errorReceived;

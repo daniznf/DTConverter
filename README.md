@@ -1,6 +1,6 @@
-# Dani's Tools Video Converter
-DT Converter <br>
-Copyright (C) 2022 Daniznf
+# Daniele's Tools Video Converter
+DTConverter <br>
+Copyright (C) 2024 Daniznf
 
 
 ### What it does:<br>

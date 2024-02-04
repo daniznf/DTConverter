@@ -1,6 +1,6 @@
 ﻿/*
-    DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2022 Daniznf
+    DT Converter - Daniele's Tools Video Converter    
+    Copyright (C) 2024 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -135,20 +135,20 @@ namespace DTConverter
         /// Checks recursively to find fileName in parentDir
         /// </summary>
         /// <param name="fileName">File to search</param>
-        /// <param name="parendDir">Parent in which to search</param>
+        /// <param name="parentDir">Parent in which to search</param>
         /// <returns></returns>
-        private static string FindExePath(string fileName, string parendDir)
+        private static string FindExePath(string fileName, string parentDir)
         {
             string returningPath;
 
-            foreach (string eachFile in Directory.GetFiles(parendDir))
+            foreach (string eachFile in Directory.GetFiles(parentDir))
             {
                 if (fileName.ToLower() == Path.GetFileName(eachFile).ToLower())
                 {
-                    return Path.Combine(parendDir, eachFile);
+                    return Path.Combine(parentDir, eachFile);
                 }
             }
-            foreach (string eachDir in Directory.GetDirectories(parendDir))
+            foreach (string eachDir in Directory.GetDirectories(parentDir))
             {
                 returningPath = FindExePath(fileName, eachDir);
                 if (returningPath != null)
@@ -450,7 +450,7 @@ namespace DTConverter
             Crop crop, Padding padding, Slicer slices,
             string srcAudioPath, string dstAudioPath,
             AudioEncoders audioEncoder,
-            int audioRate,
+            int audioRate, int volumeDB,
             bool isAudioChannelsEnabled, AudioChannels inChannels, AudioChannels outChannels, bool splitChannels)
         {
             if (FFmpegPath == null) { return null; }
@@ -691,15 +691,25 @@ namespace DTConverter
                 // Rotation
                 if (rotation == 90)
                 {
-                    vFilters.Add($"transpose=1 [rotated]");
+                    vFilters.Add($"transpose=clock [rotated]");
                 }
                 else if (rotation == 180)
                 {
-                    vFilters.Add($"transpose=2, transpose=2 [rotated]");
+                    vFilters.Add($"transpose=clock, transpose=clock [rotated]");
                 }
                 else if (rotation == 270)
                 {
-                    vFilters.Add($"transpose=0 [rotated]");
+                    vFilters.Add($"transpose=cclock [rotated]");
+                }
+            }
+            #endregion
+
+            #region Audio Filters
+            if (audioEncoder != AudioEncoders.None)
+            {
+                if (volumeDB != 0)
+                {
+                    aFilters.Add($"volume={volumeDB}dB [volumed]");
                 }
             }
             #endregion
@@ -812,12 +822,12 @@ namespace DTConverter
                             if (inChannels == AudioChannels.Mono)
                             {
                                 aFilters.Add($"asplit=6 {channels51.Aggregate("", AggregateWithSquareBrackets)}");
-                                aFilters.Add($"join=inputs=6:channel_layout=5.1 [aout]");
+                                aFilters.Add($"join=inputs=6:channel_layout=5.1 [channelled]");
                             }
                             else if (inChannels == AudioChannels.Stereo)
                             {
                                 aFilters.Add($"channelsplit=channel_layout=stereo [L][R]");
-                                aFilters.Add($"join=inputs=2:channel_layout=5.1:map=0.0-FL|1.0-FR|0.0-FC|0.0-BL|1.0-BR|1.0-LFE [aout]");
+                                aFilters.Add($"join=inputs=2:channel_layout=5.1:map=0.0-FL|1.0-FR|0.0-FC|0.0-BL|1.0-BR|1.0-LFE [channelled]");
                             }
                             else if (inChannels == AudioChannels.ch_5_1)
                             {
@@ -854,7 +864,7 @@ namespace DTConverter
                     {
                         if (dstAudioPath != null)
                         {
-                            aMaps.Add($"-map \"[aout]\" {straDuration} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");   
+                            aMaps.Add($"-map \"[aout]\" {straDuration} {straArgsOut} {strMetadata} \"{DestinationPath(dstAudioPath, VideoEncoders.None)}\"");   
                         }
                     }
                 }
@@ -987,24 +997,25 @@ namespace DTConverter
 
             if (audioEncoder != AudioEncoders.None)
             {
-                if (aFilters.Count == 0)
+                if (dstVideoPath == dstAudioPath && 
+                    slices != null && slices.IsEnabled &&
+                    (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1) &&
+                    videoEncoder != VideoEncoders.None)
                 {
-                    aFilters.Add("anull [aout]");
-                }
-
-                if (dstVideoPath == dstAudioPath)
-                {
-                    if (slices != null && slices.IsEnabled &&
-                        (slices.HorizontalNumber > 1 || slices.VerticalNumber > 1) &&
-                        videoEncoder != VideoEncoders.None)
+                    for (int r = 1; r <= slices.VerticalNumber; r++)
                     {
-                        for (int r = 1; r <= slices.VerticalNumber; r++)
+                        for (int c = 1; c <= slices.HorizontalNumber; c++)
                         {
-                            for (int c = 1; c <= slices.HorizontalNumber; c++)
-                            {
-                                aSlices.Add($"[asplit_r{r}c{c}] anull [aout_r{r}c{c}]");
-                            }
+                            aSlices.Add($"[asplit_r{r}c{c}] anull [aout_r{r}c{c}]");
                         }
+                    }
+                }
+                else
+                {
+                    if (!splitChannels)
+                    {
+                        // This is needed to complete the graph. Video part uses scale filter to accomplish this
+                        aFilters.Add("anull [aout]");
                     }
                 }
 

@@ -1,6 +1,6 @@
 ﻿<!--
-    DT Converter - Dani's Tools Video Converter    
-    Copyright (C) 2022 Daniznf
+    DT Converter - Daniele's Tools Video Converter    
+    Copyright (C) 2024 Daniznf
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,12 +54,12 @@
                             <Setter Property="Margin" Value="5px"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Name="TxtName" Text="Dani's Tools Video Converter" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    <TextBlock Name="TxtName" Text="Daniele's Tools Video Converter" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <TextBlock >
                         <Hyperlink NavigateUri="https://github.com/daniznf/DTConverter">DTConverter on github</Hyperlink>
                     </TextBlock>
                     <TextBlock>
-                        Copyright (C) 2022 <Hyperlink NavigateUri="https://github.com/daniznf"> Daniznf </Hyperlink>
+                        Copyright (C) 2024 <Hyperlink NavigateUri="https://github.com/daniznf"> Daniznf </Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </StackPanel>
